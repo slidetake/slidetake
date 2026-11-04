@@ -17,15 +17,19 @@ package can notice. Tests, CI and tooling do not belong here.
 - **● Record** is back in the bottom bar, and **R** starts a take straight away:
   the first time it opens Setup; after that it records the slides without a take
   (all of them if none is recorded yet); with every slide done, it records from
-  the slide on screen to the end, so going to a slide and pressing R redoes it. With OBS it records the whole deck,
-  connecting first if OBS is remembered.
+  the slide on screen to the end, so going to a slide and pressing R redoes it.
+  With OBS it records the whole deck, connecting first if OBS is remembered.
 - In Studio, **R** presses its ● Record: the ticked slides, or the whole deck.
-- Each button shows the key that does it, its letter in the accent: Keys, Camera, Record, Fullscreen,
-  Editor and Studio.
+- ● Record is a solid red button, the same in the bottom bar and in Studio.
+- Each button shows the key that does it, its letter in the accent: Keys,
+  Camera, Record, Fullscreen, Editor and Studio.
 
 ### Changed
 
 - **● Studio** opens with **S** (it was R).
+- A take keeps the layout the deck is shown in; Setup's Layout choice for takes
+  is gone. Recording differs from presenting only in its keys: → goes to the
+  next slide, ← takes the current one again.
 - The microphone's Sound is **Voice** (Chrome's noise suppression) by default;
   **Raw** is still there for a good mic in a quiet room. A choice already made
   is kept.

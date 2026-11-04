@@ -392,8 +392,12 @@
   /* the key that does it, its letter in the accent: Keys, Camera, Record, Fullscreen, Editor, Studio */
   u.key{text-decoration:none;color:var(--accent);font-weight:600;}
   /* ● Record looks the same in the bottom bar and in Studio: a red dot, plain text, the R in the accent */
-  #btn-record .rec-dot, #rv-rec .rec-dot{color:#ef4444;}
-  .btn.rec#rv-rec{color:var(--text);}
+  /* ● Record is the one solid red button, the same in the bottom bar and in Studio: white dot and text, its
+     key letter white and bold (the accent would clash on red), darker on hover */
+  #navbar #btn-record, .btn.rec#rv-rec{background:#dc2626;border:1px solid #dc2626;color:#fff;}
+  #navbar #btn-record:hover, .btn.rec#rv-rec:hover:not(:disabled){background:#b91c1c;border-color:#b91c1c;color:#fff;}
+  #btn-record .rec-dot, #rv-rec .rec-dot, #btn-record u.key, #rv-rec u.key{color:#fff;}
+  .btn.rec#rv-rec:disabled{opacity:.5;}
   @media (pointer:coarse){ #btn-record{display:none;} }
   /* phones and tablets can't record */
   @media (pointer:coarse){ #btn-studio{display:none;} }
@@ -1103,14 +1107,6 @@
         </section>
       </div>
       <div class="rv-setup-foot">
-        <label class="rv-setup-label">Layout
-          <select id="rec-layout">
-            <option value="path">Path: short, one-direction moves</option>
-            <option value="focus">Focus: no travel, slides fade in</option>
-            <option value="current">Keep the current layout</option>
-          </select>
-        </label>
-        <span class="rv-setup-note">During a take: → next · ← take this slide again · B pause · Esc stop</span>
         <div class="rv-setup-row rv-files for-browser">
           <span class="rv-setup-label">Files</span>
           <button class="btn small" id="rv-folder-change" title="Where Download saves videos">Download folder…</button>
@@ -4436,8 +4432,6 @@
     if (kind !== "browser") rec.browser = null;
     document.body.classList.add("recording");
     hidePipMsg();
-    const lay = document.getElementById("rec-layout").value;
-    if (lay !== "current" && lay !== layoutMode) setMode(lay, true);
     if (!presenting) setPresent(true);
     cameraForRecording();
     if (beforeId) {

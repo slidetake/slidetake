@@ -2088,8 +2088,7 @@ async function startTake(kind, only){
   if (kind !== 'browser') rec.browser = null;
   document.body.classList.add('recording');
   hidePipMsg();
-  const lay = document.getElementById('rec-layout').value;
-  if (lay !== 'current' && lay !== layoutMode) setMode(lay, true);
+  // a take keeps the layout the deck is shown in: what you see presenting is what's recorded
   if (!presenting) setPresent(true);          // this click allows fullscreen
   cameraForRecording();
   if (beforeId){
