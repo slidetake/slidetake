@@ -1959,9 +1959,9 @@ function openObsTakes(opts = {}){
     withObs:true, outputPath:null, reason:'', total:0, totalObs:null, fps:obsFps, events:[], picks:{}, empty:true}, opts);
 }
 document.getElementById('btn-studio').onclick = ()=>openTakes();
-// ● Record (R): straight into a take, with Studio only when there's a choice to make. The first time, Setup;
-// then the slides without a usable take (new, or outdated by an edit), all of them if none is recorded yet.
-// With every slide done, Studio, where ticked slides are recorded again. OBS records the whole deck.
+// ● Record (R): straight into a take. The first time, Setup; then the slides without a usable take (new, or
+// outdated by an edit), all of them if none is recorded yet; with every slide done, from the slide on screen
+// to the end, so going to a slide and pressing R redoes it. OBS records the whole deck. Studio is for the rest.
 const recordedHere = ()=>!!recMode || loadBoard().takes.length > 0 || loadSessions().some(x=>x.key === sessionKey());
 async function recordNow(){
   if (!RECORDING_UI || rec.active || !order.length) return;
@@ -1969,8 +1969,9 @@ async function recordNow(){
   if (browserRecording().ok && (recMode || 'browser') === 'browser'){
     const rows = boardRows(loadBoard(), boardDeck());
     const missing = rows.filter(r=>!r.pick).map(r=>r.id);
-    if (!missing.length){ openBoard({note:'Every slide has a take. Tick the slides to record again, then ● Record.'}); return; }
-    startTake('browser', missing.length === rows.length ? null : missing);   // no await before it: the click allows the share prompt
+    const at = order.indexOf(currentId);
+    const from = missing.length ? missing : at > 0 ? order.slice(at) : order;
+    startTake('browser', from.length === order.length ? null : from);   // no await before it: the click allows the share prompt
     return;
   }
   if (!obsConnected && load('slidetake:obs')) await connectObs();

@@ -263,7 +263,7 @@ Two modes, both slide by slide, so there's no timeline to edit afterwards. **●
 
 1. **● Record** (R) the first time opens **⚙ Setup**: pick your camera (or **No camera**) and microphone. Recording turns the camera on and off by itself.
 2. **● Record** again, and share **this tab** when the browser asks. Only the 16:9 frame is recorded: slides and camera.
-3. Next time, **● Record** carries on with the slides that have no take yet.
+3. Next time, **● Record** carries on with the slides that have no take yet. When every slide has one, it records from the slide on screen to the end.
 
 For 1080p the frame needs 1920×1080 real pixels (a Retina laptop has them); 1280×720 makes 720p. Smaller: use pro mode.
 

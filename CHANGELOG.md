@@ -16,8 +16,8 @@ package can notice. Tests, CI and tooling do not belong here.
 
 - **● Record** is back in the bottom bar, and **R** starts a take straight away:
   the first time it opens Setup; after that it records the slides without a take
-  (all of them if none is recorded yet), and with every slide done it opens
-  Studio to tick the ones to record again. With OBS it records the whole deck,
+  (all of them if none is recorded yet); with every slide done, it records from
+  the slide on screen to the end, so going to a slide and pressing R redoes it. With OBS it records the whole deck,
   connecting first if OBS is remembered.
 - In Studio, **R** presses its ● Record: the ticked slides, or the whole deck.
 - Each button shows the key that does it, its letter in the accent: Keys, Camera, Record, Fullscreen,

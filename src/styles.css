@@ -350,7 +350,9 @@
   #btn-studio .rec-dot{color:var(--accent);}
   /* the key that does it, its letter in the accent: Keys, Camera, Record, Fullscreen, Editor, Studio */
   u.key{text-decoration:none;color:var(--accent);font-weight:600;}
-  #btn-record .rec-dot{color:#ef4444;}
+  /* ● Record looks the same in the bottom bar and in Studio: a red dot, plain text, the R in the accent */
+  #btn-record .rec-dot, #rv-rec .rec-dot{color:#ef4444;}
+  .btn.rec#rv-rec{color:var(--text);}
   @media (pointer:coarse){ #btn-record{display:none;} }
   /* phones and tablets can't record */
   @media (pointer:coarse){ #btn-studio{display:none;} }
