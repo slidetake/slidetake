@@ -3292,7 +3292,7 @@ window.addEventListener('keydown', e=>{
   const tag = document.activeElement && document.activeElement.tagName;
   if (tag === 'TEXTAREA' || tag === 'INPUT' || e.metaKey || e.ctrlKey || e.altKey) return;
   // the keys card: K or ? again closes it, as O and F undo themselves
-  if (help.classList.contains('open')){ if (/^(Escape|k|K|\?)$/.test(e.key)) help.classList.remove('open'); return; }
+  if (help.classList.contains('open')){ if (/^(Escape|k|K|\?|\/)$/.test(e.key)) help.classList.remove('open'); return; }
   const k = e.key;
   if (k==='ArrowRight' || k===' ' || k==='PageDown'){ e.preventDefault(); step(1); }
   else if (k==='ArrowLeft' || k==='PageUp'){ e.preventDefault(); step(-1); }
@@ -3311,7 +3311,7 @@ window.addEventListener('keydown', e=>{
   else if (k==='l' || k==='L'){ toggleMode(); }
   else if (k==='+' || k==='='){ sizeStep(1); }
   else if (k==='-' || k==='_'){ sizeStep(-1); }
-  else if (k==='?' || k==='k' || k==='K'){ help.classList.add('open'); }
+  else if (k==='?' || k==='/' || k==='k' || k==='K'){ help.classList.add('open'); }   // / is ? without Shift
   else if (k==='Escape'){ if (!backFromOverview() && presenting) setPresent(false); }
 });
 
