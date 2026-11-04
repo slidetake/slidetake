@@ -1943,9 +1943,12 @@ async function showBrowserCheck(){
 function setRecMode(mode){
   recMode = mode;
   save('slidetake:rec-mode', mode);
-  if (reviewDialog.classList.contains('open')) openTakes({setup:true});
+  // Studio behind it shows the other mode's takes; Setup stays open, now for that mode
+  if (reviewDialog.classList.contains('open')) openTakes();
+  openSetup();
 }
-const obsMode = ()=>reviewDialog.classList.contains('obs');
+// pro mode: chosen, or the only way in a browser that can't record itself (Safari, Firefox)
+const obsMode = ()=>!(browserRecording().ok && (recMode || 'browser') === 'browser');
 function openTakes(opts = {}){
   if (!RECORDING_UI) return;
   // a browser that can't record itself (Safari, Firefox) always opens with OBS
@@ -1965,7 +1968,7 @@ document.getElementById('btn-studio').onclick = ()=>openTakes();
 const recordedHere = ()=>!!recMode || loadBoard().takes.length > 0 || loadSessions().some(x=>x.key === sessionKey());
 async function recordNow(){
   if (!RECORDING_UI || rec.active || !order.length) return;
-  if (!recordedHere()){ openTakes({setup:true, note:'Set up once: after this, ● Record (R) starts recording straight away.'}); return; }
+  if (!recordedHere()){ openSetup({note:'Set up once: after this, ● Record (R) starts recording straight away.'}); return; }
   if (browserRecording().ok && (recMode || 'browser') === 'browser'){
     const rows = boardRows(loadBoard(), boardDeck());
     const missing = rows.filter(r=>!r.pick).map(r=>r.id);
@@ -1976,7 +1979,7 @@ async function recordNow(){
   }
   if (!obsConnected && load('slidetake:obs')) await connectObs();
   if (obsConnected){ startTake('obs'); return; }
-  openTakes({setup:true, note:'Connect to OBS first: Setup → OBS → Connect.'});
+  openSetup({note:'Connect to OBS first: OBS → Connect.'});
 }
 document.getElementById('btn-record').onclick = ()=>recordNow();
 
@@ -2420,8 +2423,7 @@ function openReview(sess, opts = {}){
   resetPreview();
   renderReview();
   openModal(reviewDialog);
-  setupEl.open = !!opts.setup || !obsConnected || !!sess.empty;
-  if (setupEl.open) refreshSetup(); else fillDevices(false).then(setupSummary);
+  if (opts.setup) openSetup(opts); else fillDevices(false).then(setupSummary);
   say(opts.note || (sess.empty ? (obsConnected ? 'Press ● Record: OBS records the deck.' : 'Connect to OBS in Setup, then press ● Record.')
     : about + (rvVideo.src ? 'Click a take to preview it.' : 'Open the recording to preview it.')));
   if (!sess.empty) autoLoadRecording(sess);
@@ -2871,13 +2873,36 @@ function boardReview(){
     deckTitle:deck.title || (order[0] ? nodes.get(order[0]).title : 'Deck'), date:new Date().toISOString()});
   return {rows, sess};
 }
-const setupEl = document.getElementById('rv-setup');
+// Setup is its own dialog: camera, microphone, sound, video, OBS and files, saved as they're chosen. It opens
+// on top of Studio (⚙ Setup), or alone the first time ● Record is pressed, with ● Record of its own to start.
+const setupDialog = document.getElementById('setup-dialog');
 const setupBtn = document.getElementById('rv-setup-btn');
-setupEl.addEventListener('toggle', ()=>{
-  setupBtn.setAttribute('aria-expanded', String(setupEl.open));
-  if (setupEl.open) refreshSetup(); else stopMeter();
-});
-setupBtn.onclick = ()=>{ setupEl.open = !setupEl.open; };
+const setupNote = document.getElementById('setup-note');
+// the setup shown is the mode's: easy mode's microphone and video, or pro mode's OBS
+const syncSetupMode = ()=>setupDialog.classList.toggle('obs', obsMode());
+function openSetup(opts = {}){
+  syncSetupMode();
+  setupNote.textContent = opts.note || '';
+  setupNote.hidden = !opts.note;
+  openModal(setupDialog);
+  setupBtn.setAttribute('aria-expanded', 'true');
+  refreshSetup();
+}
+// closing it (✕, Done, a click outside, Esc) stops the level meter and updates Studio's summary line
+new MutationObserver(()=>{
+  if (setupDialog.classList.contains('open')) return;
+  setupBtn.setAttribute('aria-expanded', 'false');
+  stopMeter();
+  setupSummary();
+}).observe(setupDialog, {attributes:true, attributeFilter:['class']});
+setupBtn.onclick = ()=>openSetup();
+document.getElementById('setup-record').onclick = ()=>{
+  setupDialog.classList.remove('open');
+  closeModals();
+  // choosing here settles the mode, so ● Record (R) goes straight to a take from now on
+  if (!recMode){ recMode = obsMode() ? 'obs' : 'browser'; save('slidetake:rec-mode', recMode); }
+  recordNow();
+};
 reviewDialog.addEventListener('click', e=>{ if (e.target === reviewDialog || e.target.closest('[data-close]')) stopMeter(); });
 function refreshSetup(){
   if (obsMode()){ showScreenAdvice(); fillDevices(false).then(setupSummary); return; }
@@ -2919,9 +2944,7 @@ function openBoard(opts = {}){
   lastTicked = -1;
   renderBoard();
   openModal(reviewDialog);
-  const ready = browserRecording().ok;
-  setupEl.open = !!opts.setup || !ready || !board.takes.length;
-  if (setupEl.open) refreshSetup(); else showBrowserCheck().then(()=>fillDevices(false)).then(setupSummary);
+  if (opts.setup || !browserRecording().ok) openSetup(opts); else showBrowserCheck().then(()=>fillDevices(false)).then(setupSummary);
   say(opts.note || selNote() || (board.takes.length ? boardState() + '. Click a take to preview it.' : order.length + ' slides, nothing recorded yet. Press ● Record.'));
 }
 // how far the video is: slides with a take to use, and those to record again
@@ -2973,8 +2996,7 @@ function renderBoard(){
 document.getElementById('rv-rec').onclick = ()=>{
   if (!obsMode()){ startTake('browser', selectedInOrder(order, selected)); return; }
   if (obsConnected){ startTake('obs'); return; }
-  setupEl.open = true;
-  say('Connect to OBS first: Setup → OBS → Connect.', {warn:true});
+  openSetup({note:'Connect to OBS first: OBS → Connect.'});
 };
 document.getElementById('rv-use-obs').onclick = ()=>setRecMode('obs');
 document.getElementById('rv-use-browser').onclick = ()=>setRecMode('browser');
@@ -3280,11 +3302,12 @@ window.addEventListener('keydown', e=>{
   if (e.key === 'F5'){ e.preventDefault(); if (!rec.active) openTakes(); return; }
   if (rec.active){ takeKey(e); return; }
   if (document.querySelector('.modal.open')){
-    if (e.key === 'Escape') closeModals();
-    // in Studio, R presses its ● Record (the ticked slides, or the whole deck), unless typing in a field
-    else if ((e.key === 'r' || e.key === 'R') && reviewDialog.classList.contains('open') && !e.metaKey && !e.ctrlKey && !e.altKey
+    const setupOpen = setupDialog.classList.contains('open');
+    if (e.key === 'Escape'){ if (setupOpen) setupDialog.classList.remove('open'); else closeModals(); }
+    // R presses ● Record: Setup's, or Studio's (the ticked slides, or the whole deck); not while typing in a field
+    else if ((e.key === 'r' || e.key === 'R') && (setupOpen || reviewDialog.classList.contains('open')) && !e.metaKey && !e.ctrlKey && !e.altKey
       && !/^(INPUT|TEXTAREA|SELECT)$/.test(document.activeElement?.tagName || '')){
-      const btn = document.getElementById('rv-rec');
+      const btn = document.getElementById(setupOpen ? 'setup-record' : 'rv-rec');
       if (!btn.disabled) btn.click();
     }
     return;

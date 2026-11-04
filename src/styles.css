@@ -353,10 +353,11 @@
   /* ● Record looks the same in the bottom bar and in Studio: a red dot, plain text, the R in the accent */
   /* ● Record looks the same in the bottom bar and in Studio: like the buttons beside it, with a red dot and
      its R in the accent; on hover it fills red, dot, text and R in white */
-  #btn-record .rec-dot, #rv-rec .rec-dot{color:#ef4444;}
-  .btn.rec#rv-rec{color:var(--text);}
-  #navbar #btn-record:hover, .btn.rec#rv-rec:hover:not(:disabled){background:#dc2626;border-color:#dc2626;color:#fff;}
-  #btn-record:hover .rec-dot, #btn-record:hover u.key, #rv-rec:hover:not(:disabled) .rec-dot, #rv-rec:hover:not(:disabled) u.key{color:#fff;}
+  #btn-record .rec-dot, #rv-rec .rec-dot, #setup-record .rec-dot{color:#ef4444;}
+  .btn.rec#rv-rec, .btn.rec#setup-record{color:var(--text);}
+  #navbar #btn-record:hover, .btn.rec#rv-rec:hover:not(:disabled), .btn.rec#setup-record:hover{background:#dc2626;border-color:#dc2626;color:#fff;}
+  #btn-record:hover .rec-dot, #btn-record:hover u.key, #rv-rec:hover:not(:disabled) .rec-dot, #rv-rec:hover:not(:disabled) u.key,
+  #setup-record:hover .rec-dot, #setup-record:hover u.key{color:#fff;}
   @media (pointer:coarse){ #btn-record{display:none;} }
   /* phones and tablets can't record */
   @media (pointer:coarse){ #btn-studio{display:none;} }
@@ -375,7 +376,7 @@
   body.rec-frame #stage-wrap{flex:none;margin:auto;width:min(100%, calc(100vh * 16 / 9));aspect-ratio:16/9;isolation:isolate;}
   #review.in-browser #rv-novideo{display:none !important;}
   /* the takes screen records in this browser, or with OBS: each mode's own controls */
-  #review.obs .for-browser, #review:not(.obs) .for-obs{display:none !important;}
+  #review.obs .for-browser, #review:not(.obs) .for-obs, #setup-dialog.obs .for-browser, #setup-dialog:not(.obs) .for-obs{display:none !important;}
   #rec-countdown{
     position:fixed;inset:0;z-index:70;display:none;align-items:center;justify-content:center;flex-direction:column;gap:14px;
     background:rgba(4,7,13,.9);font-family:var(--display);color:var(--accent);
@@ -413,9 +414,12 @@
   .rv-none{font-size:12px;color:var(--text-muted);font-style:italic;}
   /* Recording setup: opened from the ⚙ Setup button at the top right, shown under the title */
   .modal .rv-setup-btn[aria-expanded="true"]{border-color:var(--accent);color:var(--accent);background:color-mix(in srgb, var(--accent) 10%, transparent);}
-  #rv-setup{margin:12px 0 12px;border:1px solid var(--panel-line);border-radius:8px;padding:10px 14px;}
-  #rv-setup > summary{display:none;}
-  #rv-setup:not([open]){display:none;}
+  /* Setup, its own dialog: on top of Studio, or alone the first time ● Record is pressed */
+  .modal .panel.setup-panel{width:min(1120px,100%);max-height:94vh;overflow:auto;}
+  #setup-dialog h2{margin:0 0 6px;}
+  .setup-note{margin:0 0 10px;font-size:13px;color:var(--accent);}
+  #rv-setup{margin:8px 0 0;}
+  .setup-actions{display:flex;justify-content:flex-end;gap:8px;margin-top:16px;padding-top:12px;border-top:1px solid var(--panel-line);}
   #review h2.rv-brand{display:flex;align-items:center;gap:8px;color:var(--text);}
   #review h2.rv-brand .logo{width:22px;height:22px;fill:var(--accent);flex:none;}
   #review h2.rv-brand .word > span{color:var(--accent);}

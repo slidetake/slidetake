@@ -27,6 +27,10 @@ package can notice. Tests, CI and tooling do not belong here.
 ### Changed
 
 - **● Studio** opens with **S** (it was R).
+- **⚙ Setup** is its own dialog: camera, microphone, sound, video, OBS and
+  files, saved as they're chosen. The first ● Record opens it alone, with its
+  own ● Record to start; Studio's ⚙ Setup opens it on top, and closing it goes
+  back to Studio, which is now just for recording and picking takes (#26).
 - **/** opens the keys panel too, as **?** does, without Shift. The panel also
   lists Home and End, a clicker's PgDn and PgUp, = for +, and the keys while
   recording (← take again, B pause, Esc stop).

@@ -194,12 +194,46 @@
   <div class="panel xwide">
     <div class="panel-actions">
       <span class="rv-using" id="rv-using"></span>
-      <button class="btn rv-setup-btn" id="rv-setup-btn" aria-expanded="false" aria-controls="rv-setup">⚙ Setup</button>
+      <button class="btn rv-setup-btn" id="rv-setup-btn" aria-expanded="false" aria-controls="setup-dialog">⚙ Setup</button>
       <button class="btn close" data-close>✕ Close</button>
     </div>
     <h2 id="rv-title" class="rv-brand"><svg class="logo" viewBox="0 0 64 64" aria-hidden="true"><path d="M 10 8 H 38 C 41.3 8 44 10.7 44 14 V 18 H 22 C 16.5 18 12 22.5 12 28 V 36 H 10 C 6.7 36 4 33.3 4 30 V 14 C 4 10.7 6.7 8 10 8 Z" opacity="0.4"/><path fill-rule="evenodd" d="M 22 22 H 54 C 57.3 22 60 24.7 60 28 V 50 C 60 53.3 57.3 56 54 56 H 22 C 18.7 56 16 53.3 16 50 V 28 C 16 24.7 18.7 22 22 22 Z M 26 34 C 28.2 34 30 32.2 30 30 C 30 27.8 28.2 26 26 26 C 23.8 26 22 27.8 22 30 C 22 32.2 23.8 34 26 34 Z M 38 40 C 36.9 40 36 40.9 36 42 V 48 C 36 49.1 36.9 50 38 50 H 50 C 51.1 50 52 49.1 52 48 V 42 C 52 40.9 51.1 40 50 40 H 38 Z"/></svg><span class="word">Slide<span>take</span></span> Studio</h2>
-    <details id="rv-setup">
-      <summary>Recording setup</summary>
+    <div class="rv-grid">
+      <div>
+        <div class="rv-video">
+          <video id="rv-video" controls playsinline preload="metadata"></video>
+          <div id="rv-novideo">
+            <div class="row" style="justify-content:center;margin:0">
+              <button class="btn primary" id="rv-open">Open the recording file…</button>
+              <button class="btn" id="rv-folder" hidden>Use my OBS recordings folder…</button>
+            </div>
+            <p>Pick the file OBS saved<span id="rv-file"></span> (.mov, .mp4 or .mkv) to preview takes. Or choose your OBS recordings folder once, and later takes load by themselves.</p>
+          </div>
+        </div>
+        <div class="rv-bar">
+          <button class="btn rec" id="rv-rec" title="Records the whole deck, or only the ticked slides (shift-click ticks a range) (R)"><span class="rec-dot" aria-hidden="true">●</span> <span><u class="key">R</u>ecord</span></button>
+          <span id="rv-now"></span>
+          <button class="btn rv-preview" id="rv-play-final" title="Plays the picked takes back to back">▶ Preview</button>
+        </div>
+      </div>
+      <div class="rv-list" id="rv-list"></div>
+      <div class="rv-dl">
+        <button class="btn" id="rv-chapters" title="Copies the chapters, to paste into the YouTube description">⧉ Chapters</button>
+        <span class="rv-final" id="rv-final"></span>
+        <button class="btn for-browser" id="rv-render-btn" title="Saves the video: the picked takes joined into one file">↓ Download</button>
+        <button class="btn for-obs" id="rv-ffmpeg-copy" title="Copies the ffmpeg command that cuts the picked takes from the OBS file">⧉ ffmpeg</button>
+      </div>
+    </div>
+  </div>
+</div>
+<input type="file" id="rv-file-input" accept="video/*,video/quicktime,.mov,.mp4,.m4v,.mkv,.webm" hidden>
+
+<div id="setup-dialog" class="modal" role="dialog" aria-labelledby="setup-title">
+  <div class="panel setup-panel">
+    <div class="panel-actions"><button class="btn small close" data-close>✕ Close</button></div>
+    <h2 id="setup-title">⚙ Setup</h2>
+    <p class="setup-note" id="setup-note" hidden></p>
+    <div id="rv-setup">
       <div class="rv-setup-head">
         <h4 class="for-browser">Easy mode: record in <span class="browser-name">this browser</span></h4><h4 class="for-obs">Pro mode: record with OBS</h4>
         <button class="btn small for-browser" id="rv-use-obs" title="Record with OBS instead of in this browser">Use pro mode (OBS)</button>
@@ -277,37 +311,13 @@
         </div>
       </div>
       <p class="rv-setup-note for-browser">When Chrome asks, share <strong>this tab</strong>. Only the slides and your camera are recorded, in a 16:9 frame; nothing else on the screen is.</p>
-    </details>
-    <div class="rv-grid">
-      <div>
-        <div class="rv-video">
-          <video id="rv-video" controls playsinline preload="metadata"></video>
-          <div id="rv-novideo">
-            <div class="row" style="justify-content:center;margin:0">
-              <button class="btn primary" id="rv-open">Open the recording file…</button>
-              <button class="btn" id="rv-folder" hidden>Use my OBS recordings folder…</button>
-            </div>
-            <p>Pick the file OBS saved<span id="rv-file"></span> (.mov, .mp4 or .mkv) to preview takes. Or choose your OBS recordings folder once, and later takes load by themselves.</p>
-          </div>
-        </div>
-        <div class="rv-bar">
-          <button class="btn rec" id="rv-rec" title="Records the whole deck, or only the ticked slides (shift-click ticks a range) (R)"><span class="rec-dot" aria-hidden="true">●</span> <span><u class="key">R</u>ecord</span></button>
-          <span id="rv-now"></span>
-          <button class="btn rv-preview" id="rv-play-final" title="Plays the picked takes back to back">▶ Preview</button>
-        </div>
-      </div>
-      <div class="rv-list" id="rv-list"></div>
-      <div class="rv-dl">
-        <button class="btn" id="rv-chapters" title="Copies the chapters, to paste into the YouTube description">⧉ Chapters</button>
-        <span class="rv-final" id="rv-final"></span>
-        <button class="btn for-browser" id="rv-render-btn" title="Saves the video: the picked takes joined into one file">↓ Download</button>
-        <button class="btn for-obs" id="rv-ffmpeg-copy" title="Copies the ffmpeg command that cuts the picked takes from the OBS file">⧉ ffmpeg</button>
-      </div>
+    </div>
+    <div class="setup-actions">
+      <button class="btn" data-close>Done</button>
+      <button class="btn rec" id="setup-record" title="Start recording (R)"><span class="rec-dot" aria-hidden="true">●</span> <span><u class="key">R</u>ecord</span></button>
     </div>
   </div>
 </div>
-<input type="file" id="rv-file-input" accept="video/*,video/quicktime,.mov,.mp4,.m4v,.mkv,.webm" hidden>
-
 <div id="rec-countdown"><div class="num"></div><div class="hint">recording starts after the countdown · Esc to cancel</div></div>
 <div id="rec-paused">Paused · press B to resume</div>
 
