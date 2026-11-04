@@ -1959,6 +1959,25 @@ function openObsTakes(opts = {}){
     withObs:true, outputPath:null, reason:'', total:0, totalObs:null, fps:obsFps, events:[], picks:{}, empty:true}, opts);
 }
 document.getElementById('btn-studio').onclick = ()=>openTakes();
+// ● Record (R): straight into a take, with Studio only when there's a choice to make. The first time, Setup;
+// then the slides without a usable take (new, or outdated by an edit), all of them if none is recorded yet.
+// With every slide done, Studio, where ticked slides are recorded again. OBS records the whole deck.
+const recordedHere = ()=>!!recMode || loadBoard().takes.length > 0 || loadSessions().some(x=>x.key === sessionKey());
+async function recordNow(){
+  if (!RECORDING_UI || rec.active || !order.length) return;
+  if (!recordedHere()){ openTakes({setup:true, note:'Set up once: after this, ● Record (R) starts recording straight away.'}); return; }
+  if (browserRecording().ok && (recMode || 'browser') === 'browser'){
+    const rows = boardRows(loadBoard(), boardDeck());
+    const missing = rows.filter(r=>!r.pick).map(r=>r.id);
+    if (!missing.length){ openBoard({note:'Every slide has a take. Tick the slides to record again, then ● Record.'}); return; }
+    startTake('browser', missing.length === rows.length ? null : missing);   // no await before it: the click allows the share prompt
+    return;
+  }
+  if (!obsConnected && load('slidetake:obs')) await connectObs();
+  if (obsConnected){ startTake('obs'); return; }
+  openTakes({setup:true, note:'Connect to OBS first: Setup → OBS → Connect.'});
+}
+document.getElementById('btn-record').onclick = ()=>recordNow();
 
 // the takes of each session live in the browser's private storage, in a folder named after the session
 async function takesDir(id, create){
@@ -2046,6 +2065,8 @@ async function startTake(kind, only){
   if (rec.active || !order.length) return;
   const withObs = kind === 'obs';
   stopMeter();
+  // recording once settles the mode, so ● Record (R) goes straight to a take from then on
+  if (!recMode){ recMode = withObs ? 'obs' : 'browser'; save('slidetake:rec-mode', recMode); }
   if (kind === 'browser'){
     if (!presenting) setPresent(true);        // fullscreen first, while the click still counts
     try { await beginBrowserCapture(); }
@@ -3205,7 +3226,7 @@ const CAMERA_ICON = '<svg width="16" height="16" viewBox="0 0 24 24" fill="none"
 /** a bottom-bar button that is on: in the accent @param {HTMLElement} btn @param {boolean} on */
 function lightUp(btn, on){ btn.classList.toggle('on', on); btn.setAttribute('aria-pressed', String(on)); }
 function updateCamBtn(){
-  if (!camBtn.querySelector('svg')) camBtn.innerHTML = CAMERA_ICON + '<span class="lbl"> Camera</span>';
+  if (!camBtn.querySelector('svg')) camBtn.innerHTML = CAMERA_ICON + '<span class="lbl"> <u class="key">C</u>amera</span>';
   camBtn.classList.toggle('on', !cameraOff);
   camBtn.setAttribute('aria-pressed', String(!cameraOff));
   camBtn.title = cameraOff ? 'Camera is off for every slide (C)' : 'Camera is on and follows the deck (C)';
@@ -3273,7 +3294,8 @@ window.addEventListener('keydown', e=>{
   else if (k==='o' || k==='O'){ overview(); }
   else if (k==='e' || k==='E'){ toggleEditor(); }
   else if (k==='f' || k==='F' || k==='p' || k==='P'){ setPresent(!presenting); }
-  else if (k==='r' || k==='R'){ openTakes(); }
+  else if (k==='r' || k==='R'){ recordNow(); }
+  else if (k==='s' || k==='S'){ openTakes(); }
   else if (/^[1-4]$/.test(k)){ setMode(LAYOUTS[+k - 1]); }
   else if (k==='c' || k==='C'){ setCameraEnabled(cameraOff); }
   else if (k==='v' || k==='V'){ cycleCamera(); }

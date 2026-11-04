@@ -239,7 +239,7 @@ One line, `accent: "#3b82f6"`, gives a deck its own colour, shaded for dark and 
 </svg>
 ```
 
-Press **● Studio**, then **<span class="st-rec">● Record</span>**. **Every slide is a take:** stumbled? Press ← and say it again. Every attempt is kept, and recording carries on.
+Press **<span class="st-rec">● Record</span>** (R). **Every slide is a take:** stumbled? Press ← and say it again. Every attempt is kept, and recording carries on.
 
 ## ✂️ Edit by picking the best take
 

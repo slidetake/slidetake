@@ -174,7 +174,8 @@ Click a card to fly to it. Drag to pan; scroll or pinch to zoom. On a touch scre
 | 1 2 3 4 | focus, path, radial, tree |
 | + − | bigger / smaller slides (remembered) |
 | E · L | editor · light / dark |
-| C · V · R | camera · camera layouts · Studio (record) |
+| C · V | camera · camera layouts |
+| R · S | record · Studio |
 
 ### Layouts
 
@@ -200,7 +201,7 @@ With `duration: 10m` (or `90s`, `1h`, `12:30`), a lighter layer of the same colo
 
 ## 4️⃣ Record a video
 
-Two modes, both slide by slide, so there's no timeline to edit afterwards. **● Studio** (beside ✎ Editor, or **R**) opens **Slidetake Studio** in the mode you used last; ⚙ Setup switches between them.
+Two modes, both slide by slide, so there's no timeline to edit afterwards. **● Record** in the bottom bar (or **R**) starts a take: the first time it opens Setup, then it records the slides without a take. **● Studio** (or **S**) is for picking takes and redoing slides; its ⚙ Setup switches between the modes.
 
 ```svg
 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 960 330" font-family="IBM Plex Sans, system-ui, sans-serif">
@@ -260,10 +261,9 @@ Two modes, both slide by slide, so there's no timeline to edit afterwards. **●
 
 ### Easy mode: record in the browser
 
-**● Studio** shows every slide of the deck, with every take of it from every recording.
-
-1. **⚙ Setup**, the first time: pick your camera (or **No camera**) and microphone. ● Record turns the camera on and off by itself.
-2. **● Record**, and share **this tab** when the browser asks. Only the 16:9 frame is recorded: slides and camera.
+1. **● Record** (R) the first time opens **⚙ Setup**: pick your camera (or **No camera**) and microphone. Recording turns the camera on and off by itself.
+2. **● Record** again, and share **this tab** when the browser asks. Only the 16:9 frame is recorded: slides and camera.
+3. Next time, **● Record** carries on with the slides that have no take yet.
 
 For 1080p the frame needs 1920×1080 real pixels (a Retina laptop has them); 1280×720 makes 720p. Smaller: use pro mode.
 
@@ -343,7 +343,7 @@ Words you can combine: `on`, `off`, `full`, a size like `30%`, a corner, `flip`,
 
 ### Take by take
 
-**● Record** counts down and starts. From then on → drives everything: slides, reveals and camera moves (a Bluetooth clicker works).
+**● Record** (R) counts down and starts. From then on → drives everything: slides, reveals and camera moves (a Bluetooth clicker works).
 
 - **←** takes the slide again. The deck goes back and replays the slide's entry, so whichever take you pick joins smoothly
 - **B** (or **.**, a clicker's blank-screen key) pauses and resumes

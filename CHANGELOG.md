@@ -12,6 +12,20 @@ package can notice. Tests, CI and tooling do not belong here.
 
 ## [Unreleased]
 
+### Added
+
+- **● Record** is back in the bottom bar, and **R** starts a take straight away:
+  the first time it opens Setup; after that it records the slides without a take
+  (all of them if none is recorded yet), and with every slide done it opens
+  Studio to tick the ones to record again. With OBS it records the whole deck,
+  connecting first if OBS is remembered.
+- Each button underlines the key that does it: Keys, Camera, Record, Fullscreen,
+  Editor and Studio.
+
+### Changed
+
+- **● Studio** opens with **S** (it was R).
+
 ## [0.4.4] - 2026-10-31
 
 ### Added
