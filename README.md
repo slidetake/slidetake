@@ -59,7 +59,7 @@ For AI tools: the guide is plain markdown at [slidetake.com/docs.md](https://sli
 
 ## Recording
 
-The bottom bar has **Keys** (K), **Camera** (C), **● Record** (R) and **Fullscreen** (F); each button underlines its key. **● Record** starts a take straight away: the first time it opens Setup, then it records the slides without a take. **● Studio** (S), beside ✎ Editor in the header, is for picking takes, redoing slides and downloading the video. The camera is off until someone turns it on, and until then the deck's camera settings are ignored, so the same deck works for readers.
+The bottom bar has **Keys** (K), **Camera** (C), **● Record** (R) and **Fullscreen** (F); each button shows its key's letter in the accent. **● Record** starts a take straight away: the first time it opens Setup, then it records the slides without a take. **● Studio** (S), beside ✎ Editor in the header, is for picking takes, redoing slides and downloading the video. The camera is off until someone turns it on, and until then the deck's camera settings are ignored, so the same deck works for readers.
 
 For OBS, Studio's ⚙ Setup asks where OBS is, or fill it in from the address (the same format the reveal.js slides use):
 

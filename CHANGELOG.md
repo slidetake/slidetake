@@ -19,7 +19,7 @@ package can notice. Tests, CI and tooling do not belong here.
   (all of them if none is recorded yet), and with every slide done it opens
   Studio to tick the ones to record again. With OBS it records the whole deck,
   connecting first if OBS is remembered.
-- Each button underlines the key that does it: Keys, Camera, Record, Fullscreen,
+- Each button shows the key that does it, its letter in the accent: Keys, Camera, Record, Fullscreen,
   Editor and Studio.
 
 ### Changed
