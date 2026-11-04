@@ -27,6 +27,10 @@ package can notice. Tests, CI and tooling do not belong here.
   `camera:` list, or as the deck's default (`pip: behind`). Both recording modes
   record it (#27).
 - Setup shows the chosen camera live, and the microphone as a live waveform.
+- Studio's header: **Slidetake Studio**, **Pro** in pro mode and **/ Settings**
+  in its setup view, with the size beside it and the camera and microphone on
+  the right. A **Pro** toggle beside ⚙ Setup switches to OBS and back (always on
+  in browsers that can't record themselves).
 - Each button shows the key that does it, its letter in the accent: Keys,
   Camera, Record, Fullscreen, Editor and Studio.
 

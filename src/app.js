@@ -1983,8 +1983,8 @@ async function showBrowserCheck(){
 function setRecMode(mode){
   recMode = mode;
   save('slidetake:rec-mode', mode);
-  // Studio switches to the other mode's takes, and stays on Setup, now for that mode
-  openTakes({setup:true});
+  // Studio switches to the other mode's takes, on the view it was showing (Studio, or its Setup)
+  openTakes({setup:inSetup()});
 }
 // pro mode: chosen, or the only way in a browser that can't record itself (Safari, Firefox)
 const obsMode = ()=>!(browserRecording().ok && (recMode || 'browser') === 'browser');
@@ -2448,7 +2448,6 @@ function openReview(sess, opts = {}){
   const recBtn = document.getElementById('rv-rec');
   recBtn.title = 'Records the deck with OBS: a new video in place of this one';
   recBtn.disabled = false;   // OBS records, whatever this browser can do (the board turns it off where it can't)
-  document.getElementById('rv-use-browser').style.display = browserRecording().ok ? '' : 'none';
   document.getElementById('rv-render-btn').disabled = document.getElementById('rv-clean').disabled = !!sess.cleaned;
   document.getElementById('rv-file').textContent = sess.outputPath ? ' (' + baseName(sess.outputPath) + ')' : '';
   // pick the listed rate nearest to the take's (OBS reports e.g. 60000/1001 for 59.94)
@@ -2932,7 +2931,7 @@ function showStudio(){
   // only when it's there: the observer below watches these classes, and a no-op change would wake it again
   if (was) reviewDialog.classList.remove('setup-view');
   setupBtn.textContent = '⚙ Setup';
-  setupBtn.title = 'Camera, microphone, video, OBS and files';
+  setupBtn.title = 'Settings: camera, microphone, video, OBS and files';
   setupBtn.setAttribute('aria-expanded', 'false');
   if (was){ stopMeter(); setupSummary(); }
 }
@@ -2973,11 +2972,17 @@ document.querySelectorAll('.browser-name').forEach(el=>{ el.textContent = browse
 function setupSummary(){
   const name = /** @param {HTMLSelectElement} sel */ sel=>{ const o = sel.selectedOptions[0]; return o ? o.textContent.replace(/ \(system default\)$/, '') : ''; };
   const cam = name(recCam) || (camChoice() === 'none' ? 'No camera' : 'Camera');
-  const parts = obsMode() ? ['Pro', 'OBS', obsSize, cam].filter(Boolean)
-    : browserRecording().ok ? ['Easy', browserName, recQuality.value, cam, name(recMic) || 'Microphone'].filter(Boolean) : ['Easy', browserName + ' can’t record here'];
+  // the header: Slidetake Studio (Pro), the size beside it; the camera and microphone on the right
+  const pro = obsMode(), size = pro ? obsSize : browserRecording().ok ? recQuality.value : '';
+  const parts = pro ? [cam] : [cam, name(recMic) || 'Microphone'];
   const el = document.getElementById('rv-using');
   el.textContent = parts.join(' · ');
-  el.title = setupBtn.title = 'Recording with ' + parts.join(' · ');
+  el.title = 'Recording with ' + parts.join(' · ');
+  document.getElementById('rv-size').textContent = size || '';
+  proBtn.classList.toggle('on', pro);
+  proBtn.setAttribute('aria-pressed', String(pro));
+  proBtn.disabled = !browserRecording().ok;
+  proBtn.title = proBtn.disabled ? browserName + ' records only with OBS: pro mode' : pro ? 'Pro mode: recording with OBS. Click for easy mode, in ' + browserName : 'Easy mode: recording in ' + browserName + '. Click for pro mode, with OBS';
 }
 function openBoard(opts = {}){
   if (!RECORDING_UI) return;
@@ -3047,8 +3052,9 @@ document.getElementById('rv-rec').onclick = ()=>{
   if (obsConnected){ startTake('obs'); return; }
   openSetup({note:'Connect to OBS first: OBS → Connect.'});
 };
-document.getElementById('rv-use-obs').onclick = ()=>setRecMode('obs');
-document.getElementById('rv-use-browser').onclick = ()=>setRecMode('browser');
+// Pro: record with OBS, toggled in Studio's header; always on where the browser can't record itself
+const proBtn = document.getElementById('rv-pro');
+proBtn.onclick = ()=>{ if (browserRecording().ok) setRecMode(obsMode() ? 'browser' : 'obs'); };
 // deleting takes: the ones no slide plays, or all of them
 async function deleteClips(takes){
   for (const t of takes){

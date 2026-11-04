@@ -288,10 +288,10 @@ Each take is a file in this browser's private storage until you purge it, in ⚙
 ### Pro mode: set up OBS
 
 1. In OBS: Tools → WebSocket Server Settings, turn it on.
-2. In **⚙ Setup** (the first **● Record** opens it, or ⚙ Setup in Studio): **Use pro mode (OBS)**, enter host, port and password, then **Connect**. Tick *Remember*.
+2. In Studio, turn on **Pro** (top right), then in **⚙ Setup** enter OBS's host, port and password, and **Connect**. Tick *Remember*.
 3. Present on a 16:9 screen, physical or virtual (say 1920×1080). Setup checks it.
 
-Studio opens in the mode you used last. The line beside ⚙ Setup shows what a take uses: `Pro · OBS · 1080p · camera`.
+Studio opens in the mode you used last: its title says **Slidetake Studio Pro** in pro mode, with the size (`1080p`) beside it, and the camera and microphone a take uses on the right.
 
 ### A 16:9 screen
 
