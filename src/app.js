@@ -296,6 +296,8 @@ function computePipState(){
     mirror: !/^(no|false|off)$/i.test(deck.pip_mirror || ''),
     full: false, off: false, flip: false, used: false
   };
+  // pip: behind sets the deck's default to the camera under the slides
+  if (st.corner === 'behind' || st.corner === 'under'){ st.corner = 'bottom-right'; applyPreset(st, 'behind'); }
   applyPreset(st, slideCameraPreset());
   // a layout picked with V shows the camera unless it is "off" itself, even on a slide that turns it off
   if (camManual && !/\b(off|hide)\b/i.test(camManual)) st.off = false;
@@ -311,10 +313,12 @@ function applyPipState(){
   const st = pipState = computePipState();
   const valid = CORNERS.includes(st.corner);
   // (a message showing in the box keeps its class through a re-layout: fullscreen, resizing, a new slide)
-  pipEl.className = valid ? [st.corner, st.circle && 'circle', cameraStream && 'live', st.mirror && 'mirror', st.full && 'full', pipEl.classList.contains('msg') && 'msg'].filter(Boolean).join(' ') : '';
+  pipEl.className = valid ? [st.corner, st.circle && 'circle', cameraStream && 'live', st.mirror && 'mirror', st.full && 'full', st.behind && 'behind', pipEl.classList.contains('msg') && 'msg'].filter(Boolean).join(' ') : '';
   pipEl.style.width = st.size + '%';
   pipEl.hidden = !valid || cameraOff || st.off;
   stageWrap.dataset.pip = pipEl.hidden || st.full ? 'none' : st.corner;
+  // behind: the camera fills the frame under the slides, so the stage's own background steps aside
+  stageWrap.classList.toggle('cam-behind', !pipEl.hidden && !!st.behind);
   if (pipEl.hidden || reduceMotion || !pipEl.animate) return;
   const ease = 'cubic-bezier(.65,0,.35,1)';
   if (!first){
@@ -1259,7 +1263,7 @@ function applyStepState(snap){
   applyFragments(n, currentStep().frag, snap);
   applyPipState();
   // entrance animations wait until the slide is actually on screen, not behind a full-screen camera
-  if (pipEl.hidden || !pipState || !pipState.full) playEntrances(n);
+  if (pipEl.hidden || !pipState || !pipState.full || pipState.behind) playEntrances(n);
   scheduleAutoslide(n);
 }
 // data-gsap='{"from":{…},"duration":1,"delay":2,"ease":"…"}' and .title-scramble, as on the site
@@ -1817,6 +1821,7 @@ function showScreenAdvice(){
 const MEDIABUNNY_URL = 'https://cdn.jsdelivr.net/npm/mediabunny@1.64.0/+esm';
 const recCam = document.getElementById('rec-cam'), recMic = document.getElementById('rec-mic'), recQuality = document.getElementById('rec-quality');
 const recMeter = document.getElementById('rec-meter'), recCheck = document.getElementById('rec-browser-check');
+const recWave = /** @type {HTMLCanvasElement} */ (document.getElementById('rec-wave'));
 let recMode = load('slidetake:rec-mode') || '';
 let recNote = '';   // why the last start failed, shown in place of the check once
 let meter = null;   // the mic preview while the dialog is open: {stream, ctx, raf}
@@ -1840,6 +1845,30 @@ async function stopMeter(){
   meter.ctx.close().catch(()=>{});
   meter = null;
   recMeter.value = 0;
+  recWave.getContext('2d').clearRect(0, 0, recWave.width, recWave.height);
+  stopCamPreview();
+}
+// Setup's camera preview: the chosen camera, live, while Setup shows; released when it closes (and before
+// a take, so the recording can open the camera itself)
+const camPreview = document.getElementById('rec-cam-preview'), camNone = document.getElementById('rec-cam-none');
+let camPreviewStream = null, camPreviewToken = 0;
+function stopCamPreview(){
+  camPreviewToken++;
+  if (camPreviewStream){ camPreviewStream.getTracks().forEach(t=>t.stop()); camPreviewStream = null; }
+  camPreview.srcObject = null;
+}
+async function startCamPreview(){
+  stopCamPreview();
+  const token = camPreviewToken, id = recCam.value;
+  camNone.hidden = id !== 'none' && !!id;
+  camNone.textContent = 'No camera';
+  if (!id || id === 'none') return;
+  try {
+    const stream = await navigator.mediaDevices.getUserMedia({video:id === 'default' ? true : {deviceId:{exact:id}}});
+    if (token !== camPreviewToken){ stream.getTracks().forEach(t=>t.stop()); return; }
+    camPreviewStream = stream;
+    camPreview.srcObject = stream;
+  } catch(e){ camNone.hidden = false; camNone.textContent = 'The camera isn’t available'; }
 }
 async function startMeter(){
   await stopMeter();
@@ -1853,11 +1882,21 @@ async function startMeter(){
     ctx.createMediaStreamSource(stream).connect(an);
     const buf = new Float32Array(an.fftSize);
     const m = meter = {stream, ctx, raf:0};
+    // the live waveform: what the microphone hears, in the accent, louder the taller
+    const g = recWave.getContext('2d'), W = recWave.width, H = recWave.height, ink = tokenHex('--accent');
     const loop = ()=>{
       if (meter !== m) return;             // stopped, or a newer meter took over
       an.getFloatTimeDomainData(buf);
       let peak = 0; for (const v of buf) peak = Math.max(peak, Math.abs(v));
       recMeter.value = Math.max(peak, recMeter.value * 0.85);
+      g.clearRect(0, 0, W, H);
+      g.lineWidth = 3; g.strokeStyle = ink; g.lineJoin = 'round';
+      g.beginPath();
+      for (let i = 0; i < buf.length; i++){
+        const x = i / (buf.length - 1) * W, y = H / 2 - Math.max(-1, Math.min(1, buf[i] * 3)) * (H / 2 - 4);
+        if (i) g.lineTo(x, y); else g.moveTo(x, y);
+      }
+      g.stroke();
       m.raf = requestAnimationFrame(loop);
     };
     loop();
@@ -1894,6 +1933,7 @@ recMic.onchange = ()=>{ save('slidetake:mic', recMic.value); startMeter(); setup
 recCam.onchange = ()=>{
   setCamChoice(recCam.value);
   if (recCam.value !== 'none' && cameraStream){ stopWebcam(); startWebcam(); }
+  if (inSetup()) startCamPreview();
   setupSummary();
 };
 // ---------- the camera in a recording: chosen once per deck, turned on by Record ----------
@@ -1943,9 +1983,11 @@ async function showBrowserCheck(){
 function setRecMode(mode){
   recMode = mode;
   save('slidetake:rec-mode', mode);
-  if (reviewDialog.classList.contains('open')) openTakes({setup:true});
+  // Studio switches to the other mode's takes, on the view it was showing (Studio, or its Setup)
+  openTakes({setup:inSetup()});
 }
-const obsMode = ()=>reviewDialog.classList.contains('obs');
+// pro mode: chosen, or the only way in a browser that can't record itself (Safari, Firefox)
+const obsMode = ()=>!(browserRecording().ok && (recMode || 'browser') === 'browser');
 function openTakes(opts = {}){
   if (!RECORDING_UI) return;
   // a browser that can't record itself (Safari, Firefox) always opens with OBS
@@ -1959,6 +2001,26 @@ function openObsTakes(opts = {}){
     withObs:true, outputPath:null, reason:'', total:0, totalObs:null, fps:obsFps, events:[], picks:{}, empty:true}, opts);
 }
 document.getElementById('btn-studio').onclick = ()=>openTakes();
+// ● Record (R): straight into a take. The first time, Setup; then the slides without a usable take (new, or
+// outdated by an edit), all of them if none is recorded yet; with every slide done, from the slide on screen
+// to the end, so going to a slide and pressing R redoes it. OBS records the whole deck. Studio is for the rest.
+const recordedHere = ()=>!!recMode || loadBoard().takes.length > 0 || loadSessions().some(x=>x.key === sessionKey());
+async function recordNow(){
+  if (!RECORDING_UI || rec.active || !order.length) return;
+  if (!recordedHere()){ openSetup({note:'Set up once: after this, ● Record (R) starts recording straight away.'}); return; }
+  if (browserRecording().ok && (recMode || 'browser') === 'browser'){
+    const rows = boardRows(loadBoard(), boardDeck());
+    const missing = rows.filter(r=>!r.pick).map(r=>r.id);
+    const at = order.indexOf(currentId);
+    const from = missing.length ? missing : at > 0 ? order.slice(at) : order;
+    startTake('browser', from.length === order.length ? null : from);   // no await before it: the click allows the share prompt
+    return;
+  }
+  if (!obsConnected && load('slidetake:obs')) await connectObs();
+  if (obsConnected){ startTake('obs'); return; }
+  openSetup({note:'Connect to OBS first: OBS → Connect.'});
+}
+document.getElementById('btn-record').onclick = ()=>recordNow();
 
 // the takes of each session live in the browser's private storage, in a folder named after the session
 async function takesDir(id, create){
@@ -2046,6 +2108,8 @@ async function startTake(kind, only){
   if (rec.active || !order.length) return;
   const withObs = kind === 'obs';
   stopMeter();
+  // recording once settles the mode, so ● Record (R) goes straight to a take from then on
+  if (!recMode){ recMode = withObs ? 'obs' : 'browser'; save('slidetake:rec-mode', recMode); }
   if (kind === 'browser'){
     if (!presenting) setPresent(true);        // fullscreen first, while the click still counts
     try { await beginBrowserCapture(); }
@@ -2066,8 +2130,7 @@ async function startTake(kind, only){
   if (kind !== 'browser') rec.browser = null;
   document.body.classList.add('recording');
   hidePipMsg();
-  const lay = document.getElementById('rec-layout').value;
-  if (lay !== 'current' && lay !== layoutMode) setMode(lay, true);
+  // a take keeps the layout the deck is shown in: what you see presenting is what's recorded
   if (!presenting) setPresent(true);          // this click allows fullscreen
   cameraForRecording();
   if (beforeId){
@@ -2346,7 +2409,7 @@ const showLimiter = ()=>{ limiterBtn.setAttribute('aria-pressed', String(limiter
 showLimiter();
 limiterBtn.onclick = ()=>{ save('slidetake:limiter', limiterOn() ? 'off' : 'on'); showLimiter(); };
 // the mic's sound: raw (no processing), or voice (the browser's noise suppression)
-const micSound = ()=>load('slidetake:mic-sound') === 'voice' ? 'voice' : 'raw';
+const micSound = ()=>load('slidetake:mic-sound') === 'raw' ? 'raw' : 'voice';   // Voice unless Raw was chosen
 const micConstraints = id=>({...(id ? {deviceId:{ideal:id}} : {}), echoCancellation:false, autoGainControl:false, noiseSuppression:micSound() === 'voice'});
 const soundBtns = document.querySelectorAll('[data-sound]');
 const showSound = ()=>soundBtns.forEach(b=>{ const on = b.dataset.sound === micSound(); b.classList.toggle('active', on); b.setAttribute('aria-checked', String(on)); });
@@ -2385,7 +2448,6 @@ function openReview(sess, opts = {}){
   const recBtn = document.getElementById('rv-rec');
   recBtn.title = 'Records the deck with OBS: a new video in place of this one';
   recBtn.disabled = false;   // OBS records, whatever this browser can do (the board turns it off where it can't)
-  document.getElementById('rv-use-browser').style.display = browserRecording().ok ? '' : 'none';
   document.getElementById('rv-render-btn').disabled = document.getElementById('rv-clean').disabled = !!sess.cleaned;
   document.getElementById('rv-file').textContent = sess.outputPath ? ' (' + baseName(sess.outputPath) + ')' : '';
   // pick the listed rate nearest to the take's (OBS reports e.g. 60000/1001 for 59.94)
@@ -2399,8 +2461,7 @@ function openReview(sess, opts = {}){
   resetPreview();
   renderReview();
   openModal(reviewDialog);
-  setupEl.open = !!opts.setup || !obsConnected || !!sess.empty;
-  if (setupEl.open) refreshSetup(); else fillDevices(false).then(setupSummary);
+  if (opts.setup) showSetup(opts); else { showStudio(); fillDevices(false).then(setupSummary); }
   say(opts.note || (sess.empty ? (obsConnected ? 'Press ● Record: OBS records the deck.' : 'Connect to OBS in Setup, then press ● Record.')
     : about + (rvVideo.src ? 'Click a take to preview it.' : 'Open the recording to preview it.')));
   if (!sess.empty) autoLoadRecording(sess);
@@ -2527,7 +2588,7 @@ previewBtn.onclick = ()=>{
 };
 function showPreviewState(){
   const running = clipList && !clipList.single && !rvVideo.paused;
-  previewBtn.textContent = running ? '❚❚ Pause' : '▶ Preview';
+  previewBtn.innerHTML = running ? '❚❚ <span><u class="key">P</u>ause</span>' : '▶ <span><u class="key">P</u>review</span>';
   document.querySelectorAll('#rv-list .rv-row.playing').forEach(r=>r.classList.remove('playing'));
   const part = clipList && clipList.parts[clipList.i];
   const row = part && part.id && document.querySelector('#rv-list .rv-row[data-id="' + CSS.escape(part.id) + '"]');
@@ -2597,7 +2658,7 @@ const renderBtn = document.getElementById('rv-render-btn');
 renderBtn.onclick = ()=>downloadVideo(false);
 // while a video is made, its progress is the button's label: nothing else on the board moves
 let renderDone = 0;
-const renderLabel = /** @param {string} [t] */ t=>{ clearTimeout(renderDone); renderBtn.textContent = t || '↓ Download'; };
+const renderLabel = /** @param {string} [t] */ t=>{ clearTimeout(renderDone); if (t) renderBtn.textContent = t; else renderBtn.innerHTML = '↓ <span><u class="key">D</u>ownload</span>'; };
 // where a saved video is, in words: the folder's name and the file's (browsers don't tell pages the full path)
 const savedWhere = d=>d.where ? '“' + d.where + '” as ' + d.name : 'your downloads as ' + d.name;
 // the last video saved, if it is still in its folder (a plain download can't be checked: assume it is)
@@ -2850,18 +2911,51 @@ function boardReview(){
     deckTitle:deck.title || (order[0] ? nodes.get(order[0]).title : 'Deck'), date:new Date().toISOString()});
   return {rows, sess};
 }
-const setupEl = document.getElementById('rv-setup');
+// Setup is a view of Studio's own dialog: camera, microphone, sound, video, OBS and files, saved as they're
+// chosen. ⚙ Setup swaps Studio for it and becomes ← Back; the first ● Record opens the dialog on it, with
+// ● Record of its own to start.
 const setupBtn = document.getElementById('rv-setup-btn');
-setupEl.addEventListener('toggle', ()=>{
-  setupBtn.setAttribute('aria-expanded', String(setupEl.open));
-  if (setupEl.open) refreshSetup(); else stopMeter();
-});
-setupBtn.onclick = ()=>{ setupEl.open = !setupEl.open; };
+const setupNote = document.getElementById('setup-note');
+const inSetup = ()=>reviewDialog.classList.contains('setup-view');
+function showSetup(opts = {}){
+  reviewDialog.classList.add('setup-view');
+  setupNote.textContent = opts.note || '';
+  setupNote.hidden = !opts.note;
+  setupBtn.textContent = '← Back';
+  setupBtn.title = 'Back to Studio';
+  setupBtn.setAttribute('aria-expanded', 'true');
+  refreshSetup();
+}
+function showStudio(){
+  const was = inSetup();
+  // only when it's there: the observer below watches these classes, and a no-op change would wake it again
+  if (was) reviewDialog.classList.remove('setup-view');
+  setupBtn.textContent = '⚙ Setup';
+  setupBtn.title = 'Settings: camera, microphone, video, OBS and files';
+  setupBtn.setAttribute('aria-expanded', 'false');
+  if (was){ stopMeter(); setupSummary(); }
+}
+// Setup from anywhere: Studio's dialog, opened on it if it isn't open
+function openSetup(opts = {}){
+  if (reviewDialog.classList.contains('open')) showSetup(opts);
+  else openTakes({...opts, setup:true});
+}
+// closing the dialog leaves Setup, so it opens on Studio next time
+new MutationObserver(()=>{ if (!reviewDialog.classList.contains('open')) showStudio(); })
+  .observe(reviewDialog, {attributes:true, attributeFilter:['class']});
+setupBtn.onclick = ()=>{ if (inSetup()) showStudio(); else showSetup(); };
+document.getElementById('setup-record').onclick = ()=>{
+  closeModals();
+  // choosing here settles the mode, so ● Record (R) goes straight to a take from now on
+  if (!recMode){ recMode = obsMode() ? 'obs' : 'browser'; save('slidetake:rec-mode', recMode); }
+  recordNow();
+};
 reviewDialog.addEventListener('click', e=>{ if (e.target === reviewDialog || e.target.closest('[data-close]')) stopMeter(); });
 function refreshSetup(){
-  if (obsMode()){ showScreenAdvice(); fillDevices(false).then(setupSummary); return; }
+  const ready = ()=>{ setupSummary(); if (inSetup()) startCamPreview(); };   // devices named: show the chosen camera
+  if (obsMode()){ showScreenAdvice(); fillDevices(false).then(ready); return; }
   recCheck.innerHTML = '';
-  showBrowserCheck().then(b=>{ if (b.ok) fillDevices().then(setupSummary); else setupSummary(); });
+  showBrowserCheck().then(b=>{ if (b.ok) fillDevices().then(ready); else ready(); });
 }
 // the browser by its name (Chrome, Edge, Brave…), for the labels that switch between it and OBS
 const browserName = (()=>{
@@ -2878,11 +2972,17 @@ document.querySelectorAll('.browser-name').forEach(el=>{ el.textContent = browse
 function setupSummary(){
   const name = /** @param {HTMLSelectElement} sel */ sel=>{ const o = sel.selectedOptions[0]; return o ? o.textContent.replace(/ \(system default\)$/, '') : ''; };
   const cam = name(recCam) || (camChoice() === 'none' ? 'No camera' : 'Camera');
-  const parts = obsMode() ? ['Pro', 'OBS', obsSize, cam].filter(Boolean)
-    : browserRecording().ok ? ['Easy', browserName, recQuality.value, cam, name(recMic) || 'Microphone'].filter(Boolean) : ['Easy', browserName + ' can’t record here'];
+  // the header: Slidetake Studio (Pro), the size beside it; the camera and microphone on the right
+  const pro = obsMode(), size = pro ? obsSize : browserRecording().ok ? recQuality.value : '';
+  const parts = pro ? [cam] : [cam, name(recMic) || 'Microphone'];
   const el = document.getElementById('rv-using');
   el.textContent = parts.join(' · ');
-  el.title = setupBtn.title = 'Recording with ' + parts.join(' · ');
+  el.title = 'Recording with ' + parts.join(' · ');
+  document.getElementById('rv-size').textContent = size || '';
+  proBtn.classList.toggle('on', pro);
+  proBtn.setAttribute('aria-pressed', String(pro));
+  proBtn.disabled = !browserRecording().ok;
+  proBtn.title = proBtn.disabled ? browserName + ' records only with OBS: pro mode' : pro ? 'Pro mode: recording with OBS. Click for easy mode, in ' + browserName : 'Easy mode: recording in ' + browserName + '. Click for pro mode, with OBS';
 }
 function openBoard(opts = {}){
   if (!RECORDING_UI) return;
@@ -2898,9 +2998,7 @@ function openBoard(opts = {}){
   lastTicked = -1;
   renderBoard();
   openModal(reviewDialog);
-  const ready = browserRecording().ok;
-  setupEl.open = !!opts.setup || !ready || !board.takes.length;
-  if (setupEl.open) refreshSetup(); else showBrowserCheck().then(()=>fillDevices(false)).then(setupSummary);
+  if (opts.setup || !browserRecording().ok) showSetup(opts); else { showStudio(); showBrowserCheck().then(()=>fillDevices(false)).then(setupSummary); }
   say(opts.note || selNote() || (board.takes.length ? boardState() + '. Click a take to preview it.' : order.length + ' slides, nothing recorded yet. Press ● Record.'));
 }
 // how far the video is: slides with a take to use, and those to record again
@@ -2952,11 +3050,11 @@ function renderBoard(){
 document.getElementById('rv-rec').onclick = ()=>{
   if (!obsMode()){ startTake('browser', selectedInOrder(order, selected)); return; }
   if (obsConnected){ startTake('obs'); return; }
-  setupEl.open = true;
-  say('Connect to OBS first: Setup → OBS → Connect.', {warn:true});
+  openSetup({note:'Connect to OBS first: OBS → Connect.'});
 };
-document.getElementById('rv-use-obs').onclick = ()=>setRecMode('obs');
-document.getElementById('rv-use-browser').onclick = ()=>setRecMode('browser');
+// Pro: record with OBS, toggled in Studio's header; always on where the browser can't record itself
+const proBtn = document.getElementById('rv-pro');
+proBtn.onclick = ()=>{ if (browserRecording().ok) setRecMode(obsMode() ? 'browser' : 'obs'); };
 // deleting takes: the ones no slide plays, or all of them
 async function deleteClips(takes){
   for (const t of takes){
@@ -3205,7 +3303,7 @@ const CAMERA_ICON = '<svg width="16" height="16" viewBox="0 0 24 24" fill="none"
 /** a bottom-bar button that is on: in the accent @param {HTMLElement} btn @param {boolean} on */
 function lightUp(btn, on){ btn.classList.toggle('on', on); btn.setAttribute('aria-pressed', String(on)); }
 function updateCamBtn(){
-  if (!camBtn.querySelector('svg')) camBtn.innerHTML = CAMERA_ICON + '<span class="lbl"> Camera</span>';
+  if (!camBtn.querySelector('svg')) camBtn.innerHTML = CAMERA_ICON + '<span class="lbl"> <u class="key">C</u>amera</span>';
   camBtn.classList.toggle('on', !cameraOff);
   camBtn.setAttribute('aria-pressed', String(!cameraOff));
   camBtn.title = cameraOff ? 'Camera is off for every slide (C)' : 'Camera is on and follows the deck (C)';
@@ -3258,11 +3356,25 @@ window.addEventListener('keydown', e=>{
   // a clicker's "start" button sends F5; never let it reload the page
   if (e.key === 'F5'){ e.preventDefault(); if (!rec.active) openTakes(); return; }
   if (rec.active){ takeKey(e); return; }
-  if (document.querySelector('.modal.open')){ if (e.key === 'Escape') closeModals(); return; }
+  if (document.querySelector('.modal.open')){
+    const setupOpen = reviewDialog.classList.contains('open') && inSetup();
+    if (e.key === 'Escape') closeModals();
+    // in Studio's dialog, not while typing in a field: R presses ● Record (Setup's, or Studio's: the ticked slides,
+    // or the whole deck); in Studio, P ▶ Preview and D ↓ Download (with OBS, ⧉ ffmpeg)
+    else if (reviewDialog.classList.contains('open') && !e.metaKey && !e.ctrlKey && !e.altKey
+      && !/^(INPUT|TEXTAREA|SELECT)$/.test(document.activeElement?.tagName || '')){
+      const k = e.key.toLowerCase();
+      const id = k === 'r' ? (setupOpen ? 'setup-record' : 'rv-rec')
+        : setupOpen ? '' : k === 'p' ? 'rv-play-final' : k === 'd' ? (obsMode() ? 'rv-ffmpeg-copy' : 'rv-render-btn') : '';
+      const btn = id ? /** @type {HTMLButtonElement} */ (document.getElementById(id)) : null;
+      if (btn && !btn.disabled){ e.preventDefault(); btn.click(); }
+    }
+    return;
+  }
   const tag = document.activeElement && document.activeElement.tagName;
   if (tag === 'TEXTAREA' || tag === 'INPUT' || e.metaKey || e.ctrlKey || e.altKey) return;
   // the keys card: K or ? again closes it, as O and F undo themselves
-  if (help.classList.contains('open')){ if (/^(Escape|k|K|\?)$/.test(e.key)) help.classList.remove('open'); return; }
+  if (help.classList.contains('open')){ if (/^(Escape|k|K|\?|\/)$/.test(e.key)) help.classList.remove('open'); return; }
   const k = e.key;
   if (k==='ArrowRight' || k===' ' || k==='PageDown'){ e.preventDefault(); step(1); }
   else if (k==='ArrowLeft' || k==='PageUp'){ e.preventDefault(); step(-1); }
@@ -3273,14 +3385,15 @@ window.addEventListener('keydown', e=>{
   else if (k==='o' || k==='O'){ overview(); }
   else if (k==='e' || k==='E'){ toggleEditor(); }
   else if (k==='f' || k==='F' || k==='p' || k==='P'){ setPresent(!presenting); }
-  else if (k==='r' || k==='R'){ openTakes(); }
+  else if (k==='r' || k==='R'){ recordNow(); }
+  else if (k==='s' || k==='S'){ openTakes(); }
   else if (/^[1-4]$/.test(k)){ setMode(LAYOUTS[+k - 1]); }
   else if (k==='c' || k==='C'){ setCameraEnabled(cameraOff); }
   else if (k==='v' || k==='V'){ cycleCamera(); }
   else if (k==='l' || k==='L'){ toggleMode(); }
   else if (k==='+' || k==='='){ sizeStep(1); }
   else if (k==='-' || k==='_'){ sizeStep(-1); }
-  else if (k==='?' || k==='k' || k==='K'){ help.classList.add('open'); }
+  else if (k==='?' || k==='/' || k==='k' || k==='K'){ help.classList.add('open'); }   // / is ? without Shift
   else if (k==='Escape'){ if (!backFromOverview() && presenting) setPresent(false); }
 });
 

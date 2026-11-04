@@ -59,7 +59,7 @@ For AI tools: the guide is plain markdown at [slidetake.com/docs.md](https://sli
 
 ## Recording
 
-**● Studio** (R), beside ✎ Editor in the header, opens Slidetake Studio: record in the browser or with OBS, review the takes, download the video. The bottom bar has **Keys** (K), **Camera** (C) and **Fullscreen** (F), each lit while it's on. The camera is off until someone turns it on, and until then the deck's camera settings are ignored, so the same deck works for readers.
+The bottom bar has **Keys** (K), **Camera** (C), **● Record** (R) and **Fullscreen** (F); each button shows its key's letter in the accent. **● Record** starts a take straight away: the first time it opens Setup, then it records the slides without a take. **● Studio** (S), beside ✎ Editor in the header, is for picking takes, redoing slides and downloading the video. The camera is off until someone turns it on, and until then the deck's camera settings are ignored, so the same deck works for readers.
 
 For OBS, Studio's ⚙ Setup asks where OBS is, or fill it in from the address (the same format the reveal.js slides use):
 
@@ -98,7 +98,7 @@ window.SLIDETAKE = {
   recording: false                                    // optional: true brings back ● Studio, for your own preview
 };
 </script>
-<script src="https://cdn.jsdelivr.net/npm/slidetake@0.4.4/dist/slidetake.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/slidetake@0.4.5/dist/slidetake.js"></script>
 ```
 
 `colors` takes any CSS colour per token, for both modes or under `light` / `dark`: `accent` (text and the current slide), `accentSoft` (smaller headings), `line` (borders and the active path), `ring` (the current slide's outline), `header` and `headerText` (a band of colour behind the header). A deck can also set its own with `accent:` in its top block.

@@ -170,11 +170,13 @@ Click a card to fly to it. Drag to pan; scroll or pinch to zoom. On a touch scre
 | ↓ ↑ | first child / parent |
 | O | the whole map; **O** again or Esc goes back |
 | F | fullscreen; **F** again or Esc leaves |
-| K or ? | these keys; again closes them |
+| K, / or ? | these keys; again closes them |
 | 1 2 3 4 | focus, path, radial, tree |
-| + − | bigger / smaller slides (remembered) |
+| + − | bigger / smaller slides (remembered; = works for +) |
 | E · L | editor · light / dark |
-| C · V · R | camera · camera layouts · Studio (record) |
+| C · V | camera · camera layouts |
+| R · S | record · Studio |
+| P · D | in Studio: preview · download |
 
 ### Layouts
 
@@ -200,7 +202,7 @@ With `duration: 10m` (or `90s`, `1h`, `12:30`), a lighter layer of the same colo
 
 ## 4️⃣ Record a video
 
-Two modes, both slide by slide, so there's no timeline to edit afterwards. **● Studio** (beside ✎ Editor, or **R**) opens **Slidetake Studio** in the mode you used last; ⚙ Setup switches between them.
+Two modes, both slide by slide, so there's no timeline to edit afterwards. **● Record** in the bottom bar (or **R**) starts a take: the first time it opens Setup, then it records the slides without a take. **● Studio** (or **S**) is for picking takes and redoing slides; its ⚙ Setup switches between the modes.
 
 ```svg
 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 960 330" font-family="IBM Plex Sans, system-ui, sans-serif">
@@ -260,10 +262,9 @@ Two modes, both slide by slide, so there's no timeline to edit afterwards. **●
 
 ### Easy mode: record in the browser
 
-**● Studio** shows every slide of the deck, with every take of it from every recording.
-
-1. **⚙ Setup**, the first time: pick your camera (or **No camera**) and microphone. ● Record turns the camera on and off by itself.
-2. **● Record**, and share **this tab** when the browser asks. Only the 16:9 frame is recorded: slides and camera.
+1. **● Record** (R) the first time opens **⚙ Setup**: pick your camera (or **No camera**) and microphone. Recording turns the camera on and off by itself.
+2. **● Record** again, and share **this tab** when the browser asks. Only the 16:9 frame is recorded: slides and camera.
+3. Next time, **● Record** carries on with the slides that have no take yet. When every slide has one, it records from the slide on screen to the end.
 
 For 1080p the frame needs 1920×1080 real pixels (a Retina laptop has them); 1280×720 makes 720p. Smaller: use pro mode.
 
@@ -288,10 +289,10 @@ Each take is a file in this browser's private storage until you purge it, in ⚙
 ### Pro mode: set up OBS
 
 1. In OBS: Tools → WebSocket Server Settings, turn it on.
-2. In **● Studio**: **⚙ Setup → Use pro mode (OBS)**, enter host, port and password, then **Connect**. Tick *Remember*.
+2. In Studio's **⚙ Setup**, turn on **Pro** (top right), enter OBS's host, port and password, and **Connect**. Tick *Remember*.
 3. Present on a 16:9 screen, physical or virtual (say 1920×1080). Setup checks it.
 
-Studio opens in the mode you used last. The line beside ⚙ Setup shows what a take uses: `Pro · OBS · 1080p · camera`.
+Studio opens in the mode you used last: its title says **Slidetake Studio Pro** in pro mode, with the size (`1080p`) beside it, and the camera and microphone a take uses on the right.
 
 ### A 16:9 screen
 
@@ -337,13 +338,13 @@ A comment in a slide changes the camera from that slide on:
 <!-- camera: 18% flip --> ← small, other side
 ```
 
-Words you can combine: `on`, `off`, `full`, a size like `30%`, a corner, `flip`, `circle` / `rect`, `mirror` / `unmirror`. List them with commas to step through them on one slide: `full, on` opens on you, and the next → shrinks the camera to its corner and shows the slide.
+Words you can combine: `on`, `off`, `full`, `behind` (the camera fills the frame under the slide, which stays on top: a talking head with slides), a size like `30%`, a corner, `flip`, `circle` / `rect`, `mirror` / `unmirror`. List them with commas to step through them on one slide: `full, on` opens on you, and the next → shrinks the camera to its corner and shows the slide.
 
 **V** steps through the deck's `camera:` list by hand.
 
 ### Take by take
 
-**● Record** counts down and starts. From then on → drives everything: slides, reveals and camera moves (a Bluetooth clicker works).
+**● Record** (R) counts down and starts. From then on → drives everything: slides, reveals and camera moves (a Bluetooth clicker works).
 
 - **←** takes the slide again. The deck goes back and replays the slide's entry, so whichever take you pick joins smoothly
 - **B** (or **.**, a clicker's blank-screen key) pauses and resumes
@@ -377,8 +378,8 @@ In ⚙ Setup → Microphone:
 
 | Setting | Does |
 |---|---|
-| **Raw** (default) | the mic as it is: for a good mic in a quiet room |
-| **Voice** | Chrome's noise suppression: fans, hum, steady noise |
+| **Voice** (default) | Chrome's noise suppression: fans, hum, steady noise |
+| **Raw** | the mic as it is: for a good mic in a quiet room |
 | **🔊 Volume boost** (on) | raises the voice to YouTube's −14 LUFS, never past a −1.5 dB peak |
 | **Peak limiter** (off) | catches the few loud peaks, so the boost goes all the way |
 

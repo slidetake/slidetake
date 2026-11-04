@@ -348,6 +348,17 @@
   @media (max-width:560px){ .modal .fields{grid-template-columns:1fr;} }
   /* Studio, beside the Editor: an accent dot (red is for ● Record itself); lit, like the Editor, while open */
   #btn-studio .rec-dot{color:var(--accent);}
+  /* the key that does it, its letter in the accent: Keys, Camera, Record, Fullscreen, Editor, Studio */
+  u.key{text-decoration:none;color:var(--accent);font-weight:600;}
+  /* ● Record looks the same in the bottom bar and in Studio: a red dot, plain text, the R in the accent */
+  /* ● Record looks the same in the bottom bar and in Studio: like the buttons beside it, with a red dot and
+     its R in the accent; on hover it fills red, dot, text and R in white */
+  #btn-record .rec-dot, #rv-rec .rec-dot, #setup-record .rec-dot{color:#ef4444;}
+  .btn.rec#rv-rec, .btn.rec#setup-record{color:var(--text);}
+  #navbar #btn-record:hover, .btn.rec#rv-rec:hover:not(:disabled), .btn.rec#setup-record:hover{background:#dc2626;border-color:#dc2626;color:#fff;}
+  #btn-record:hover .rec-dot, #btn-record:hover u.key, #rv-rec:hover:not(:disabled) .rec-dot, #rv-rec:hover:not(:disabled) u.key,
+  #setup-record:hover .rec-dot, #setup-record:hover u.key{color:#fff;}
+  @media (pointer:coarse){ #btn-record{display:none;} }
   /* phones and tablets can't record */
   @media (pointer:coarse){ #btn-studio{display:none;} }
   /* the bottom bar: Keys, Camera, Fullscreen, each in the accent while it is on */
@@ -366,6 +377,8 @@
   #review.in-browser #rv-novideo{display:none !important;}
   /* the takes screen records in this browser, or with OBS: each mode's own controls */
   #review.obs .for-browser, #review:not(.obs) .for-obs{display:none !important;}
+  /* Studio's dialog shows Studio or its Setup view, not both */
+  #review:not(.setup-view) #rv-setup-view, #review.setup-view .rv-grid{display:none;}
   #rec-countdown{
     position:fixed;inset:0;z-index:70;display:none;align-items:center;justify-content:center;flex-direction:column;gap:14px;
     background:rgba(4,7,13,.9);font-family:var(--display);color:var(--accent);
@@ -403,18 +416,32 @@
   .rv-none{font-size:12px;color:var(--text-muted);font-style:italic;}
   /* Recording setup: opened from the ⚙ Setup button at the top right, shown under the title */
   .modal .rv-setup-btn[aria-expanded="true"]{border-color:var(--accent);color:var(--accent);background:color-mix(in srgb, var(--accent) 10%, transparent);}
-  #rv-setup{margin:12px 0 12px;border:1px solid var(--panel-line);border-radius:8px;padding:10px 14px;}
-  #rv-setup > summary{display:none;}
-  #rv-setup:not([open]){display:none;}
+  /* Setup, a view of Studio's dialog */
+  .setup-note{margin:0 0 10px;font-size:13px;color:var(--accent);}
+  #rv-setup{margin:8px 0 0;}
+  /* the chosen camera, live, as a recording would see it (mirrored like the camera box), and the mic's waveform */
+  .setup-cam{position:relative;aspect-ratio:16/9;background:#000;border-radius:8px;overflow:hidden;border:1px solid var(--panel-line);}
+  .setup-cam video{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;transform:scaleX(-1);}
+  .setup-cam span{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;font-size:12px;color:#a1a1aa;}
+  .setup-cam span[hidden]{display:none;}
+  .setup-wave{display:block;width:100%;height:60px;border-radius:8px;border:1px solid var(--panel-line);
+    background:color-mix(in srgb, var(--accent) 5%, transparent);}
+  .setup-actions{display:flex;justify-content:flex-start;gap:8px;margin-top:16px;}
   #review h2.rv-brand{display:flex;align-items:center;gap:8px;color:var(--text);}
   #review h2.rv-brand .logo{width:22px;height:22px;fill:var(--accent);flex:none;}
   #review h2.rv-brand .word > span{color:var(--accent);}
+  /* Slidetake Studio, Pro in pro mode, / Settings in the setup view, and the size as a chip */
+  #review h2 .rv-pro-tag{color:var(--accent);}
+  #review h2 .rv-settings-tag{color:var(--text-muted);font-weight:500;}
+  #review:not(.setup-view) h2 .rv-settings-tag, #review:not(.setup-view) #rv-pro{display:none;}
+  /* in Setup, ← Back and Pro only: Back returns to Studio, which has ✕ Close */
+  #review.setup-view .panel-actions .close{display:none;}
+  #review h2 .rv-size:empty{display:none;}
+  #review h2 .rv-size{font-family:var(--mono);font-size:11px;font-weight:600;color:var(--text-muted);border:1px solid var(--panel-line);border-radius:6px;padding:2px 7px;margin-left:4px;}
   .rv-using{align-self:center;max-width:34vw;font-family:var(--mono);font-size:12px;color:var(--text-muted);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
   #review h2{padding-right:calc(34vw + 200px);}
   @media (max-width:900px){ .rv-using{display:none;} #review h2{padding-right:190px;} }
   /* three sections side by side: Camera, Microphone, Video; Use OBS at the top right */
-  .rv-setup-head{display:flex;align-items:center;justify-content:space-between;gap:10px;margin-bottom:12px;padding-bottom:10px;border-bottom:1px solid var(--panel-line);}
-  .rv-setup-head h4{margin:0;font-family:var(--display);font-size:13px;color:var(--text-muted);}
   .rv-setup-cols{display:grid;grid-template-columns:repeat(3, minmax(0, 1fr));gap:18px;}
   .rv-setup-cols section{display:flex;flex-direction:column;gap:8px;min-width:0;}
   .rv-setup-cols h4{margin:0;font-family:var(--display);font-size:13px;color:var(--text);}
@@ -650,7 +677,7 @@
     html.embed.no-record #navbar{display:flex;}
     html.embed.no-record #navbar > :not(.touch-only){display:none !important;}
   }
-  html.no-record #btn-camera, html.no-record #btn-studio, html.no-record #pip, html.no-record #help tr.rec{display:none !important;}
+  html.no-record #btn-camera, html.no-record #btn-studio, html.no-record #btn-record, html.no-record #pip, html.no-record #help tr.rec{display:none !important;}
   /* the logo written into a heading: # ![](/favicon.svg) Slidetake */
   .node .body :is(h1,h2) img[src$="favicon.svg"]{height:1em;width:auto;vertical-align:-.12em;margin-right:.25em;display:inline;}
   #brand .st-mark{display:inline-flex;align-items:center;gap:8px;font-family:var(--display);font-weight:700;font-size:20px;color:var(--text);}
@@ -682,6 +709,12 @@
   /* full: the camera takes the whole stage, under the brand and the controls */
   /* it also swallows clicks, so a click can't land on the hidden cards behind it */
   #pip.full{inset:0;width:100% !important;height:100%;aspect-ratio:auto;border-radius:0;z-index:9;pointer-events:auto;}
+  /* behind: the camera fills the frame under the slides, which stay on top as cards; the stage's dotted
+     background makes way so the camera shows around them */
+  #pip.full.behind{z-index:0;pointer-events:none;box-shadow:none;}
+  #stage-wrap.cam-behind #stage{z-index:1;background:transparent;}
+  /* only the slide being presented shows over the camera: no neighbouring cards or lines around it */
+  #stage-wrap.cam-behind div.node:not(.current), #stage-wrap.cam-behind #connectors{opacity:0;transition:opacity .3s;}
   /* while presenting the box is empty so the camera overlay sits on plain background */
   /* while presenting, the empty box stays as a faint guide for lining up a camera overlay */
   body.presenting #pip{border-color:color-mix(in srgb, var(--accent-teal) 30%, transparent);background:none;}

@@ -21,7 +21,10 @@ test('"off, on" (the Disclaimer): content first, camera back on the next press',
 });
 
 test('presets', ()=>{
-  assert.deepEqual(applyPreset({}, 'full'), {full: true, off: false, used: true});
+  assert.deepEqual(applyPreset({}, 'full'), {full: true, behind: false, off: false, used: true});
+  assert.deepEqual(applyPreset({}, 'behind'), {full: true, behind: true, off: false, used: true});   // the camera under the slides
+  assert.equal(applyPreset(applyPreset({}, 'behind'), 'on').behind, false);                       // back to its box
+  assert.equal(applyPreset(applyPreset({}, 'behind'), 'full').behind, false);                     // over the slides
   assert.equal(applyPreset({}, '30%').size, 30);
   assert.equal(applyPreset({}, '90%').size, 60);          // clamped
   assert.equal(applyPreset({}, 'top-left').corner, 'top-left');

@@ -12,6 +12,49 @@ package can notice. Tests, CI and tooling do not belong here.
 
 ## [Unreleased]
 
+## [0.4.5] - 2026-11-04
+
+### Added
+
+- **● Record** is back in the bottom bar, and **R** starts a take straight away:
+  the first time it opens Setup; after that it records the slides without a take
+  (all of them if none is recorded yet); with every slide done, it records from
+  the slide on screen to the end, so going to a slide and pressing R redoes it.
+  With OBS it records the whole deck, connecting first if OBS is remembered
+  (#24).
+- In Studio, **R** presses its ● Record (the ticked slides, or the whole deck),
+  **P** ▶ Preview and **D** ↓ Download (with OBS, ⧉ ffmpeg).
+- ● Record looks the same in the bottom bar and in Studio, and fills red on hover.
+- **`behind`**, a camera layout: the camera fills the frame under the slide,
+  which stays on top, with no other cards around it: a talking head with
+  slides. Use it on a slide (`<!-- camera: behind -->`), in steps, in the deck's
+  `camera:` list, or as the deck's default (`pip: behind`). Both recording modes
+  record it (#27).
+- Setup shows the chosen camera live, and the microphone as a live waveform.
+- Studio's header: **Slidetake Studio**, **Pro** in pro mode and **/ Settings**
+  in its setup view, with the size beside it and the camera and microphone on
+  the right. In Setup, a **Pro** toggle before ← Back switches to OBS and back
+  (always on in browsers that can't record themselves).
+- Each button shows the key that does it, its letter in the accent: Keys,
+  Camera, Record, Fullscreen, Editor and Studio.
+
+### Changed
+
+- **● Studio** opens with **S** (it was R).
+- **⚙ Setup** is its own view of Studio's dialog: camera, microphone, sound,
+  video, OBS and files, saved as they're chosen. ⚙ Setup swaps Studio for it and
+  becomes **← Back**; the first ● Record opens straight on it, with its own
+  ● Record to start. Studio itself is for recording and picking takes (#26).
+- **/** opens the keys panel too, as **?** does, without Shift. The panel also
+  lists Home and End, a clicker's PgDn and PgUp, = for +, and the keys while
+  recording (← take again, B pause, Esc stop).
+- A take keeps the layout the deck is shown in; Setup's Layout choice for takes
+  is gone. Recording differs from presenting only in its keys: → goes to the
+  next slide, ← takes the current one again.
+- The microphone's Sound is **Voice** (Chrome's noise suppression) by default;
+  **Raw** is still there for a good mic in a quiet room. A choice already made
+  is kept.
+
 ## [0.4.4] - 2026-10-31
 
 ### Added

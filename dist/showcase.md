@@ -191,7 +191,7 @@ A deck sets its own colour with one line, `accent: "#3b82f6"`, shaded for both m
 
 ## ✂️ Record a video
 
-Try it: press **● Studio** (top right), then **● Record**. Stumble on a slide, press ←, say it again; then pick the best take of each. Step by step: [Docs → Record a video](/docs#4-record-a-video).
+Try it: press **● Record** in the bottom bar, or **R**. Stumble on a slide, press ←, say it again; then pick the best take of each. Step by step: [Docs → Record a video](/docs#4-record-a-video).
 
 ## 🌐 Open from anywhere
 
