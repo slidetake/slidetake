@@ -426,7 +426,7 @@
   .setup-cam span[hidden]{display:none;}
   .setup-wave{display:block;width:100%;height:60px;border-radius:8px;border:1px solid var(--panel-line);
     background:color-mix(in srgb, var(--accent) 5%, transparent);}
-  .setup-actions{display:flex;justify-content:flex-end;gap:8px;margin-top:16px;padding-top:12px;border-top:1px solid var(--panel-line);}
+  .setup-actions{display:flex;justify-content:flex-start;gap:8px;margin-top:16px;padding-top:12px;border-top:1px solid var(--panel-line);}
   #review h2.rv-brand{display:flex;align-items:center;gap:8px;color:var(--text);}
   #review h2.rv-brand .logo{width:22px;height:22px;fill:var(--accent);flex:none;}
   #review h2.rv-brand .word > span{color:var(--accent);}
