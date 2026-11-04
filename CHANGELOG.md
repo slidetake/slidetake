@@ -19,7 +19,8 @@ package can notice. Tests, CI and tooling do not belong here.
   (all of them if none is recorded yet); with every slide done, it records from
   the slide on screen to the end, so going to a slide and pressing R redoes it.
   With OBS it records the whole deck, connecting first if OBS is remembered.
-- In Studio, **R** presses its ● Record: the ticked slides, or the whole deck.
+- In Studio, **R** presses its ● Record (the ticked slides, or the whole deck),
+  **P** ▶ Preview and **D** ↓ Download (with OBS, ⧉ ffmpeg).
 - ● Record looks the same in the bottom bar and in Studio, and fills red on hover.
 - **`behind`**, a camera layout: the camera fills the frame under the slide,
   which stays on top, with no other cards around it: a talking head with

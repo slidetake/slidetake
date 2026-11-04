@@ -2588,7 +2588,7 @@ previewBtn.onclick = ()=>{
 };
 function showPreviewState(){
   const running = clipList && !clipList.single && !rvVideo.paused;
-  previewBtn.textContent = running ? '❚❚ Pause' : '▶ Preview';
+  previewBtn.innerHTML = running ? '❚❚ <span><u class="key">P</u>ause</span>' : '▶ <span><u class="key">P</u>review</span>';
   document.querySelectorAll('#rv-list .rv-row.playing').forEach(r=>r.classList.remove('playing'));
   const part = clipList && clipList.parts[clipList.i];
   const row = part && part.id && document.querySelector('#rv-list .rv-row[data-id="' + CSS.escape(part.id) + '"]');
@@ -2658,7 +2658,7 @@ const renderBtn = document.getElementById('rv-render-btn');
 renderBtn.onclick = ()=>downloadVideo(false);
 // while a video is made, its progress is the button's label: nothing else on the board moves
 let renderDone = 0;
-const renderLabel = /** @param {string} [t] */ t=>{ clearTimeout(renderDone); renderBtn.textContent = t || '↓ Download'; };
+const renderLabel = /** @param {string} [t] */ t=>{ clearTimeout(renderDone); if (t) renderBtn.textContent = t; else renderBtn.innerHTML = '↓ <span><u class="key">D</u>ownload</span>'; };
 // where a saved video is, in words: the folder's name and the file's (browsers don't tell pages the full path)
 const savedWhere = d=>d.where ? '“' + d.where + '” as ' + d.name : 'your downloads as ' + d.name;
 // the last video saved, if it is still in its folder (a plain download can't be checked: assume it is)
@@ -3359,11 +3359,15 @@ window.addEventListener('keydown', e=>{
   if (document.querySelector('.modal.open')){
     const setupOpen = reviewDialog.classList.contains('open') && inSetup();
     if (e.key === 'Escape') closeModals();
-    // R presses ● Record: Setup's, or Studio's (the ticked slides, or the whole deck); not while typing in a field
-    else if ((e.key === 'r' || e.key === 'R') && (setupOpen || reviewDialog.classList.contains('open')) && !e.metaKey && !e.ctrlKey && !e.altKey
+    // in Studio's dialog, not while typing in a field: R presses ● Record (Setup's, or Studio's: the ticked slides,
+    // or the whole deck); in Studio, P ▶ Preview and D ↓ Download (with OBS, ⧉ ffmpeg)
+    else if (reviewDialog.classList.contains('open') && !e.metaKey && !e.ctrlKey && !e.altKey
       && !/^(INPUT|TEXTAREA|SELECT)$/.test(document.activeElement?.tagName || '')){
-      const btn = document.getElementById(setupOpen ? 'setup-record' : 'rv-rec');
-      if (!btn.disabled) btn.click();
+      const k = e.key.toLowerCase();
+      const id = k === 'r' ? (setupOpen ? 'setup-record' : 'rv-rec')
+        : setupOpen ? '' : k === 'p' ? 'rv-play-final' : k === 'd' ? (obsMode() ? 'rv-ffmpeg-copy' : 'rv-render-btn') : '';
+      const btn = id ? /** @type {HTMLButtonElement} */ (document.getElementById(id)) : null;
+      if (btn && !btn.disabled){ e.preventDefault(); btn.click(); }
     }
     return;
   }

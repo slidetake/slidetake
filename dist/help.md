@@ -176,6 +176,7 @@ Click a card to fly to it. Drag to pan; scroll or pinch to zoom. On a touch scre
 | E · L | editor · light / dark |
 | C · V | camera · camera layouts |
 | R · S | record · Studio |
+| P · D | in Studio: preview · download |
 
 ### Layouts
 
