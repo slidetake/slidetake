@@ -2945,7 +2945,6 @@ function openSetup(opts = {}){
 new MutationObserver(()=>{ if (!reviewDialog.classList.contains('open')) showStudio(); })
   .observe(reviewDialog, {attributes:true, attributeFilter:['class']});
 setupBtn.onclick = ()=>{ if (inSetup()) showStudio(); else showSetup(); };
-document.getElementById('setup-done').onclick = ()=>showStudio();
 document.getElementById('setup-record').onclick = ()=>{
   closeModals();
   // choosing here settles the mode, so ● Record (R) goes straight to a take from now on
