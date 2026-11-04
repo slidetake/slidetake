@@ -27,7 +27,9 @@ package can notice. Tests, CI and tooling do not belong here.
 ### Changed
 
 - **● Studio** opens with **S** (it was R).
-- **/** opens the keys panel too, as **?** does, without Shift.
+- **/** opens the keys panel too, as **?** does, without Shift. The panel also
+  lists Home and End, a clicker's PgDn and PgUp, = for +, and the keys while
+  recording (← take again, B pause, Esc stop).
 - A take keeps the layout the deck is shown in; Setup's Layout choice for takes
   is gone. Recording differs from presenting only in its keys: → goes to the
   next slide, ← takes the current one again.

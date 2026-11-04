@@ -170,9 +170,9 @@ Click a card to fly to it. Drag to pan; scroll or pinch to zoom. On a touch scre
 | ↓ ↑ | first child / parent |
 | O | the whole map; **O** again or Esc goes back |
 | F | fullscreen; **F** again or Esc leaves |
-| K or / (?) | these keys; again closes them |
+| K, / or ? | these keys; again closes them |
 | 1 2 3 4 | focus, path, radial, tree |
-| + − | bigger / smaller slides (remembered) |
+| + − | bigger / smaller slides (remembered; = works for +) |
 | E · L | editor · light / dark |
 | C · V | camera · camera layouts |
 | R · S | record · Studio |
