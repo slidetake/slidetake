@@ -173,6 +173,12 @@ A YouTube link alone on a line becomes the video: the next press plays it, leavi
 
 Try it: press **C** to turn on your camera, then →. This card puts you in the corner, then full screen, then back, from one comment: `<!-- camera: on, full, on -->`.
 
+### Behind the slide
+
+<!-- camera: behind -->
+
+With the camera on, you fill the frame and this card sits on top of you: a talking head with slides. One comment does it: `<!-- camera: behind -->`, or `pip: behind` for a whole deck.
+
 ## 🗺️ Layouts and the map
 
 <!-- view: overview -->

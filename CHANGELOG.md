@@ -12,6 +12,10 @@ package can notice. Tests, CI and tooling do not belong here.
 
 ## [Unreleased]
 
+### Added
+
+- The Showcase has a card for the camera behind the slide.
+
 ## [0.4.5] - 2026-11-04
 
 ### Added
