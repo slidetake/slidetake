@@ -2368,7 +2368,7 @@ const showLimiter = ()=>{ limiterBtn.setAttribute('aria-pressed', String(limiter
 showLimiter();
 limiterBtn.onclick = ()=>{ save('slidetake:limiter', limiterOn() ? 'off' : 'on'); showLimiter(); };
 // the mic's sound: raw (no processing), or voice (the browser's noise suppression)
-const micSound = ()=>load('slidetake:mic-sound') === 'voice' ? 'voice' : 'raw';
+const micSound = ()=>load('slidetake:mic-sound') === 'raw' ? 'raw' : 'voice';   // Voice unless Raw was chosen
 const micConstraints = id=>({...(id ? {deviceId:{ideal:id}} : {}), echoCancellation:false, autoGainControl:false, noiseSuppression:micSound() === 'voice'});
 const soundBtns = document.querySelectorAll('[data-sound]');
 const showSound = ()=>soundBtns.forEach(b=>{ const on = b.dataset.sound === micSound(); b.classList.toggle('active', on); b.setAttribute('aria-checked', String(on)); });

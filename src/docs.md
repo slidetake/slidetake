@@ -377,8 +377,8 @@ In ⚙ Setup → Microphone:
 
 | Setting | Does |
 |---|---|
-| **Raw** (default) | the mic as it is: for a good mic in a quiet room |
-| **Voice** | Chrome's noise suppression: fans, hum, steady noise |
+| **Voice** (default) | Chrome's noise suppression: fans, hum, steady noise |
+| **Raw** | the mic as it is: for a good mic in a quiet room |
 | **🔊 Volume boost** (on) | raises the voice to YouTube's −14 LUFS, never past a −1.5 dB peak |
 | **Peak limiter** (off) | catches the few loud peaks, so the boost goes all the way |
 

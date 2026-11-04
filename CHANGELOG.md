@@ -26,6 +26,9 @@ package can notice. Tests, CI and tooling do not belong here.
 ### Changed
 
 - **● Studio** opens with **S** (it was R).
+- The microphone's Sound is **Voice** (Chrome's noise suppression) by default;
+  **Raw** is still there for a good mic in a quiet room. A choice already made
+  is kept.
 
 ## [0.4.4] - 2026-10-31
 
