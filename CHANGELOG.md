@@ -30,7 +30,7 @@ package can notice. Tests, CI and tooling do not belong here.
 - Setup shows the chosen camera live, and the microphone as a live waveform.
 - Studio's header: **Slidetake Studio**, **Pro** in pro mode and **/ Settings**
   in its setup view, with the size beside it and the camera and microphone on
-  the right. In Setup, a **Pro** toggle beside ← Back switches to OBS and back
+  the right. In Setup, a **Pro** toggle before ← Back switches to OBS and back
   (always on in browsers that can't record themselves).
 - Each button shows the key that does it, its letter in the accent: Keys,
   Camera, Record, Fullscreen, Editor and Studio.
