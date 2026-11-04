@@ -37,7 +37,7 @@ The complete list, one line each. Press → to walk it, **O** for the map.
 | Feature | Advantage |
 |---|---|
 | **Webcam in its box** | you and the slides in one recording, no compositing |
-| **Camera per slide** | corner, size, side, circle, full screen or off |
+| **Camera per slide** | corner, size, side, circle, full screen, behind the slide or off |
 | **Steps on one slide** | open on you, then reveal the slide |
 | **Camera layouts** (V) | try them live, without editing the deck |
 | **Off until you turn it on** | not shown to viewers: the slides get the whole screen |

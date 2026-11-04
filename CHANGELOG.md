@@ -21,16 +21,22 @@ package can notice. Tests, CI and tooling do not belong here.
   With OBS it records the whole deck, connecting first if OBS is remembered.
 - In Studio, **R** presses its ● Record: the ticked slides, or the whole deck.
 - ● Record looks the same in the bottom bar and in Studio, and fills red on hover.
+- **`behind`**, a camera layout: the camera fills the frame under the slide,
+  which stays on top, with no other cards around it: a talking head with
+  slides. Use it on a slide (`<!-- camera: behind -->`), in steps, in the deck's
+  `camera:` list, or as the deck's default (`pip: behind`). Both recording modes
+  record it (#27).
+- Setup shows the chosen camera live, and the microphone as a live waveform.
 - Each button shows the key that does it, its letter in the accent: Keys,
   Camera, Record, Fullscreen, Editor and Studio.
 
 ### Changed
 
 - **● Studio** opens with **S** (it was R).
-- **⚙ Setup** is its own dialog: camera, microphone, sound, video, OBS and
-  files, saved as they're chosen. The first ● Record opens it alone, with its
-  own ● Record to start; Studio's ⚙ Setup opens it on top, and closing it goes
-  back to Studio, which is now just for recording and picking takes (#26).
+- **⚙ Setup** is its own view of Studio's dialog: camera, microphone, sound,
+  video, OBS and files, saved as they're chosen. ⚙ Setup swaps Studio for it and
+  becomes **← Back**; the first ● Record opens straight on it, with its own
+  ● Record to start. Studio itself is for recording and picking takes (#26).
 - **/** opens the keys panel too, as **?** does, without Shift. The panel also
   lists Home and End, a clicker's PgDn and PgUp, = for +, and the keys while
   recording (← take again, B pause, Esc stop).

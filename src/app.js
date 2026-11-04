@@ -296,6 +296,8 @@ function computePipState(){
     mirror: !/^(no|false|off)$/i.test(deck.pip_mirror || ''),
     full: false, off: false, flip: false, used: false
   };
+  // pip: behind sets the deck's default to the camera under the slides
+  if (st.corner === 'behind' || st.corner === 'under'){ st.corner = 'bottom-right'; applyPreset(st, 'behind'); }
   applyPreset(st, slideCameraPreset());
   // a layout picked with V shows the camera unless it is "off" itself, even on a slide that turns it off
   if (camManual && !/\b(off|hide)\b/i.test(camManual)) st.off = false;
@@ -311,10 +313,12 @@ function applyPipState(){
   const st = pipState = computePipState();
   const valid = CORNERS.includes(st.corner);
   // (a message showing in the box keeps its class through a re-layout: fullscreen, resizing, a new slide)
-  pipEl.className = valid ? [st.corner, st.circle && 'circle', cameraStream && 'live', st.mirror && 'mirror', st.full && 'full', pipEl.classList.contains('msg') && 'msg'].filter(Boolean).join(' ') : '';
+  pipEl.className = valid ? [st.corner, st.circle && 'circle', cameraStream && 'live', st.mirror && 'mirror', st.full && 'full', st.behind && 'behind', pipEl.classList.contains('msg') && 'msg'].filter(Boolean).join(' ') : '';
   pipEl.style.width = st.size + '%';
   pipEl.hidden = !valid || cameraOff || st.off;
   stageWrap.dataset.pip = pipEl.hidden || st.full ? 'none' : st.corner;
+  // behind: the camera fills the frame under the slides, so the stage's own background steps aside
+  stageWrap.classList.toggle('cam-behind', !pipEl.hidden && !!st.behind);
   if (pipEl.hidden || reduceMotion || !pipEl.animate) return;
   const ease = 'cubic-bezier(.65,0,.35,1)';
   if (!first){
@@ -1259,7 +1263,7 @@ function applyStepState(snap){
   applyFragments(n, currentStep().frag, snap);
   applyPipState();
   // entrance animations wait until the slide is actually on screen, not behind a full-screen camera
-  if (pipEl.hidden || !pipState || !pipState.full) playEntrances(n);
+  if (pipEl.hidden || !pipState || !pipState.full || pipState.behind) playEntrances(n);
   scheduleAutoslide(n);
 }
 // data-gsap='{"from":{…},"duration":1,"delay":2,"ease":"…"}' and .title-scramble, as on the site
@@ -1817,6 +1821,7 @@ function showScreenAdvice(){
 const MEDIABUNNY_URL = 'https://cdn.jsdelivr.net/npm/mediabunny@1.64.0/+esm';
 const recCam = document.getElementById('rec-cam'), recMic = document.getElementById('rec-mic'), recQuality = document.getElementById('rec-quality');
 const recMeter = document.getElementById('rec-meter'), recCheck = document.getElementById('rec-browser-check');
+const recWave = /** @type {HTMLCanvasElement} */ (document.getElementById('rec-wave'));
 let recMode = load('slidetake:rec-mode') || '';
 let recNote = '';   // why the last start failed, shown in place of the check once
 let meter = null;   // the mic preview while the dialog is open: {stream, ctx, raf}
@@ -1840,6 +1845,30 @@ async function stopMeter(){
   meter.ctx.close().catch(()=>{});
   meter = null;
   recMeter.value = 0;
+  recWave.getContext('2d').clearRect(0, 0, recWave.width, recWave.height);
+  stopCamPreview();
+}
+// Setup's camera preview: the chosen camera, live, while Setup shows; released when it closes (and before
+// a take, so the recording can open the camera itself)
+const camPreview = document.getElementById('rec-cam-preview'), camNone = document.getElementById('rec-cam-none');
+let camPreviewStream = null, camPreviewToken = 0;
+function stopCamPreview(){
+  camPreviewToken++;
+  if (camPreviewStream){ camPreviewStream.getTracks().forEach(t=>t.stop()); camPreviewStream = null; }
+  camPreview.srcObject = null;
+}
+async function startCamPreview(){
+  stopCamPreview();
+  const token = camPreviewToken, id = recCam.value;
+  camNone.hidden = id !== 'none' && !!id;
+  camNone.textContent = 'No camera';
+  if (!id || id === 'none') return;
+  try {
+    const stream = await navigator.mediaDevices.getUserMedia({video:id === 'default' ? true : {deviceId:{exact:id}}});
+    if (token !== camPreviewToken){ stream.getTracks().forEach(t=>t.stop()); return; }
+    camPreviewStream = stream;
+    camPreview.srcObject = stream;
+  } catch(e){ camNone.hidden = false; camNone.textContent = 'The camera isn’t available'; }
 }
 async function startMeter(){
   await stopMeter();
@@ -1853,11 +1882,21 @@ async function startMeter(){
     ctx.createMediaStreamSource(stream).connect(an);
     const buf = new Float32Array(an.fftSize);
     const m = meter = {stream, ctx, raf:0};
+    // the live waveform: what the microphone hears, in the accent, louder the taller
+    const g = recWave.getContext('2d'), W = recWave.width, H = recWave.height, ink = tokenHex('--accent');
     const loop = ()=>{
       if (meter !== m) return;             // stopped, or a newer meter took over
       an.getFloatTimeDomainData(buf);
       let peak = 0; for (const v of buf) peak = Math.max(peak, Math.abs(v));
       recMeter.value = Math.max(peak, recMeter.value * 0.85);
+      g.clearRect(0, 0, W, H);
+      g.lineWidth = 3; g.strokeStyle = ink; g.lineJoin = 'round';
+      g.beginPath();
+      for (let i = 0; i < buf.length; i++){
+        const x = i / (buf.length - 1) * W, y = H / 2 - Math.max(-1, Math.min(1, buf[i] * 3)) * (H / 2 - 4);
+        if (i) g.lineTo(x, y); else g.moveTo(x, y);
+      }
+      g.stroke();
       m.raf = requestAnimationFrame(loop);
     };
     loop();
@@ -1894,6 +1933,7 @@ recMic.onchange = ()=>{ save('slidetake:mic', recMic.value); startMeter(); setup
 recCam.onchange = ()=>{
   setCamChoice(recCam.value);
   if (recCam.value !== 'none' && cameraStream){ stopWebcam(); startWebcam(); }
+  if (inSetup()) startCamPreview();
   setupSummary();
 };
 // ---------- the camera in a recording: chosen once per deck, turned on by Record ----------
@@ -1943,9 +1983,8 @@ async function showBrowserCheck(){
 function setRecMode(mode){
   recMode = mode;
   save('slidetake:rec-mode', mode);
-  // Studio behind it shows the other mode's takes; Setup stays open, now for that mode
-  if (reviewDialog.classList.contains('open')) openTakes();
-  openSetup();
+  // Studio switches to the other mode's takes, and stays on Setup, now for that mode
+  openTakes({setup:true});
 }
 // pro mode: chosen, or the only way in a browser that can't record itself (Safari, Firefox)
 const obsMode = ()=>!(browserRecording().ok && (recMode || 'browser') === 'browser');
@@ -2423,7 +2462,7 @@ function openReview(sess, opts = {}){
   resetPreview();
   renderReview();
   openModal(reviewDialog);
-  if (opts.setup) openSetup(opts); else fillDevices(false).then(setupSummary);
+  if (opts.setup) showSetup(opts); else { showStudio(); fillDevices(false).then(setupSummary); }
   say(opts.note || (sess.empty ? (obsConnected ? 'Press ● Record: OBS records the deck.' : 'Connect to OBS in Setup, then press ● Record.')
     : about + (rvVideo.src ? 'Click a take to preview it.' : 'Open the recording to preview it.')));
   if (!sess.empty) autoLoadRecording(sess);
@@ -2873,31 +2912,41 @@ function boardReview(){
     deckTitle:deck.title || (order[0] ? nodes.get(order[0]).title : 'Deck'), date:new Date().toISOString()});
   return {rows, sess};
 }
-// Setup is its own dialog: camera, microphone, sound, video, OBS and files, saved as they're chosen. It opens
-// on top of Studio (⚙ Setup), or alone the first time ● Record is pressed, with ● Record of its own to start.
-const setupDialog = document.getElementById('setup-dialog');
+// Setup is a view of Studio's own dialog: camera, microphone, sound, video, OBS and files, saved as they're
+// chosen. ⚙ Setup swaps Studio for it and becomes ← Back; the first ● Record opens the dialog on it, with
+// ● Record of its own to start.
 const setupBtn = document.getElementById('rv-setup-btn');
 const setupNote = document.getElementById('setup-note');
-// the setup shown is the mode's: easy mode's microphone and video, or pro mode's OBS
-const syncSetupMode = ()=>setupDialog.classList.toggle('obs', obsMode());
-function openSetup(opts = {}){
-  syncSetupMode();
+const inSetup = ()=>reviewDialog.classList.contains('setup-view');
+function showSetup(opts = {}){
+  reviewDialog.classList.add('setup-view');
   setupNote.textContent = opts.note || '';
   setupNote.hidden = !opts.note;
-  openModal(setupDialog);
+  setupBtn.textContent = '← Back';
+  setupBtn.title = 'Back to Studio';
   setupBtn.setAttribute('aria-expanded', 'true');
   refreshSetup();
 }
-// closing it (✕, Done, a click outside, Esc) stops the level meter and updates Studio's summary line
-new MutationObserver(()=>{
-  if (setupDialog.classList.contains('open')) return;
+function showStudio(){
+  const was = inSetup();
+  // only when it's there: the observer below watches these classes, and a no-op change would wake it again
+  if (was) reviewDialog.classList.remove('setup-view');
+  setupBtn.textContent = '⚙ Setup';
+  setupBtn.title = 'Camera, microphone, video, OBS and files';
   setupBtn.setAttribute('aria-expanded', 'false');
-  stopMeter();
-  setupSummary();
-}).observe(setupDialog, {attributes:true, attributeFilter:['class']});
-setupBtn.onclick = ()=>openSetup();
+  if (was){ stopMeter(); setupSummary(); }
+}
+// Setup from anywhere: Studio's dialog, opened on it if it isn't open
+function openSetup(opts = {}){
+  if (reviewDialog.classList.contains('open')) showSetup(opts);
+  else openTakes({...opts, setup:true});
+}
+// closing the dialog leaves Setup, so it opens on Studio next time
+new MutationObserver(()=>{ if (!reviewDialog.classList.contains('open')) showStudio(); })
+  .observe(reviewDialog, {attributes:true, attributeFilter:['class']});
+setupBtn.onclick = ()=>{ if (inSetup()) showStudio(); else showSetup(); };
+document.getElementById('setup-done').onclick = ()=>showStudio();
 document.getElementById('setup-record').onclick = ()=>{
-  setupDialog.classList.remove('open');
   closeModals();
   // choosing here settles the mode, so ● Record (R) goes straight to a take from now on
   if (!recMode){ recMode = obsMode() ? 'obs' : 'browser'; save('slidetake:rec-mode', recMode); }
@@ -2905,9 +2954,10 @@ document.getElementById('setup-record').onclick = ()=>{
 };
 reviewDialog.addEventListener('click', e=>{ if (e.target === reviewDialog || e.target.closest('[data-close]')) stopMeter(); });
 function refreshSetup(){
-  if (obsMode()){ showScreenAdvice(); fillDevices(false).then(setupSummary); return; }
+  const ready = ()=>{ setupSummary(); if (inSetup()) startCamPreview(); };   // devices named: show the chosen camera
+  if (obsMode()){ showScreenAdvice(); fillDevices(false).then(ready); return; }
   recCheck.innerHTML = '';
-  showBrowserCheck().then(b=>{ if (b.ok) fillDevices().then(setupSummary); else setupSummary(); });
+  showBrowserCheck().then(b=>{ if (b.ok) fillDevices().then(ready); else ready(); });
 }
 // the browser by its name (Chrome, Edge, Brave…), for the labels that switch between it and OBS
 const browserName = (()=>{
@@ -2944,7 +2994,7 @@ function openBoard(opts = {}){
   lastTicked = -1;
   renderBoard();
   openModal(reviewDialog);
-  if (opts.setup || !browserRecording().ok) openSetup(opts); else showBrowserCheck().then(()=>fillDevices(false)).then(setupSummary);
+  if (opts.setup || !browserRecording().ok) showSetup(opts); else { showStudio(); showBrowserCheck().then(()=>fillDevices(false)).then(setupSummary); }
   say(opts.note || selNote() || (board.takes.length ? boardState() + '. Click a take to preview it.' : order.length + ' slides, nothing recorded yet. Press ● Record.'));
 }
 // how far the video is: slides with a take to use, and those to record again
@@ -3302,8 +3352,8 @@ window.addEventListener('keydown', e=>{
   if (e.key === 'F5'){ e.preventDefault(); if (!rec.active) openTakes(); return; }
   if (rec.active){ takeKey(e); return; }
   if (document.querySelector('.modal.open')){
-    const setupOpen = setupDialog.classList.contains('open');
-    if (e.key === 'Escape'){ if (setupOpen) setupDialog.classList.remove('open'); else closeModals(); }
+    const setupOpen = reviewDialog.classList.contains('open') && inSetup();
+    if (e.key === 'Escape') closeModals();
     // R presses ● Record: Setup's, or Studio's (the ticked slides, or the whole deck); not while typing in a field
     else if ((e.key === 'r' || e.key === 'R') && (setupOpen || reviewDialog.classList.contains('open')) && !e.metaKey && !e.ctrlKey && !e.altKey
       && !/^(INPUT|TEXTAREA|SELECT)$/.test(document.activeElement?.tagName || '')){

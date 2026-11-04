@@ -337,7 +337,7 @@ A comment in a slide changes the camera from that slide on:
 <!-- camera: 18% flip --> ← small, other side
 ```
 
-Words you can combine: `on`, `off`, `full`, a size like `30%`, a corner, `flip`, `circle` / `rect`, `mirror` / `unmirror`. List them with commas to step through them on one slide: `full, on` opens on you, and the next → shrinks the camera to its corner and shows the slide.
+Words you can combine: `on`, `off`, `full`, `behind` (the camera fills the frame under the slide, which stays on top: a talking head with slides), a size like `30%`, a corner, `flip`, `circle` / `rect`, `mirror` / `unmirror`. List them with commas to step through them on one slide: `full, on` opens on you, and the next → shrinks the camera to its corner and shows the slide.
 
 **V** steps through the deck's `camera:` list by hand.
 
