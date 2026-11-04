@@ -20,7 +20,7 @@ package can notice. Tests, CI and tooling do not belong here.
   the slide on screen to the end, so going to a slide and pressing R redoes it.
   With OBS it records the whole deck, connecting first if OBS is remembered.
 - In Studio, **R** presses its ● Record: the ticked slides, or the whole deck.
-- ● Record is a solid red button, the same in the bottom bar and in Studio.
+- ● Record looks the same in the bottom bar and in Studio, and fills red on hover.
 - Each button shows the key that does it, its letter in the accent: Keys,
   Camera, Record, Fullscreen, Editor and Studio.
 
