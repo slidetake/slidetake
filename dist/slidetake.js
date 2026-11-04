@@ -655,7 +655,7 @@ Each take is a file in this browser's private storage until you purge it, in \u2
 ### Pro mode: set up OBS
 
 1. In OBS: Tools \u2192 WebSocket Server Settings, turn it on.
-2. In Studio, turn on **Pro** (top right), then in **\u2699 Setup** enter OBS's host, port and password, and **Connect**. Tick *Remember*.
+2. In Studio's **\u2699 Setup**, turn on **Pro** (top right), enter OBS's host, port and password, and **Connect**. Tick *Remember*.
 3. Present on a 16:9 screen, physical or virtual (say 1920\xD71080). Setup checks it.
 
 Studio opens in the mode you used last: its title says **Slidetake Studio Pro** in pro mode, with the size (\`1080p\`) beside it, and the camera and microphone a take uses on the right.
@@ -1752,7 +1752,7 @@ EOF
   /* Slidetake Studio, Pro in pro mode, / Settings in the setup view, and the size as a chip */
   #review h2 .rv-pro-tag{color:var(--accent);}
   #review h2 .rv-settings-tag{color:var(--text-muted);font-weight:500;}
-  #review:not(.setup-view) h2 .rv-settings-tag{display:none;}
+  #review:not(.setup-view) h2 .rv-settings-tag, #review:not(.setup-view) #rv-pro{display:none;}
   #review h2 .rv-size:empty{display:none;}
   #review h2 .rv-size{font-family:var(--mono);font-size:11px;font-weight:600;color:var(--text-muted);border:1px solid var(--panel-line);border-radius:6px;padding:2px 7px;margin-left:4px;}
   .rv-using{align-self:center;max-width:34vw;font-family:var(--mono);font-size:12px;color:var(--text-muted);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
