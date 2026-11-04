@@ -3279,7 +3279,16 @@ window.addEventListener('keydown', e=>{
   // a clicker's "start" button sends F5; never let it reload the page
   if (e.key === 'F5'){ e.preventDefault(); if (!rec.active) openTakes(); return; }
   if (rec.active){ takeKey(e); return; }
-  if (document.querySelector('.modal.open')){ if (e.key === 'Escape') closeModals(); return; }
+  if (document.querySelector('.modal.open')){
+    if (e.key === 'Escape') closeModals();
+    // in Studio, R presses its ● Record (the ticked slides, or the whole deck), unless typing in a field
+    else if ((e.key === 'r' || e.key === 'R') && reviewDialog.classList.contains('open') && !e.metaKey && !e.ctrlKey && !e.altKey
+      && !/^(INPUT|TEXTAREA|SELECT)$/.test(document.activeElement?.tagName || '')){
+      const btn = document.getElementById('rv-rec');
+      if (!btn.disabled) btn.click();
+    }
+    return;
+  }
   const tag = document.activeElement && document.activeElement.tagName;
   if (tag === 'TEXTAREA' || tag === 'INPUT' || e.metaKey || e.ctrlKey || e.altKey) return;
   // the keys card: K or ? again closes it, as O and F undo themselves
