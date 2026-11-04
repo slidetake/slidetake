@@ -2303,7 +2303,8 @@ EOF
             <p class="rv-setup-note" id="rec-screen"></p>
           </section>
         </div>
-        <div class="rv-setup-foot">
+        <div class="rv-setup-foot for-browser">
+          <span class="rv-setup-note for-browser">When Chrome asks, share <strong>this tab</strong>: only the slides and your camera are recorded, in a 16:9 frame.</span>
           <div class="rv-setup-row rv-files for-browser">
             <span class="rv-setup-label">Files</span>
             <button class="btn small" id="rv-folder-change" title="Where Download saves videos">Download folder\u2026</button>
@@ -2313,7 +2314,6 @@ EOF
             </details>
           </div>
         </div>
-        <p class="rv-setup-note for-browser">When Chrome asks, share <strong>this tab</strong>. Only the slides and your camera are recorded, in a 16:9 frame; nothing else on the screen is.</p>
       </div>
       <div class="setup-actions">
         <button class="btn rec" id="setup-record" title="Start recording (R)"><span class="rec-dot" aria-hidden="true">\u25CF</span> <span><u class="key">R</u>ecord</span></button>
