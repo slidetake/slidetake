@@ -16,6 +16,12 @@ package can notice. Tests, CI and tooling do not belong here.
 
 - The Showcase has a card for the camera behind the slide.
 
+### Changed
+
+- With the camera **behind**, the slide's content sits right on the camera: no
+  card behind it, its text white with a soft shadow so it reads over any
+  picture, code and table cells on a light dark tint, images as they are.
+
 ## [0.4.5] - 2026-11-04
 
 ### Added

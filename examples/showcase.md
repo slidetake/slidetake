@@ -177,7 +177,7 @@ Try it: press **C** to turn on your camera, then →. This card puts you in the 
 
 <!-- camera: behind -->
 
-With the camera on, you fill the frame and this card sits on top of you: a talking head with slides. One comment does it: `<!-- camera: behind -->`, or `pip: behind` for a whole deck.
+With the camera on, you fill the frame and this slide's words sit right on top of you: a talking head with slides. One comment does it: `<!-- camera: behind -->`, or `pip: behind` for a whole deck.
 
 ## 🗺️ Layouts and the map
 

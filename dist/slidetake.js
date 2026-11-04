@@ -1248,7 +1248,7 @@ Try it: press **C** to turn on your camera, then \u2192. This card puts you in t
 
 <!-- camera: behind -->
 
-With the camera on, you fill the frame and this card sits on top of you: a talking head with slides. One comment does it: \`<!-- camera: behind -->\`, or \`pip: behind\` for a whole deck.
+With the camera on, you fill the frame and this slide's words sit right on top of you: a talking head with slides. One comment does it: \`<!-- camera: behind -->\`, or \`pip: behind\` for a whole deck.
 
 ## \u{1F5FA}\uFE0F Layouts and the map
 
@@ -2039,6 +2039,15 @@ EOF
      background makes way so the camera shows around them */
   #pip.full.behind{z-index:0;pointer-events:none;box-shadow:none;}
   #stage-wrap.cam-behind #stage{z-index:1;background:transparent;}
+  /* the slide's content right on the camera: no card (background, border or glow), its text white with a soft
+     shadow so it reads over any picture, code and table cells on a light dark tint; images as they are */
+  #stage-wrap.cam-behind div.node{background:transparent !important;border-color:transparent !important;box-shadow:none !important;
+    --text:#fff;--text-muted:rgba(255,255,255,.85);--code-bg:rgba(0,0,0,.45);--panel-line:rgba(255,255,255,.35);
+    color:var(--text);text-shadow:0 1px 2px rgba(0,0,0,.9), 0 0 14px rgba(0,0,0,.55);}
+  #stage-wrap.cam-behind div.node .body pre, #stage-wrap.cam-behind div.node .body code{text-shadow:none;}
+  #stage-wrap.cam-behind div.node .body :is(th, td){background:rgba(0,0,0,.35);}
+  /* light mode's deep accent would vanish on video: the accent goes white too */
+  body[data-mode="light"] #stage-wrap.cam-behind div.node{--accent:#fff;--accent-teal:#fff;}
   /* only the slide being presented shows over the camera: no neighbouring cards or lines around it */
   #stage-wrap.cam-behind div.node:not(.current), #stage-wrap.cam-behind #connectors{opacity:0;transition:opacity .3s;}
   /* while presenting the box is empty so the camera overlay sits on plain background */
