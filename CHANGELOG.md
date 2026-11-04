@@ -15,6 +15,11 @@ package can notice. Tests, CI and tooling do not belong here.
 ### Added
 
 - The Showcase has a card for the camera behind the slide.
+- With the camera **behind**, a placement puts the slide's content around you:
+  `left` or `right` (a half), `top` or `bottom` (a quarter band), `around` (the
+  heading above you, the rest below) and `title` (the heading alone), as in
+  `<!-- camera: behind right -->` or `pip: behind left`. The content is scaled to
+  fill its place and never past it, and steps reveal there as they do on a card.
 
 ### Changed
 

@@ -1,9 +1,12 @@
 // @ts-check
 // Camera presets and a slide's steps. A preset is a few words applied on top of the deck's pip settings:
 //   off · on · full · behind · 18% (size) · top-left … bottom-right · flip (other side) · circle · rect · mirror · unmirror
-// full puts the camera over the whole frame; behind puts it there under the slides, which stay on top
+// full puts the camera over the whole frame; behind puts it there under the slides, which stay on top.
+// With behind, a placement puts the slide's content around the person: left or right (a half), top or bottom
+// (a band of a quarter), around (the heading in the top band, the rest in the bottom one), title (the heading only)
 
 export const CORNERS = ['top-left', 'top-right', 'bottom-left', 'bottom-right'];
+export const PLACES = ['left', 'right', 'top', 'bottom', 'around', 'title'];
 /** @param {number} v */
 export const clampPipSize = v=>Math.max(8, Math.min(60, v));
 
@@ -15,6 +18,7 @@ export const clampPipSize = v=>Math.max(8, Math.min(60, v));
  * @property {boolean} [mirror]
  * @property {boolean} [full]
  * @property {boolean} [behind]  full frame, under the slides
+ * @property {string} [place]  with behind: '' (centred), left, right, top, bottom, around, title
  * @property {boolean} [off]
  * @property {boolean} [flip]
  * @property {boolean} [used]
@@ -27,9 +31,10 @@ export function applyPreset(st, preset){
   String(preset || '').toLowerCase().split(/\s+/).forEach(t=>{
     if (!t) return;
     if (t === 'off' || t === 'hide'){ st.off = true; }
-    else if (t === 'on' || t === 'pip' || t === 'show'){ st.off = false; st.full = false; st.behind = false; st.used = true; }
-    else if (t === 'full' || t === 'fullscreen'){ st.full = true; st.behind = false; st.off = false; st.used = true; }
-    else if (t === 'behind' || t === 'under'){ st.full = true; st.behind = true; st.off = false; st.used = true; }
+    else if (t === 'on' || t === 'pip' || t === 'show'){ st.off = false; st.full = false; st.behind = false; st.place = ''; st.used = true; }
+    else if (t === 'full' || t === 'fullscreen'){ st.full = true; st.behind = false; st.place = ''; st.off = false; st.used = true; }
+    else if (t === 'behind' || t === 'under'){ st.full = true; st.behind = true; st.place = ''; st.off = false; st.used = true; }
+    else if (PLACES.includes(t)){ st.place = t; st.used = true; }
     else if (/^\d+(\.\d+)?%?$/.test(t)){ st.size = clampPipSize(parseFloat(t)); st.used = true; }
     else if (CORNERS.includes(t)){ st.corner = t; st.used = true; }
     else if (t === 'flip'){ st.flip = !st.flip; st.used = true; }

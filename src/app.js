@@ -296,8 +296,8 @@ function computePipState(){
     mirror: !/^(no|false|off)$/i.test(deck.pip_mirror || ''),
     full: false, off: false, flip: false, used: false
   };
-  // pip: behind sets the deck's default to the camera under the slides
-  if (st.corner === 'behind' || st.corner === 'under'){ st.corner = 'bottom-right'; applyPreset(st, 'behind'); }
+  // pip: behind (and a placement, pip: behind right) sets the deck's default to the camera under the slides
+  if (/^(behind|under)\b/.test(st.corner)){ const words = st.corner; st.corner = 'bottom-right'; applyPreset(st, words); }
   applyPreset(st, slideCameraPreset());
   // a layout picked with V shows the camera unless it is "off" itself, even on a slide that turns it off
   if (camManual && !/\b(off|hide)\b/i.test(camManual)) st.off = false;
@@ -319,6 +319,7 @@ function applyPipState(){
   stageWrap.dataset.pip = pipEl.hidden || st.full ? 'none' : st.corner;
   // behind: the camera fills the frame under the slides, so the stage's own background steps aside
   stageWrap.classList.toggle('cam-behind', !pipEl.hidden && !!st.behind);
+  renderCamOverlay(!pipEl.hidden && st.behind ? st.place || '' : '');
   if (pipEl.hidden || reduceMotion || !pipEl.animate) return;
   const ease = 'cubic-bezier(.65,0,.35,1)';
   if (!first){
@@ -333,6 +334,60 @@ function applyPipState(){
     {transformOrigin:'0 0', transform:'none'}
   ], {duration:600, easing:ease});
 }
+// ---------- the slide around the person: behind left, right, top, bottom, around, title ----------
+// The current slide's content is drawn into regions over the camera instead of its card: a half, a quarter
+// band, the heading on top and the rest below (around), or the heading alone (title). Each region's content is
+// laid out at the card's text size and scaled to fill it, never past it, so short text is large and long text
+// shrinks rather than spilling onto the person. Redrawn at every step, so reveals show as they happen.
+const camOverlay = document.getElementById('cam-overlay');
+let camPlace = '';
+function renderCamOverlay(place){
+  camPlace = place;
+  stageWrap.dataset.place = place;
+  camOverlay.innerHTML = '';
+  const n = place && nodes.get(currentId);
+  if (!n) return;
+  const body = n.el.querySelector('.body');
+  const all = [...body.children].map(c=>c.cloneNode(true));
+  const isHead = /** @param {Element} e */ e=>/^H[1-6]$/.test(e.tagName);
+  const head = all.filter((e, i)=>i === 0 && isHead(e)), rest = all.filter(e=>!head.includes(e));
+  /** @type {[string, Element[]][]} */
+  const boxes = place === 'around' ? [['top', head], ['bottom', rest]]
+    : place === 'title' ? [['top', head.length ? head : all.slice(0, 1)]]
+    : [[place, all]];
+  boxes.forEach(([where, els])=>{
+    if (!els.length) return;
+    const box = document.createElement('div');
+    box.className = 'cam-box ' + where;
+    const card = document.createElement('section');
+    card.className = 'node';
+    const inner = document.createElement('div');
+    inner.className = 'body';
+    els.forEach(e=>inner.appendChild(e));
+    card.appendChild(inner);
+    box.appendChild(card);
+    camOverlay.appendChild(box);
+  });
+  fitCamOverlay();
+}
+// each region's content at the largest scale that fits it (and no larger than reads well on the frame)
+function fitCamOverlay(){
+  const most = stage.clientHeight / 240;   // body text up to about 5% of the frame's height
+  camOverlay.querySelectorAll('.cam-box').forEach(box=>{
+    const card = /** @type {HTMLElement} */ (box.firstElementChild);
+    const bw = box.clientWidth, bh = box.clientHeight;
+    let lo = 0.3, hi = most;
+    for (let i = 0; i < 12; i++){
+      const s = (lo + hi) / 2;
+      card.style.width = (bw / s) + 'px';
+      if (card.offsetHeight * s <= bh) lo = s; else hi = s;
+    }
+    card.style.width = (bw / lo) + 'px';
+    card.style.transform = 'scale(' + lo + ')';
+  });
+}
+new ResizeObserver(()=>{ if (camPlace) fitCamOverlay(); }).observe(stageWrap);
+
 // where the PIP box will be once its CSS transition finishes, in stage coordinates
 function pipRect(){
   const st = pipState;

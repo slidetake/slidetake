@@ -720,6 +720,24 @@
     color:var(--text);text-shadow:0 1px 2px rgba(0,0,0,.9), 0 0 14px rgba(0,0,0,.55);}
   #stage-wrap.cam-behind div.node .body pre, #stage-wrap.cam-behind div.node .body code{text-shadow:none;}
   #stage-wrap.cam-behind div.node .body :is(th, td){background:rgba(0,0,0,.35);}
+  /* behind with a placement: the content in regions around the person (the card itself steps aside) */
+  #cam-overlay{position:absolute;inset:0;z-index:2;pointer-events:none;display:none;
+    --text:#fff;--text-muted:rgba(255,255,255,.85);--code-bg:rgba(0,0,0,.45);--panel-line:rgba(255,255,255,.35);
+    color:var(--text);text-shadow:0 1px 2px rgba(0,0,0,.9), 0 0 14px rgba(0,0,0,.55);}
+  #stage-wrap:not([data-place=""])[data-place] #cam-overlay{display:block;}
+  #stage-wrap:not([data-place=""])[data-place] #world{opacity:0;}
+  #cam-overlay .cam-box{position:absolute;display:flex;align-items:center;}
+  #cam-overlay .cam-box.left{left:4%;top:8%;width:42%;height:84%;}
+  #cam-overlay .cam-box.right{right:4%;top:8%;width:42%;height:84%;}
+  #cam-overlay .cam-box.top{left:5%;top:3%;width:90%;height:22%;align-items:flex-start;}
+  #cam-overlay .cam-box.bottom{left:5%;bottom:3%;width:90%;height:22%;align-items:flex-end;}
+  #cam-overlay .cam-box > .node{flex:none;transform-origin:0 0;background:none;border:none;padding:0;}
+  #cam-overlay .cam-box.top > .node{transform-origin:0 0;}
+  #cam-overlay .cam-box.bottom > .node{transform-origin:0 100%;}
+  #cam-overlay .cam-box.left > .node, #cam-overlay .cam-box.right > .node{transform-origin:0 50%;}
+  #cam-overlay .body pre, #cam-overlay .body code{text-shadow:none;}
+  #cam-overlay .body :is(th, td){background:rgba(0,0,0,.35);}
+  body[data-mode="light"] #cam-overlay{--accent:#fff;--accent-teal:#fff;}
   /* light mode's deep accent would vanish on video: the accent goes white too */
   body[data-mode="light"] #stage-wrap.cam-behind div.node{--accent:#fff;--accent-teal:#fff;}
   /* only the slide being presented shows over the camera: no neighbouring cards or lines around it */
