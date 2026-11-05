@@ -677,7 +677,7 @@
     html.embed.no-record #navbar{display:flex;}
     html.embed.no-record #navbar > :not(.touch-only){display:none !important;}
   }
-  html.no-record #btn-camera, html.no-record #btn-studio, html.no-record #btn-record, html.no-record #pip, html.no-record #help tr.rec{display:none !important;}
+  html.no-record #btn-camera, html.no-record #btn-studio, html.no-record #btn-record, html.no-record #pip:not(.empty), html.no-record #help tr.rec{display:none !important;}
   /* the logo written into a heading: # ![](/favicon.svg) Slidetake */
   .node .body :is(h1,h2) img[src$="favicon.svg"]{height:1em;width:auto;vertical-align:-.12em;margin-right:.25em;display:inline;}
   #brand .st-mark{display:inline-flex;align-items:center;gap:8px;font-family:var(--display);font-weight:700;font-size:20px;color:var(--text);}
@@ -712,15 +712,17 @@
   /* behind: the camera fills the frame under the slides, which stay on top as cards; the stage's dotted
      background makes way so the camera shows around them */
   #pip.full.behind{z-index:0;pointer-events:none;box-shadow:none;}
+  /* the camera behind the slide while it is off: an empty frame with a faint person where you'd be */
+  #stage-wrap #pip.empty{border:none;background:#1b1d22 url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Cg fill='%23fff' fill-opacity='.07'%3E%3Ccircle cx='50' cy='40' r='15'/%3E%3Cpath d='M18 100c0-22 14-36 32-36s32 14 32 36z'/%3E%3C/g%3E%3C/svg%3E") 50% 100%/auto 70% no-repeat;}
+  /* the person stands where the words leave room */
+  #stage-wrap[data-place="left"] #pip.empty{background-position:76% 100%;}
+  #stage-wrap[data-place="right"] #pip.empty{background-position:24% 100%;}
+  #pip.empty:not(.msg) > span{position:absolute;left:50%;bottom:4%;transform:translateX(-50%);font-size:0;}
+  #pip.empty:not(.msg) > span::after{content:"Camera off · press C";font-size:12px;color:#fff;opacity:.45;letter-spacing:.08em;}
+  html.no-record #pip.empty > span{display:none;}
   #stage-wrap.cam-behind #stage{z-index:1;background:transparent;}
-  /* the slide's content right on the camera: no card (background, border or glow), its text white with a soft
-     shadow so it reads over any picture, code and table cells on a light dark tint; images as they are */
-  #stage-wrap.cam-behind div.node{background:rgba(12,12,14,var(--cam-card,0)) !important;border-color:transparent !important;box-shadow:none !important;
-    --text:#fff;--text-muted:rgba(255,255,255,.85);--code-bg:rgba(0,0,0,.45);--panel-line:rgba(255,255,255,.35);
-    color:var(--text);text-shadow:0 1px 2px rgba(0,0,0,.9), 0 0 14px rgba(0,0,0,.55);}
-  #stage-wrap.cam-behind div.node .body pre, #stage-wrap.cam-behind div.node .body code{text-shadow:none;}
-  #stage-wrap.cam-behind div.node .body :is(th, td){background:rgba(0,0,0,.35);}
-  /* behind with a placement: the content in regions around the person (the card itself steps aside) */
+  /* behind: the slide's content in regions around the person (the card itself steps aside), its text white with
+     a soft shadow so it reads over any picture, code and table cells on a dark tint; images as they are */
   #cam-overlay{position:absolute;inset:0;z-index:2;pointer-events:none;display:none;
     --text:#fff;--text-muted:rgba(255,255,255,.85);--code-bg:rgba(0,0,0,.45);--panel-line:rgba(255,255,255,.35);
     color:var(--text);text-shadow:0 1px 2px rgba(0,0,0,.9), 0 0 14px rgba(0,0,0,.55);}
@@ -752,11 +754,8 @@
   #cam-overlay .cam-media :is(.diagram, .echarts-container){background:rgba(10,10,12,.72);border-radius:14px;padding:14px;text-shadow:none;}
   #cam-overlay .body pre, #cam-overlay .body code{text-shadow:none;}
   #cam-overlay .body :is(th, td){background:rgba(0,0,0,.35);}
-  body[data-mode="light"] #cam-overlay{--accent:#fff;--accent-teal:#fff;}
   /* light mode's deep accent would vanish on video: the accent goes white too */
-  body[data-mode="light"] #stage-wrap.cam-behind div.node{--accent:#fff;--accent-teal:#fff;}
-  /* only the slide being presented shows over the camera: no neighbouring cards or lines around it */
-  #stage-wrap.cam-behind div.node:not(.current), #stage-wrap.cam-behind #connectors{opacity:0;transition:opacity .3s;}
+  body[data-mode="light"] #cam-overlay{--accent:#fff;--accent-teal:#fff;}
   /* while presenting the box is empty so the camera overlay sits on plain background */
   /* while presenting, the empty box stays as a faint guide for lining up a camera overlay */
   body.presenting #pip{border-color:color-mix(in srgb, var(--accent-teal) 30%, transparent);background:none;}

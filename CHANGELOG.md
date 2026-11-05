@@ -29,9 +29,12 @@ package can notice. Tests, CI and tooling do not belong here.
 
 ### Changed
 
-- With the camera **behind**, the slide's content sits right on the camera: no
-  card behind it, its text white with a soft shadow so it reads over any
-  picture, code and table cells on a light dark tint, images as they are.
+- `behind` no longer lays the whole slide over the camera: on its own it puts
+  the content beside you, on the left, its text white with a soft shadow so it
+  reads over any picture.
+- With the camera off, a slide with the camera behind it still shows its layout,
+  over an empty frame (*Camera off · press C*), and its steps still step.
+- The camera remembers being on or off: a reload brings it back as it was.
 - The camera **behind** stays on its own slide: the slides after it go back to
   the camera in its corner (or the deck's `pip:`), instead of carrying it on.
 

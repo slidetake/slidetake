@@ -2,7 +2,7 @@
 // Camera presets and a slide's steps. A preset is a few words applied on top of the deck's pip settings:
 //   off · on · full · behind · 18% (size) · top-left … bottom-right · flip (other side) · circle · rect · mirror · unmirror
 // full puts the camera over the whole frame; behind puts it there under the slides, which stay on top.
-// With behind, a placement puts the slide's content around the person: left or right (a half), top or bottom
+// With behind, a placement puts the slide's content around the person (behind alone is left): left or right (a half), top or bottom
 // (a band), top-bottom or left-right (split across both, the person in the middle). card 40% puts a dark
 // card under the content, from 0% (none, the default) to 100% (solid: no camera through it); card alone is solid.
 
@@ -19,7 +19,7 @@ export const clampPipSize = v=>Math.max(8, Math.min(60, v));
  * @property {boolean} [mirror]
  * @property {boolean} [full]
  * @property {boolean} [behind]  full frame, under the slides
- * @property {string} [place]  with behind: '' (centred), left, right, top, bottom, top-bottom, left-right
+ * @property {string} [place]  with behind: left, right, top, bottom, top-bottom, left-right
  * @property {number} [card]  with behind: the card's opacity under the content, 0 to 100
  * @property {boolean} [off]
  * @property {boolean} [flip]
@@ -42,7 +42,7 @@ export function applyPreset(st, preset){
     else if (t === 'off' || t === 'hide'){ st.off = true; }
     else if (t === 'on' || t === 'pip' || t === 'show'){ st.off = false; st.full = false; st.behind = false; st.place = ''; st.used = true; }
     else if (t === 'full' || t === 'fullscreen'){ st.full = true; st.behind = false; st.place = ''; st.off = false; st.used = true; }
-    else if (t === 'behind' || t === 'under'){ st.full = true; st.behind = true; st.place = ''; st.off = false; st.used = true; }
+    else if (t === 'behind' || t === 'under'){ st.full = true; st.behind = true; st.place = 'left'; st.off = false; st.used = true; }
     else if (PLACES.includes(t)){ st.place = t; st.used = true; }
     else if (/^\d+(\.\d+)?%?$/.test(t)){ st.size = clampPipSize(parseFloat(t)); st.used = true; }
     else if (CORNERS.includes(t)){ st.corner = t; st.used = true; }

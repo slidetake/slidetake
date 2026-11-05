@@ -72,7 +72,8 @@ let layoutMode = 'path';
 let presenting = false;
 let deck = {};           // settings from the deck's frontmatter: brand, logo, pip, pip_size, pip_shape, title
 // global camera switch (◉ Camera / C): when off, camera comments are ignored, camera-only steps are
-// skipped and slides get the whole screen. Every page load starts with it off; it comes on only by hand.
+// skipped and slides get the whole screen, except a slide with the camera behind it, which keeps its layout over
+// an empty camera. It comes on only by hand, and a reload remembers it.
 let cameraOff = true;
 // Camera, Record and Fullscreen are always there. The camera is off until someone turns it on, and until
 // then the deck's camera settings are ignored, so readers get slides using the whole screen. ?obs=host:port
@@ -255,8 +256,13 @@ function cameraList(){
 }
 // a slide's directive can list several layouts, "full, on": → steps through them before leaving the slide
 function cameraSteps(n){
-  return !cameraOff && n ? cameraPresets(n.camera) : [];
+  if (!n) return [];
+  const steps = cameraPresets(n.camera);
+  // with the camera off, a slide laid out around the camera keeps its steps, over an empty camera
+  return !cameraOff || steps.some(isBehind) ? steps : [];
 }
+/** @param {string} preset */
+function isBehind(preset){ return !!applyPreset({}, preset).behind; }
 // A slide's steps are its camera layouts and its fragments (reveal-one-at-a-time items). Camera layouts
 // up to the first one that shows the slide come first, then the fragments, then any remaining layouts,
 // so "full, on" opens on camera and "on, full" ends on camera after everything is revealed.
@@ -314,9 +320,11 @@ function applyPipState(){
   const st = pipState = computePipState();
   const valid = CORNERS.includes(st.corner);
   // (a message showing in the box keeps its class through a re-layout: fullscreen, resizing, a new slide)
-  pipEl.className = valid ? [st.corner, st.circle && 'circle', cameraStream && 'live', st.mirror && 'mirror', st.full && 'full', st.behind && 'behind', pipEl.classList.contains('msg') && 'msg'].filter(Boolean).join(' ') : '';
+  // the camera behind the slide shows even while the camera is off: an empty frame, so the layout reads
+  const empty = cameraOff && !!st.behind && !st.off;
+  pipEl.className = valid ? [st.corner, st.circle && 'circle', cameraStream && 'live', st.mirror && 'mirror', st.full && 'full', st.behind && 'behind', empty && 'empty', pipEl.classList.contains('msg') && 'msg'].filter(Boolean).join(' ') : '';
   pipEl.style.width = st.size + '%';
-  pipEl.hidden = !valid || cameraOff || st.off;
+  pipEl.hidden = !valid || st.off || (cameraOff && !empty);
   stageWrap.dataset.pip = pipEl.hidden || st.full ? 'none' : st.corner;
   // behind: the camera fills the frame under the slides, so the stage's own background steps aside
   stageWrap.classList.toggle('cam-behind', !pipEl.hidden && !!st.behind);
@@ -3394,6 +3402,7 @@ function updateCamBtn(){
 function setCameraEnabled(on, quiet){
   if (on && !RECORDING_UI) return;
   cameraOff = !on;
+  if (!quiet) save('slidetake:camera', on ? 'on' : 'off');   // a reload comes back the same
   if (cameraOff){ stopWebcam(); hidePipMsg(); }
   camManual = null; camCycle = -1;
   stepPos = Math.min(stepPos, Math.max(0, slideSteps(nodes.get(currentId)).length - 1));
@@ -3750,4 +3759,6 @@ loadInitialDeck().then(text=>{
   nodes.forEach(sizeCard);
   position();
   navigate(nodes.has(startId) ? startId : order[0], true);
+  // the camera as it was left: on again after a reload (the browser asks only if it hasn't been allowed)
+  if (RECORDING_UI && load('slidetake:camera') === 'on') setCameraEnabled(true, true);
 });
