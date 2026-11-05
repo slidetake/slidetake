@@ -26,6 +26,8 @@ package can notice. Tests, CI and tooling do not belong here.
 - With the camera **behind**, the slide's content sits right on the camera: no
   card behind it, its text white with a soft shadow so it reads over any
   picture, code and table cells on a light dark tint, images as they are.
+- The camera **behind** stays on its own slide: the slides after it go back to
+  the camera in its corner (or the deck's `pip:`), instead of carrying it on.
 
 ## [0.4.5] - 2026-11-04
 

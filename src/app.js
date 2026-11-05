@@ -269,7 +269,7 @@ function currentStep(){
   return steps[Math.min(stepPos, steps.length - 1)] || {cam:0, frag:0};
 }
 // the layout in force for the current slide: its own current step, otherwise the final step
-// of the nearest directive before it in document order. A full-screen card is the slide alone, so the
+// of the nearest directive before it in document order, unless that put the camera behind the slide. A full-screen card is the slide alone, so the
 // camera stays off it unless the card has its own directive (V still brings the camera back), and the
 // slides after it carry on with the camera as before.
 function slideCameraPreset(){
@@ -281,7 +281,8 @@ function slideCameraPreset(){
   if (n && n.el && n.el.classList.contains('card-full')) return 'off';
   for (let i = order.indexOf(currentId) - 1; i >= 0; i--){
     const steps = cameraSteps(nodes.get(order[i])); // order can be stale for a moment while the deck re-parses
-    if (steps.length) return steps[steps.length - 1];
+    // the camera behind the slide stays on its own card: the slides after it go back to the deck's camera
+    if (steps.length) return applyPreset({}, steps[steps.length - 1]).behind ? null : steps[steps.length - 1];
   }
   return null;
 }
