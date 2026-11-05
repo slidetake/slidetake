@@ -332,6 +332,7 @@ function applyPipState(){
   stageWrap.classList.toggle('cam-behind', !pipEl.hidden && !!st.behind);
   stageWrap.style.setProperty('--cam-card', String((st.card || 0) / 100));
   stageWrap.classList.toggle('cam-card', (st.card || 0) > 0);
+  stageWrap.classList.toggle('cam-empty', empty && !pipEl.hidden);
   renderCamOverlay(!pipEl.hidden && st.behind ? st.place || '' : '');
   if (pipEl.hidden || reduceMotion || !pipEl.animate) return;
   const ease = 'cubic-bezier(.65,0,.35,1)';
@@ -1028,7 +1029,10 @@ async function renderRich(){
         try { opt = JSON.parse(div.dataset.chart); }
         catch(e){ div.textContent = 'Chart data is not valid JSON.'; return; }
         // SVG stays sharp however far the camera zooms in
-        echarts.init(div, theme, {renderer:'svg'}).setOption(Object.assign({backgroundColor:'transparent', animation:!reduceMotion}, opt));
+        const chart = echarts.init(div, theme, {renderer:'svg'});
+        // the camera's placement copies the chart: copy it again once its bars have grown
+        chart.on('finished', ()=>{ if (camPlace && div.closest('.node') === (nodes.get(currentId) || {}).el) renderCamOverlay(camPlace); });
+        chart.setOption(Object.assign({backgroundColor:'transparent', animation:!reduceMotion}, opt));
       });
     } catch(e){ problems.push('charts'); }
   }

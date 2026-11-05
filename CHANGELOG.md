@@ -35,7 +35,10 @@ package can notice. Tests, CI and tooling do not belong here.
   the content beside you, on the left, its text white with a soft shadow so it
   reads over any picture.
 - With the camera off, a slide with the camera behind it still shows its layout,
-  over an empty frame (*Camera off · press C*), and its steps still step.
+  over an empty frame (*Camera off · press C*) in the deck's own light or dark
+  colours, and its steps still step.
+- Over the camera in light mode, headings keep the accent, lifted toward white
+  so they read on video.
 - The camera remembers being on or off: a reload brings it back as it was.
 - The overview (O) and a map moment show the map from a slide with the camera
   behind it: the camera waits in its corner until you're back on the slide.
