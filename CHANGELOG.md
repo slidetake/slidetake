@@ -37,11 +37,12 @@ package can notice. Tests, CI and tooling do not belong here.
 - With the camera off, a slide with the camera behind it still shows its layout,
   over an empty frame (*Camera off · press C*) in the deck's own light or dark
   colours, and its steps still step.
-- One colour rule for the words around you, in light and dark: over the empty
-  frame they take the deck's own colours (a card is the deck's panel); over live
-  video they're white with a soft shadow, keep the accent (lifted toward white in
-  light mode), sit on a dark card, and diagrams and charts get a pane of the
-  deck's background, since they're drawn for its mode.
+- One colour rule for the words around you, in light and dark: on a card, or
+  over the empty frame, they take the deck's own colours, the card white in
+  light mode and dark in dark; straight on live video they're white with a soft
+  shadow and keep the accent (lifted toward white in light mode), and diagrams
+  and charts get a pane of the deck's background, since they're drawn for its
+  mode.
 - The camera remembers being on or off: a reload brings it back as it was.
 - The overview (O) and a map moment show the map from a slide with the camera
   behind it: the camera waits in its corner until you're back on the slide.

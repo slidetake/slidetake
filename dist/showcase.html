@@ -764,26 +764,25 @@
   html.no-record #pip.empty > span{display:none;}
   #stage-wrap.cam-behind #stage{z-index:1;background:transparent;}
   /* behind: the slide's content in regions around the person (the card itself steps aside).
-     Colours, one rule for light and dark: over the empty frame (camera off) the words are a card's, in the deck's
-     own colours. Over live video, which is neither light nor dark, they're white with a soft shadow, the accent
-     kept (lifted toward white in light mode, where it's deep), a card under them dark, and diagrams and charts,
-     drawn for the deck's mode, on a pane of the deck's background */
-  #cam-overlay{position:absolute;inset:0;z-index:2;pointer-events:none;display:none;color:var(--text);
-    --cam-card-color:var(--panel);}
-  #stage-wrap.cam-live #cam-overlay{
+     Colours, one rule for light and dark: on a card, or over the empty frame (camera off), the words are a slide's,
+     in the deck's own colours, the card its panel (white in light, black in dark). Straight on live video, which is
+     neither light nor dark, they're white with a soft shadow, the accent kept (lifted toward white in light mode,
+     where it's deep), and diagrams and charts, drawn for the deck's mode, on a pane of the deck's background */
+  #cam-overlay{position:absolute;inset:0;z-index:2;pointer-events:none;display:none;color:var(--text);}
+  #stage-wrap.cam-live:not(.cam-card) #cam-overlay{
     --text:#fff;--text-muted:rgba(255,255,255,.85);--code-bg:rgba(0,0,0,.45);--panel-line:rgba(255,255,255,.35);
-    --cam-card-color:#0c0c0e;text-shadow:0 1px 2px rgba(0,0,0,.9), 0 0 14px rgba(0,0,0,.55);}
+    text-shadow:0 1px 2px rgba(0,0,0,.9), 0 0 14px rgba(0,0,0,.55);}
   body[data-mode="light"] #stage-wrap{--cam-accent:color-mix(in srgb, var(--accent) 50%, #fff);}
-  body[data-mode="light"] #stage-wrap.cam-live #cam-overlay{--accent:var(--cam-accent);--accent-teal:var(--cam-accent);}
-  #stage-wrap.cam-live #cam-overlay .cam-media :is(.diagram, .echarts-container){
+  body[data-mode="light"] #stage-wrap.cam-live:not(.cam-card) #cam-overlay{--accent:var(--cam-accent);--accent-teal:var(--cam-accent);}
+  #stage-wrap.cam-live:not(.cam-card) #cam-overlay .cam-media :is(.diagram, .echarts-container){
     background:color-mix(in srgb, var(--bg) 85%, transparent);border-radius:14px;padding:14px;text-shadow:none;}
-  #stage-wrap.cam-live #cam-overlay .body :is(th, td){background:rgba(0,0,0,.35);}
+  #stage-wrap.cam-live:not(.cam-card) #cam-overlay .body :is(th, td){background:rgba(0,0,0,.35);}
   #cam-overlay .body pre, #cam-overlay .body code{text-shadow:none;}
   #stage-wrap:not([data-place=""])[data-place] #cam-overlay{display:block;}
   #stage-wrap:not([data-place=""])[data-place] #world{opacity:0;}
   /* card 40%: a card under the words, from none to solid (no camera through it) */
   #cam-overlay .cam-box{position:absolute;display:flex;flex-direction:column;gap:3%;box-sizing:border-box;padding:1.2%;
-    border-radius:18px;background:color-mix(in srgb, var(--cam-card-color) calc(var(--cam-card, 0) * 100%), transparent);}
+    border-radius:18px;background:color-mix(in srgb, var(--panel) calc(var(--cam-card, 0) * 100%), transparent);}
   #cam-overlay .cam-box.left{left:4%;top:8%;width:42%;height:84%;}
   #cam-overlay .cam-box.right{right:4%;top:8%;width:42%;height:84%;}
   #cam-overlay .cam-box.top{left:5%;top:3%;width:90%;height:22%;flex-direction:row;}
