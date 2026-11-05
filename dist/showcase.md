@@ -185,6 +185,67 @@ With the camera on, you fill the frame and this slide's words sit right on top o
 
 Press → and these words move around you: `left`, `right`, `top`, `bottom`, `around`, `title`, then centred. One comment, one press each.
 
+### A picture beside you
+
+<!-- camera: behind right, behind left, behind bottom -->
+
+![The link preview, beside you](https://slidetake.com/og.jpg)
+
+### A Graphviz diagram beside you
+
+<!-- camera: behind left, behind bottom -->
+
+Talk through the flow while it sits beside you.
+
+```dot
+digraph {
+  rankdir=LR
+  node [shape=box style=rounded]
+  Markdown -> Deck -> Takes -> Video
+}
+```
+
+### A D2 diagram beside you
+
+<!-- camera: behind right, behind top -->
+
+```d2
+direction: right
+write: Write
+present: Present
+record: Record
+write -> present -> record
+```
+
+### An SVG beside you
+
+<!-- camera: behind left, behind around -->
+
+Drawn in the deck's colours.
+
+```svg
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 320 130">
+  <rect x="10" y="10" width="90" height="80" rx="10" style="fill:var(--accent)"/>
+  <rect x="115" y="10" width="90" height="80" rx="10" style="fill:var(--accent);opacity:.6"/>
+  <rect x="220" y="10" width="90" height="80" rx="10" fill="none" stroke="currentColor" stroke-width="2"/>
+  <text x="160" y="120" text-anchor="middle" font-size="14" fill="currentColor">accent, faded, outlined</text>
+</svg>
+```
+
+### A chart beside you
+
+<!-- camera: behind right, behind bottom -->
+
+Views a month, and growing.
+
+```echarts
+{
+  "xAxis": {"type": "category", "data": ["Jan", "Feb", "Mar", "Apr", "May"]},
+  "yAxis": {"type": "value"},
+  "series": [{"type": "bar", "data": [12, 19, 15, 24, 30]}]
+}
+```
+
 ## 🗺️ Layouts and the map
 
 <!-- view: overview -->

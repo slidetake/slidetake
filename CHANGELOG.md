@@ -20,6 +20,10 @@ package can notice. Tests, CI and tooling do not belong here.
   heading above you, the rest below) and `title` (the heading alone), as in
   `<!-- camera: behind right -->` or `pip: behind left`. The content is scaled to
   fill its place and never past it, and steps reveal there as they do on a card.
+- Pictures, Graphviz, D2, SVG and charts come along in a placement, with their
+  own share of it (below the words beside you, to their right in a band), drawn
+  as on the card and scaled to fit; diagrams and charts sit on a dark pane. The
+  Showcase has a card for each.
 
 ### Changed
 

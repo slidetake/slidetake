@@ -767,15 +767,26 @@
     color:var(--text);text-shadow:0 1px 2px rgba(0,0,0,.9), 0 0 14px rgba(0,0,0,.55);}
   #stage-wrap:not([data-place=""])[data-place] #cam-overlay{display:block;}
   #stage-wrap:not([data-place=""])[data-place] #world{opacity:0;}
-  #cam-overlay .cam-box{position:absolute;display:flex;align-items:center;}
+  #cam-overlay .cam-box{position:absolute;display:flex;flex-direction:column;gap:3%;}
   #cam-overlay .cam-box.left{left:4%;top:8%;width:42%;height:84%;}
   #cam-overlay .cam-box.right{right:4%;top:8%;width:42%;height:84%;}
-  #cam-overlay .cam-box.top{left:5%;top:3%;width:90%;height:22%;align-items:flex-start;}
-  #cam-overlay .cam-box.bottom{left:5%;bottom:3%;width:90%;height:22%;align-items:flex-end;}
-  #cam-overlay .cam-box > .node{flex:none;transform-origin:0 0;background:none;border:none;padding:0;}
-  #cam-overlay .cam-box.top > .node{transform-origin:0 0;}
-  #cam-overlay .cam-box.bottom > .node{transform-origin:0 100%;}
-  #cam-overlay .cam-box.left > .node, #cam-overlay .cam-box.right > .node{transform-origin:0 50%;}
+  #cam-overlay .cam-box.top{left:5%;top:3%;width:90%;height:22%;flex-direction:row;}
+  #cam-overlay .cam-box.bottom{left:5%;bottom:3%;width:90%;height:22%;flex-direction:row;}
+  /* the words take what the picture leaves: below it beside you, to its left in a band */
+  #cam-overlay .cam-text{flex:1 1 0;min-width:0;min-height:0;display:flex;align-items:center;}
+  #cam-overlay .cam-box.top .cam-text{align-items:flex-start;}
+  #cam-overlay .cam-box.bottom .cam-text{align-items:flex-end;}
+  #cam-overlay .cam-media{flex:1 1 0;min-width:0;min-height:0;position:relative;}
+  #cam-overlay .cam-text + .cam-media{flex:0 0 55%;}
+  #cam-overlay :is(.cam-box.top, .cam-box.bottom) .cam-text + .cam-media{flex-basis:38%;}
+  #cam-overlay .node{background:none;border:none;padding:0;}
+  #cam-overlay .cam-text > .node{flex:none;transform-origin:0 0;}
+  #cam-overlay .cam-box.bottom .cam-text > .node{transform-origin:0 100%;}
+  #cam-overlay .cam-box.left .cam-text > .node, #cam-overlay .cam-box.right .cam-text > .node{transform-origin:0 50%;}
+  #cam-overlay .cam-media > .node{position:absolute;left:50%;top:50%;transform-origin:50% 50%;}
+  #cam-overlay .cam-media > .node > .body > *{margin:0;}
+  /* diagrams and charts are drawn for the card's background: a dark pane keeps them readable on video */
+  #cam-overlay .cam-media :is(.diagram, .echarts-container){background:rgba(10,10,12,.72);border-radius:14px;padding:14px;text-shadow:none;}
   #cam-overlay .body pre, #cam-overlay .body code{text-shadow:none;}
   #cam-overlay .body :is(th, td){background:rgba(0,0,0,.35);}
   body[data-mode="light"] #cam-overlay{--accent:#fff;--accent-teal:#fff;}
@@ -961,6 +972,40 @@ write -&gt; present -&gt; record: one session
 <p>With the camera on, you fill the frame and this slide&#39;s words sit right on top of you: a talking head with slides. One comment does it: ``, or <code>pip: behind</code> for a whole deck. Add <code>left</code>, <code>right</code>, <code>top</code>, <code>bottom</code>, <code>around</code> or <code>title</code> to put the words around you.</p>
 <h3>Words around you</h3>
 <p>Press → and these words move around you: <code>left</code>, <code>right</code>, <code>top</code>, <code>bottom</code>, <code>around</code>, <code>title</code>, then centred. One comment, one press each.</p>
+<h3>A picture beside you</h3>
+<p><img src="https://slidetake.com/og.jpg" alt="The link preview, beside you"></p>
+<h3>A Graphviz diagram beside you</h3>
+<p>Talk through the flow while it sits beside you.</p>
+<pre><code class="language-dot">digraph {
+  rankdir=LR
+  node [shape=box style=rounded]
+  Markdown -&gt; Deck -&gt; Takes -&gt; Video
+}
+</code></pre>
+<h3>A D2 diagram beside you</h3>
+<pre><code class="language-d2">direction: right
+write: Write
+present: Present
+record: Record
+write -&gt; present -&gt; record
+</code></pre>
+<h3>An SVG beside you</h3>
+<p>Drawn in the deck&#39;s colours.</p>
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 320 130">
+  <rect x="10" y="10" width="90" height="80" rx="10" style="fill:var(--accent)"/>
+  <rect x="115" y="10" width="90" height="80" rx="10" style="fill:var(--accent);opacity:.6"/>
+  <rect x="220" y="10" width="90" height="80" rx="10" fill="none" stroke="currentColor" stroke-width="2"/>
+  <text x="160" y="120" text-anchor="middle" font-size="14" fill="currentColor">accent, faded, outlined</text>
+</svg>
+
+<h3>A chart beside you</h3>
+<p>Views a month, and growing.</p>
+<pre><code class="language-echarts">{
+  &quot;xAxis&quot;: {&quot;type&quot;: &quot;category&quot;, &quot;data&quot;: [&quot;Jan&quot;, &quot;Feb&quot;, &quot;Mar&quot;, &quot;Apr&quot;, &quot;May&quot;]},
+  &quot;yAxis&quot;: {&quot;type&quot;: &quot;value&quot;},
+  &quot;series&quot;: [{&quot;type&quot;: &quot;bar&quot;, &quot;data&quot;: [12, 19, 15, 24, 30]}]
+}
+</code></pre>
 <h2>🗺️ Layouts and the map</h2>
 <p>This card began by pulling back to the whole map: `` does that. Try it: press <strong>1</strong> to <strong>4</strong> for focus, path (the default), radial and tree, and <strong>O</strong> to zoom out and back.</p>
 <h3>Progress and timer</h3>
@@ -1279,7 +1324,7 @@ write -&gt; present -&gt; record: one session
   var recording_default = "---\ntitle: Video title\nduration: 10m\npip: bottom-right\npip_size: 24%\ncamera: 24%, 40%, full, off\n---\n\n<!-- camera: full, on -->\n\n# Video title\n\nOpens full screen on you; the next press shows this slide with you in the corner.\n\n## \u{1F4CC} Disclaimer\n\n<!-- camera: off, on -->\n\nOpens without the camera, so the text has the whole screen; the next press brings you back.\n\n## \u{1F9ED} Contents\n\n- Part one\n- Part two\n- Part three\n\n## \u{1F539} Part one\n\n<!-- view: overview -->\n\nThe overview comment pulls back to the whole map first: a good start to a chapter.\n\n### A detail\n\nSlides you talk over in the corner.\n\n## \u{1F538} Part two\n\n### A detail\n\n## \u{1F537} Part three\n\n### A detail\n\n## \u{1F64F} Thanks for watching\n\n<!-- camera: on, full, on, off -->\n\nEnds on you full screen, then back to the slide, then without the camera.\n";
 
   // examples/showcase.md
-  var showcase_default = '---\ntitle: Slidetake Showcase\ndescription: "Everything a Slidetake deck can hold, working on screen: text, steps, code, Graphviz, D2, SVG, charts, image layouts, YouTube, the camera and the map."\nbrand: slidetake\nduration: 10m\n---\n\n# ![](https://slidetake.com/favicon.svg) Slide<span class="st-take">take</span> Showcase\n\nEverything a deck can hold, written in plain markdown and working on screen. Open **\u270E Editor** to see the source of any card. Press \u2192 to walk it, **O** for the map.\n\n## \u270D\uFE0F Text\n\nParagraphs, **bold**, *italic*, `code`, [links](https://slidetake.com) and lists, as markdown writes them.\n\n- One point\n- Another point\n  - A detail under it\n\n### Steps\n\nPut `<!-- steps -->` before a list and it reveals one item per press. Everything after it on the card steps too, so a closing line waits its turn:\n\n<!-- steps -->\n- First, the problem\n- Then, the idea\n- Finally, the result\n\n> The conclusion comes last. `<!-- steps: off -->` ends the steps early.\n\n### Quotes and tables\n\n> A quote stands out from the text around it.\n\n| Plan | Price | Users |\n|---|---:|---:|\n| Starter | \u20B90 | 1 |\n| Team | \u20B9499 | 10 |\n\n### Code\n\n```python\ndef take(slide):\n    return slide.best_attempt()\n```\n\n### Links between cards\n\n`{#charts}` at the end of a heading gives its card an id, and a link to `#charts` flies there: [see the charts](#charts).\n\n## \u{1F4D0} Diagrams\n\nWrite the diagram in a fenced block named after its language.\n\n### Graphviz\n\n```dot\ndigraph {\n  rankdir=LR\n  node [shape=box style=rounded]\n  Markdown -> Deck -> Takes -> Video\n}\n```\n\n### D2\n\n```d2\ndirection: right\nwrite: Write {shape: rectangle}\npresent: Present\nrecord: Record\nwrite -> present -> record: one session\n```\n\n### SVG\n\nDrawn inline, so `currentColor` and `var(--accent)` follow the deck\'s colours. Press **L** and watch it switch.\n\n```svg\n<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 320 130">\n  <rect x="10" y="10" width="90" height="80" rx="10" style="fill:var(--accent)"/>\n  <rect x="115" y="10" width="90" height="80" rx="10" style="fill:var(--accent);opacity:.6"/>\n  <rect x="220" y="10" width="90" height="80" rx="10" fill="none" stroke="currentColor" stroke-width="2"/>\n  <text x="160" y="120" text-anchor="middle" font-size="14" fill="currentColor">accent, faded, outlined</text>\n</svg>\n```\n\n### One at a time\n\nDiagrams or charts in a row after `<!-- steps -->` become a carousel: one per press.\n\n<!-- steps -->\n\n```dot\ndigraph { rankdir=LR; node [shape=box style=rounded]; Idea -> Markdown -> Deck -> Takes }\n```\n\n```dot\ndigraph { rankdir=LR; node [shape=box style=rounded]; Takes -> Studio -> Video -> YouTube }\n```\n\n## \u{1F4CA} Charts {#charts}\n\nECharts, as a fenced `echarts` block of JSON options.\n\n### A bar chart\n\n```echarts\n{\n  "xAxis": {"type": "category", "data": ["Jan", "Feb", "Mar", "Apr", "May"]},\n  "yAxis": {"type": "value"},\n  "series": [{"type": "bar", "data": [12, 19, 15, 24, 30]}]\n}\n```\n\n### A donut\n\n```echarts\n{\n  "series": [{"type": "pie", "radius": ["45%", "70%"],\n    "data": [{"name": "Equity", "value": 85}, {"name": "Debt", "value": 5}, {"name": "Gold", "value": 10}]}]\n}\n```\n\n## \u{1F5BC}\uFE0F Images\n\nThe layout comes from what\'s on the slide; the alt text is the caption.\n\n### One image\n\n![An image alone fills the card edge to edge](https://slidetake.com/og.jpg)\n\n### A tall image\n\n![A square or tall image sits beside its heading](https://slidetake.com/apple-touch-icon.png)\n\n### Image and text\n\n![Written first, so it sits on the left](https://slidetake.com/og.jpg)\n\nAn image beside text makes a split card. Write the text first and the image moves to the right.\n\n### A gallery\n\nA list of images is a gallery. With `<!-- steps -->` it becomes a carousel: one image at a time, the next on each press. Diagrams and charts work the same, and after `<!-- steps -->` two or more of them in a row are a carousel without the list.\n\n<!-- steps -->\n- ![The logo](https://slidetake.com/favicon.svg)\n- ![The home-screen icon](https://slidetake.com/apple-touch-icon.png)\n- ![The link preview](https://slidetake.com/og.jpg)\n\n### A grid\n\nSeveral images in one paragraph sit side by side, up to four a row:\n\n![Logo](https://slidetake.com/favicon.svg) ![Icon](https://slidetake.com/apple-touch-icon.png) ![Preview](https://slidetake.com/og.jpg)\n\n### Full screen\n\n<!-- view: full -->\n\n![A card tagged view: full is a 16:9 frame for a big image](https://slidetake.com/og.jpg)\n\n## \u25B6\uFE0F YouTube\n\nhttps://www.youtube.com/watch?v=jNQXAC9IVRw\n\nA YouTube link alone on a line becomes the video: the next press plays it, leaving the slide pauses it.\n\n## \u{1F3A5} Camera\n\n<!-- camera: on, full, on -->\n\nTry it: press **C** to turn on your camera, then \u2192. This card puts you in the corner, then full screen, then back, from one comment: `<!-- camera: on, full, on -->`.\n\n### Behind the slide\n\n<!-- camera: behind -->\n\nWith the camera on, you fill the frame and this slide\'s words sit right on top of you: a talking head with slides. One comment does it: `<!-- camera: behind -->`, or `pip: behind` for a whole deck. Add `left`, `right`, `top`, `bottom`, `around` or `title` to put the words around you.\n\n### Words around you\n\n<!-- camera: behind left, behind right, behind top, behind bottom, behind around, behind title, behind -->\n\nPress \u2192 and these words move around you: `left`, `right`, `top`, `bottom`, `around`, `title`, then centred. One comment, one press each.\n\n## \u{1F5FA}\uFE0F Layouts and the map\n\n<!-- view: overview -->\n\nThis card began by pulling back to the whole map: `<!-- view: overview -->` does that. Try it: press **1** to **4** for focus, path (the default), radial and tree, and **O** to zoom out and back.\n\n### Progress and timer\n\nPress **F**: in fullscreen a thin bar along the bottom fills as you go. This deck says `duration: 10m`, so a lighter clock layer grows behind it; if it shows past the fill, you\'re behind.\n\n## \u{1F3A8} Colours\n\nTry it: press **L** now. Dark and light switch, charts and diagrams included.\n\nA deck sets its own colour with one line, `accent: "#3b82f6"`, shaded for both modes. See it in [blue](/share#deflate:ZVJNa9wwEL3rV0y1hzZGTummn6YENodCoYVCAjksC9Zak5VY1zKacXZN2Gt-QH9if0kl2aSBnPTGevPmjZ_KshTsuMUKvnewbQcUummw4wrk4mL7eXn3UYoyksTiiSBurCMw2OzBagLfIeCRg4bWRagZ2CKw7xXUL7RqBbozgPcYRrau28Gdb1t_oAo4iqisQSpLNFYHzvRUGad3Qf8-h18BiaAofhRFnAKECFvPFshqg3QenS7gmrEnIb6-KkughKEsL0UZu658a4pCwToO2tPmzVuy_tBowrM8yaI20RUB6z1OLnzrhxB7rz0YjzR5n3b1Xab0mm0krGanIa2lgx_mmlpnEEY_vA6pJRtcTdsJUdc1ZkjiQR5XR0eyggfJY48RyEYz7nwYpQJpNOv4bS1_-i7VNwOm4xZNruyQjm_Byc0pgvGF1r2O6cmTEiAJg8N0u_5_vdXh-ZT3Cj4p-KDgi4J3y81pc0peZ_NzGNm-WQrjAjbsfFfF5XeWxSE4RigvoY9hxReQYKT4YKr8XihGGOlPile62QuxTkfKNP-1ORf4-_jnWUyLKQ86E_8A), [coral](/share#deflate:ZVJNa9wwEL3rV0y1hzZGSkn6EWJKYHMoFFooJNDDsrATa7IS61pGI2fXhL32B-Qn9pdUkk0TyElvrDdv3vhJay2iiy3V8K2DxgdsBTYNdbEGubi_vPhw9lkKnVhi8cwQt9YxGGp2YJHBdwR0iAGhdQlihGgJou8VbF6JbRRgZ4AeKIzRum4L975t_Z5riElEFQ1WRaKxGGKh58o43Ab8fQo_AzFDVX2vqjQFmAjufLTAFg3xabK6gJtIPQvx5Y3WwBmD1ldCp65r35qqUrBKg3a8fveerd83yHRSJllCk1wxRNzR5MK3fgip98aD8cST92lX3xVKj9EmwnJ2GvJaGPww19w6QzD64W3ILcXgctpOiM1mQwWyeJSH5cGxrOFRxrGnBGSDkbY-jFKBNBgxfVvJH77L9e1A-fhFplR2yMfX4OT6mMD4SusB29RxVAIkU3CUb1fP13cYXk75qOBCwScFlwrOztfH9TF7nc3PYRT75lwYF6iJznd1Wn5ro9gHFwn0FfQprPQCMkwUH0xd3gunCBP9v-I1NjshVvnImZa_NucCf_88vYhpMeXBJ-If) or [violet](/share#deflate:ZVJNa9wwEL3rV0y1hzZGTmlo-mFKYHMoFFooJJDDsmCtNVmJdS2jGe-uCXvtD-hP7C-pJJt0ISe9sd68eeOnsiwFO26xgm8d7J1vkYVuGuy4Arn4tLluHj9IUUaaWJxRxL11BAabHVhN4DsEPHLQ0LoINQNbBPa9gvqFWq1AdwZwj2Fk67otPPq29QeqgKOIyhqkskRjdeBMT5Vxehv0r0v4GZAIiuJ7UcQpQIiw8WyBrDZIl9HrAu4YexLiy6uyBEoYyvJGlLHr1remKBSs4qAdrd-8JesPjSa8yJMsahNdEbDe4eTCt34IsffOg_FIk_dpV99lSq_ZRsJydhrSWjr4Ya6pdQZh9MPrkFqyweW0nRB1XWOGJJ7kcXl0JCt4kjz2GIFsNOPWh1EqkEazjt9W8ofvUn0_YDoe0OTKDun4GpxcnyIYX2jtdRs7TkqAJAwO0-3q__VGh_Mp7xV8VHCt4LOCd1fr0_qUvM7m5zCyfXMljAvYsPNdFZffWhaH4BihvIE-hhVfQIKR4oOp8nuhGGGkPyve6mYnxCodKdP81-Zc4O_vP2cxLaY86EL8Aw).\n\n## \u2702\uFE0F Record a video\n\nTry it: press **\u25CF Record** in the bottom bar, or **R**. Stumble on a slide, press \u2190, say it again; then pick the best take of each. Step by step: [Docs \u2192 Record a video](/docs#4-record-a-video).\n\n## \u{1F310} Open from anywhere\n\nTry it: this deck is a file on GitHub, and opens from there too: **[slidetake.com/gh/slidetake/slidetake/examples/showcase.md](/gh/slidetake/slidetake/examples/showcase.md)**. Gists, any markdown URL, and a link with the deck inside it open the same way, and `npx slidetake deck.md` opens one from your computer.\n\n## \u{1F680} Start your own\n\nOpen **\u270E Editor** and press **New** for a template (blank, talk or recording), or type in this deck to make it your copy.\n\nThe templates and this deck live in [examples/](https://github.com/slidetake/slidetake/tree/main/examples) on GitHub.\n\nNext, how it all works, step by step: **[Docs \u2192](/docs)**\n';
+  var showcase_default = '---\ntitle: Slidetake Showcase\ndescription: "Everything a Slidetake deck can hold, working on screen: text, steps, code, Graphviz, D2, SVG, charts, image layouts, YouTube, the camera and the map."\nbrand: slidetake\nduration: 10m\n---\n\n# ![](https://slidetake.com/favicon.svg) Slide<span class="st-take">take</span> Showcase\n\nEverything a deck can hold, written in plain markdown and working on screen. Open **\u270E Editor** to see the source of any card. Press \u2192 to walk it, **O** for the map.\n\n## \u270D\uFE0F Text\n\nParagraphs, **bold**, *italic*, `code`, [links](https://slidetake.com) and lists, as markdown writes them.\n\n- One point\n- Another point\n  - A detail under it\n\n### Steps\n\nPut `<!-- steps -->` before a list and it reveals one item per press. Everything after it on the card steps too, so a closing line waits its turn:\n\n<!-- steps -->\n- First, the problem\n- Then, the idea\n- Finally, the result\n\n> The conclusion comes last. `<!-- steps: off -->` ends the steps early.\n\n### Quotes and tables\n\n> A quote stands out from the text around it.\n\n| Plan | Price | Users |\n|---|---:|---:|\n| Starter | \u20B90 | 1 |\n| Team | \u20B9499 | 10 |\n\n### Code\n\n```python\ndef take(slide):\n    return slide.best_attempt()\n```\n\n### Links between cards\n\n`{#charts}` at the end of a heading gives its card an id, and a link to `#charts` flies there: [see the charts](#charts).\n\n## \u{1F4D0} Diagrams\n\nWrite the diagram in a fenced block named after its language.\n\n### Graphviz\n\n```dot\ndigraph {\n  rankdir=LR\n  node [shape=box style=rounded]\n  Markdown -> Deck -> Takes -> Video\n}\n```\n\n### D2\n\n```d2\ndirection: right\nwrite: Write {shape: rectangle}\npresent: Present\nrecord: Record\nwrite -> present -> record: one session\n```\n\n### SVG\n\nDrawn inline, so `currentColor` and `var(--accent)` follow the deck\'s colours. Press **L** and watch it switch.\n\n```svg\n<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 320 130">\n  <rect x="10" y="10" width="90" height="80" rx="10" style="fill:var(--accent)"/>\n  <rect x="115" y="10" width="90" height="80" rx="10" style="fill:var(--accent);opacity:.6"/>\n  <rect x="220" y="10" width="90" height="80" rx="10" fill="none" stroke="currentColor" stroke-width="2"/>\n  <text x="160" y="120" text-anchor="middle" font-size="14" fill="currentColor">accent, faded, outlined</text>\n</svg>\n```\n\n### One at a time\n\nDiagrams or charts in a row after `<!-- steps -->` become a carousel: one per press.\n\n<!-- steps -->\n\n```dot\ndigraph { rankdir=LR; node [shape=box style=rounded]; Idea -> Markdown -> Deck -> Takes }\n```\n\n```dot\ndigraph { rankdir=LR; node [shape=box style=rounded]; Takes -> Studio -> Video -> YouTube }\n```\n\n## \u{1F4CA} Charts {#charts}\n\nECharts, as a fenced `echarts` block of JSON options.\n\n### A bar chart\n\n```echarts\n{\n  "xAxis": {"type": "category", "data": ["Jan", "Feb", "Mar", "Apr", "May"]},\n  "yAxis": {"type": "value"},\n  "series": [{"type": "bar", "data": [12, 19, 15, 24, 30]}]\n}\n```\n\n### A donut\n\n```echarts\n{\n  "series": [{"type": "pie", "radius": ["45%", "70%"],\n    "data": [{"name": "Equity", "value": 85}, {"name": "Debt", "value": 5}, {"name": "Gold", "value": 10}]}]\n}\n```\n\n## \u{1F5BC}\uFE0F Images\n\nThe layout comes from what\'s on the slide; the alt text is the caption.\n\n### One image\n\n![An image alone fills the card edge to edge](https://slidetake.com/og.jpg)\n\n### A tall image\n\n![A square or tall image sits beside its heading](https://slidetake.com/apple-touch-icon.png)\n\n### Image and text\n\n![Written first, so it sits on the left](https://slidetake.com/og.jpg)\n\nAn image beside text makes a split card. Write the text first and the image moves to the right.\n\n### A gallery\n\nA list of images is a gallery. With `<!-- steps -->` it becomes a carousel: one image at a time, the next on each press. Diagrams and charts work the same, and after `<!-- steps -->` two or more of them in a row are a carousel without the list.\n\n<!-- steps -->\n- ![The logo](https://slidetake.com/favicon.svg)\n- ![The home-screen icon](https://slidetake.com/apple-touch-icon.png)\n- ![The link preview](https://slidetake.com/og.jpg)\n\n### A grid\n\nSeveral images in one paragraph sit side by side, up to four a row:\n\n![Logo](https://slidetake.com/favicon.svg) ![Icon](https://slidetake.com/apple-touch-icon.png) ![Preview](https://slidetake.com/og.jpg)\n\n### Full screen\n\n<!-- view: full -->\n\n![A card tagged view: full is a 16:9 frame for a big image](https://slidetake.com/og.jpg)\n\n## \u25B6\uFE0F YouTube\n\nhttps://www.youtube.com/watch?v=jNQXAC9IVRw\n\nA YouTube link alone on a line becomes the video: the next press plays it, leaving the slide pauses it.\n\n## \u{1F3A5} Camera\n\n<!-- camera: on, full, on -->\n\nTry it: press **C** to turn on your camera, then \u2192. This card puts you in the corner, then full screen, then back, from one comment: `<!-- camera: on, full, on -->`.\n\n### Behind the slide\n\n<!-- camera: behind -->\n\nWith the camera on, you fill the frame and this slide\'s words sit right on top of you: a talking head with slides. One comment does it: `<!-- camera: behind -->`, or `pip: behind` for a whole deck. Add `left`, `right`, `top`, `bottom`, `around` or `title` to put the words around you.\n\n### Words around you\n\n<!-- camera: behind left, behind right, behind top, behind bottom, behind around, behind title, behind -->\n\nPress \u2192 and these words move around you: `left`, `right`, `top`, `bottom`, `around`, `title`, then centred. One comment, one press each.\n\n### A picture beside you\n\n<!-- camera: behind right, behind left, behind bottom -->\n\n![The link preview, beside you](https://slidetake.com/og.jpg)\n\n### A Graphviz diagram beside you\n\n<!-- camera: behind left, behind bottom -->\n\nTalk through the flow while it sits beside you.\n\n```dot\ndigraph {\n  rankdir=LR\n  node [shape=box style=rounded]\n  Markdown -> Deck -> Takes -> Video\n}\n```\n\n### A D2 diagram beside you\n\n<!-- camera: behind right, behind top -->\n\n```d2\ndirection: right\nwrite: Write\npresent: Present\nrecord: Record\nwrite -> present -> record\n```\n\n### An SVG beside you\n\n<!-- camera: behind left, behind around -->\n\nDrawn in the deck\'s colours.\n\n```svg\n<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 320 130">\n  <rect x="10" y="10" width="90" height="80" rx="10" style="fill:var(--accent)"/>\n  <rect x="115" y="10" width="90" height="80" rx="10" style="fill:var(--accent);opacity:.6"/>\n  <rect x="220" y="10" width="90" height="80" rx="10" fill="none" stroke="currentColor" stroke-width="2"/>\n  <text x="160" y="120" text-anchor="middle" font-size="14" fill="currentColor">accent, faded, outlined</text>\n</svg>\n```\n\n### A chart beside you\n\n<!-- camera: behind right, behind bottom -->\n\nViews a month, and growing.\n\n```echarts\n{\n  "xAxis": {"type": "category", "data": ["Jan", "Feb", "Mar", "Apr", "May"]},\n  "yAxis": {"type": "value"},\n  "series": [{"type": "bar", "data": [12, 19, 15, 24, 30]}]\n}\n```\n\n## \u{1F5FA}\uFE0F Layouts and the map\n\n<!-- view: overview -->\n\nThis card began by pulling back to the whole map: `<!-- view: overview -->` does that. Try it: press **1** to **4** for focus, path (the default), radial and tree, and **O** to zoom out and back.\n\n### Progress and timer\n\nPress **F**: in fullscreen a thin bar along the bottom fills as you go. This deck says `duration: 10m`, so a lighter clock layer grows behind it; if it shows past the fill, you\'re behind.\n\n## \u{1F3A8} Colours\n\nTry it: press **L** now. Dark and light switch, charts and diagrams included.\n\nA deck sets its own colour with one line, `accent: "#3b82f6"`, shaded for both modes. See it in [blue](/share#deflate:ZVJNa9wwEL3rV0y1hzZGTummn6YENodCoYVCAjksC9Zak5VY1zKacXZN2Gt-QH9if0kl2aSBnPTGevPmjZ_KshTsuMUKvnewbQcUummw4wrk4mL7eXn3UYoyksTiiSBurCMw2OzBagLfIeCRg4bWRagZ2CKw7xXUL7RqBbozgPcYRrau28Gdb1t_oAo4iqisQSpLNFYHzvRUGad3Qf8-h18BiaAofhRFnAKECFvPFshqg3QenS7gmrEnIb6-KkughKEsL0UZu658a4pCwToO2tPmzVuy_tBowrM8yaI20RUB6z1OLnzrhxB7rz0YjzR5n3b1Xab0mm0krGanIa2lgx_mmlpnEEY_vA6pJRtcTdsJUdc1ZkjiQR5XR0eyggfJY48RyEYz7nwYpQJpNOv4bS1_-i7VNwOm4xZNruyQjm_Byc0pgvGF1r2O6cmTEiAJg8N0u_5_vdXh-ZT3Cj4p-KDgi4J3y81pc0peZ_NzGNm-WQrjAjbsfFfF5XeWxSE4RigvoY9hxReQYKT4YKr8XihGGOlPile62QuxTkfKNP-1ORf4-_jnWUyLKQ86E_8A), [coral](/share#deflate:ZVJNa9wwEL3rV0y1hzZGSkn6EWJKYHMoFFooJNDDsrATa7IS61pGI2fXhL32B-Qn9pdUkk0TyElvrDdv3vhJay2iiy3V8K2DxgdsBTYNdbEGubi_vPhw9lkKnVhi8cwQt9YxGGp2YJHBdwR0iAGhdQlihGgJou8VbF6JbRRgZ4AeKIzRum4L975t_Z5riElEFQ1WRaKxGGKh58o43Ab8fQo_AzFDVX2vqjQFmAjufLTAFg3xabK6gJtIPQvx5Y3WwBmD1ldCp65r35qqUrBKg3a8fveerd83yHRSJllCk1wxRNzR5MK3fgip98aD8cST92lX3xVKj9EmwnJ2GvJaGPww19w6QzD64W3ILcXgctpOiM1mQwWyeJSH5cGxrOFRxrGnBGSDkbY-jFKBNBgxfVvJH77L9e1A-fhFplR2yMfX4OT6mMD4SusB29RxVAIkU3CUb1fP13cYXk75qOBCwScFlwrOztfH9TF7nc3PYRT75lwYF6iJznd1Wn5ro9gHFwn0FfQprPQCMkwUH0xd3gunCBP9v-I1NjshVvnImZa_NucCf_88vYhpMeXBJ-If) or [violet](/share#deflate:ZVJNa9wwEL3rV0y1hzZGTmlo-mFKYHMoFFooJJDDsmCtNVmJdS2jGe-uCXvtD-hP7C-pJJt0ISe9sd68eeOnsiwFO26xgm8d7J1vkYVuGuy4Arn4tLluHj9IUUaaWJxRxL11BAabHVhN4DsEPHLQ0LoINQNbBPa9gvqFWq1AdwZwj2Fk67otPPq29QeqgKOIyhqkskRjdeBMT5Vxehv0r0v4GZAIiuJ7UcQpQIiw8WyBrDZIl9HrAu4YexLiy6uyBEoYyvJGlLHr1remKBSs4qAdrd-8JesPjSa8yJMsahNdEbDe4eTCt34IsffOg_FIk_dpV99lSq_ZRsJydhrSWjr4Ya6pdQZh9MPrkFqyweW0nRB1XWOGJJ7kcXl0JCt4kjz2GIFsNOPWh1EqkEazjt9W8ofvUn0_YDoe0OTKDun4GpxcnyIYX2jtdRs7TkqAJAwO0-3q__VGh_Mp7xV8VHCt4LOCd1fr0_qUvM7m5zCyfXMljAvYsPNdFZffWhaH4BihvIE-hhVfQIKR4oOp8nuhGGGkPyve6mYnxCodKdP81-Zc4O_vP2cxLaY86EL8Aw).\n\n## \u2702\uFE0F Record a video\n\nTry it: press **\u25CF Record** in the bottom bar, or **R**. Stumble on a slide, press \u2190, say it again; then pick the best take of each. Step by step: [Docs \u2192 Record a video](/docs#4-record-a-video).\n\n## \u{1F310} Open from anywhere\n\nTry it: this deck is a file on GitHub, and opens from there too: **[slidetake.com/gh/slidetake/slidetake/examples/showcase.md](/gh/slidetake/slidetake/examples/showcase.md)**. Gists, any markdown URL, and a link with the deck inside it open the same way, and `npx slidetake deck.md` opens one from your computer.\n\n## \u{1F680} Start your own\n\nOpen **\u270E Editor** and press **New** for a template (blank, talk or recording), or type in this deck to make it your copy.\n\nThe templates and this deck live in [examples/](https://github.com/slidetake/slidetake/tree/main/examples) on GitHub.\n\nNext, how it all works, step by step: **[Docs \u2192](/docs)**\n';
 
   // src/core/text.js
   function slugify(s) {
@@ -2596,24 +2641,49 @@ write -&gt; present -&gt; record: one session
     );
     const head = all.filter((e, i) => i === 0 && isHead(e)), rest = all.filter((e) => !head.includes(e));
     const boxes = place === "around" ? [["top", head], ["bottom", rest]] : place === "title" ? [["top", head.length ? head : all.slice(0, 1)]] : [[place, all]];
+    const isMedia = (
+      /** @param {Element} e */
+      (e) => e.matches("figure.media, .diagram, .echarts-container, .gallery")
+    );
+    const cardWidth = body.clientWidth;
     boxes.forEach(([where, els]) => {
       if (!els.length) return;
       const box = document.createElement("div");
       box.className = "cam-box " + where;
-      const card = document.createElement("section");
-      card.className = "node";
-      const inner = document.createElement("div");
-      inner.className = "body";
-      els.forEach((e) => inner.appendChild(e));
-      card.appendChild(inner);
-      box.appendChild(card);
+      const part = (cls, kids) => {
+        if (!kids.length) return;
+        const wrap = document.createElement("div");
+        wrap.className = cls;
+        const card = document.createElement("section");
+        card.className = "node";
+        const inner = document.createElement("div");
+        inner.className = "body";
+        kids.forEach((e) => inner.appendChild(e));
+        card.appendChild(inner);
+        if (cls === "cam-media") card.style.width = cardWidth + "px";
+        wrap.appendChild(card);
+        box.appendChild(wrap);
+      };
+      part("cam-text", els.filter((e) => !isMedia(e)));
+      part("cam-media", els.filter(isMedia));
       camOverlay.appendChild(box);
+    });
+    camOverlay.querySelectorAll("img").forEach((img) => {
+      if (!img.complete) img.addEventListener("load", fitCamOverlay, { once: true });
     });
     fitCamOverlay();
   }
   function fitCamOverlay() {
     const most = stage.clientHeight / 240;
-    camOverlay.querySelectorAll(".cam-box").forEach((box) => {
+    camOverlay.querySelectorAll(".cam-media").forEach((box) => {
+      const card = (
+        /** @type {HTMLElement} */
+        box.firstElementChild
+      );
+      const s = Math.min(box.clientWidth / card.offsetWidth, box.clientHeight / card.offsetHeight, most * 1.5);
+      card.style.transform = "translate(-50%, -50%) scale(" + s + ")";
+    });
+    camOverlay.querySelectorAll(".cam-text").forEach((box) => {
       const card = (
         /** @type {HTMLElement} */
         box.firstElementChild
@@ -3266,6 +3336,7 @@ write -&gt; present -&gt; record: one session
       }
     }
     if (gen !== buildGen) return;
+    if (camPlace) renderCamOverlay(camPlace);
     if (problems.length) statusErr.textContent = "Could not load the " + problems.join(" and ") + " renderer (offline?)";
     nodes.forEach(sizeCard);
     position();

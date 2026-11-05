@@ -356,25 +356,45 @@ function renderCamOverlay(place){
   const boxes = place === 'around' ? [['top', head], ['bottom', rest]]
     : place === 'title' ? [['top', head.length ? head : all.slice(0, 1)]]
     : [[place, all]];
+  // pictures, diagrams and charts get their own share of a region, shown as they are on the card and
+  // scaled to fit, so a big image doesn't shrink the words beside it
+  const isMedia = /** @param {Element} e */ e=>e.matches('figure.media, .diagram, .echarts-container, .gallery');
+  const cardWidth = body.clientWidth;
   boxes.forEach(([where, els])=>{
     if (!els.length) return;
     const box = document.createElement('div');
     box.className = 'cam-box ' + where;
-    const card = document.createElement('section');
-    card.className = 'node';
-    const inner = document.createElement('div');
-    inner.className = 'body';
-    els.forEach(e=>inner.appendChild(e));
-    card.appendChild(inner);
-    box.appendChild(card);
+    /** @param {string} cls @param {Element[]} kids */
+    const part = (cls, kids)=>{
+      if (!kids.length) return;
+      const wrap = document.createElement('div');
+      wrap.className = cls;
+      const card = document.createElement('section');
+      card.className = 'node';
+      const inner = document.createElement('div');
+      inner.className = 'body';
+      kids.forEach(e=>inner.appendChild(e));
+      card.appendChild(inner);
+      if (cls === 'cam-media') card.style.width = cardWidth + 'px';
+      wrap.appendChild(card);
+      box.appendChild(wrap);
+    };
+    part('cam-text', els.filter(e=>!isMedia(e)));
+    part('cam-media', els.filter(isMedia));
     camOverlay.appendChild(box);
   });
+  camOverlay.querySelectorAll('img').forEach(img=>{ if (!img.complete) img.addEventListener('load', fitCamOverlay, {once:true}); });
   fitCamOverlay();
 }
 // each region's content at the largest scale that fits it (and no larger than reads well on the frame)
 function fitCamOverlay(){
   const most = stage.clientHeight / 240;   // body text up to about 5% of the frame's height
-  camOverlay.querySelectorAll('.cam-box').forEach(box=>{
+  camOverlay.querySelectorAll('.cam-media').forEach(box=>{
+    const card = /** @type {HTMLElement} */ (box.firstElementChild);
+    const s = Math.min(box.clientWidth / card.offsetWidth, box.clientHeight / card.offsetHeight, most * 1.5);
+    card.style.transform = 'translate(-50%, -50%) scale(' + s + ')';
+  });
+  camOverlay.querySelectorAll('.cam-text').forEach(box=>{
     const card = /** @type {HTMLElement} */ (box.firstElementChild);
     const bw = box.clientWidth, bh = box.clientHeight;
     let lo = 0.3, hi = most;
@@ -996,6 +1016,8 @@ async function renderRich(){
     } catch(e){ problems.push('charts'); }
   }
   if (gen !== buildGen) return;
+  // the camera's placement copies the card, so it takes the diagrams and charts now drawn
+  if (camPlace) renderCamOverlay(camPlace);
   if (problems.length) statusErr.textContent = 'Could not load the ' + problems.join(' and ') + ' renderer (offline?)';
   // diagrams and charts change card sizes
   nodes.forEach(sizeCard);
