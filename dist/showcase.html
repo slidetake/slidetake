@@ -749,7 +749,7 @@
   #pip.bottom-right{bottom:16px;right:16px;}
   /* full: the camera takes the whole stage, under the brand and the controls */
   /* it also swallows clicks, so a click can't land on the hidden cards behind it */
-  #pip.full{inset:0;width:100% !important;height:100%;aspect-ratio:auto;border-radius:0;z-index:9;pointer-events:auto;}
+  #pip.full{inset:0;width:100%;height:100%;aspect-ratio:auto;border-radius:0;z-index:9;pointer-events:auto;}
   /* behind: the camera fills the frame under the slides, which stay on top as cards; the stage's dotted
      background makes way so the camera shows around them */
   #pip.full.behind{z-index:0;pointer-events:none;box-shadow:none;}
@@ -2640,7 +2640,7 @@ write -&gt; present -&gt; record
     const valid = CORNERS.includes(st.corner);
     const empty = cameraOff && !!st.behind && !st.off;
     pipEl.className = valid ? [st.corner, st.circle && "circle", cameraStream && "live", st.mirror && "mirror", st.full && "full", st.behind && "behind", empty && "empty", pipEl.classList.contains("msg") && "msg"].filter(Boolean).join(" ") : "";
-    pipEl.style.width = st.size + "%";
+    pipEl.style.width = st.full ? "" : st.size + "%";
     pipEl.hidden = !valid || st.off || cameraOff && !empty;
     stageWrap.dataset.pip = pipEl.hidden || st.full ? "none" : st.corner;
     stageWrap.classList.toggle("cam-behind", !pipEl.hidden && !!st.behind);

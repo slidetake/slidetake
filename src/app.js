@@ -325,7 +325,8 @@ function applyPipState(){
   // the camera behind the slide shows even while the camera is off: an empty frame, so the layout reads
   const empty = cameraOff && !!st.behind && !st.off;
   pipEl.className = valid ? [st.corner, st.circle && 'circle', cameraStream && 'live', st.mirror && 'mirror', st.full && 'full', st.behind && 'behind', empty && 'empty', pipEl.classList.contains('msg') && 'msg'].filter(Boolean).join(' ') : '';
-  pipEl.style.width = st.size + '%';
+  // (full sets its own size: an important or inline width here would pin the box before it can glide)
+  pipEl.style.width = st.full ? '' : st.size + '%';
   pipEl.hidden = !valid || st.off || (cameraOff && !empty);
   stageWrap.dataset.pip = pipEl.hidden || st.full ? 'none' : st.corner;
   // behind: the camera fills the frame under the slides, so the stage's own background steps aside
