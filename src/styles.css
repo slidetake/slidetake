@@ -737,6 +737,13 @@
   #cam-overlay .cam-box.bottom{left:5%;bottom:3%;width:90%;height:22%;flex-direction:row;}
   /* left-right: a quarter each side, the person in the middle half */
   #stage-wrap[data-place="left-right"] #cam-overlay .cam-box:is(.left, .right){width:27%;}
+  /* with a card, the region fills its whole part of the frame, edge to edge: a half, a quarter band, a quarter side */
+  #stage-wrap.cam-card #cam-overlay .cam-box{border-radius:0;padding:2.5%;}
+  #stage-wrap.cam-card #cam-overlay .cam-box.left{left:0;top:0;width:50%;height:100%;}
+  #stage-wrap.cam-card #cam-overlay .cam-box.right{right:0;top:0;width:50%;height:100%;}
+  #stage-wrap.cam-card #cam-overlay .cam-box.top{left:0;top:0;width:100%;height:25%;}
+  #stage-wrap.cam-card #cam-overlay .cam-box.bottom{left:0;bottom:0;width:100%;height:25%;}
+  #stage-wrap.cam-card[data-place="left-right"] #cam-overlay .cam-box:is(.left, .right){width:25%;}
   /* the words take what the picture leaves: below it beside you, to its left in a band */
   #cam-overlay .cam-text{flex:1 1 0;min-width:0;min-height:0;display:flex;align-items:center;}
   #cam-overlay .cam-box.top .cam-text{align-items:flex-start;}

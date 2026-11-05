@@ -22,6 +22,8 @@ package can notice. Tests, CI and tooling do not belong here.
   fill its place and never past it, and steps reveal there as they do on a card.
 - `card 50%` puts a dark card under the content over the camera, from `card 0%`
   (none, the default) to `card` alone (solid, no camera through it).
+  With a card the words fill their part of the frame edge to edge: a half, a
+  quarter band, or a quarter on each side.
 - Pictures, Graphviz, D2, SVG and charts come along in a placement, with their
   own share of it (below the words beside you, to their right in a band), drawn
   as on the card and scaled to fit; diagrams and charts sit on a dark pane. The

@@ -331,6 +331,7 @@ function applyPipState(){
   // behind: the camera fills the frame under the slides, so the stage's own background steps aside
   stageWrap.classList.toggle('cam-behind', !pipEl.hidden && !!st.behind);
   stageWrap.style.setProperty('--cam-card', String((st.card || 0) / 100));
+  stageWrap.classList.toggle('cam-card', (st.card || 0) > 0);
   renderCamOverlay(!pipEl.hidden && st.behind ? st.place || '' : '');
   if (pipEl.hidden || reduceMotion || !pipEl.animate) return;
   const ease = 'cubic-bezier(.65,0,.35,1)';

@@ -187,9 +187,9 @@ Press → and these words move around you: `left`, `right`, `top`, `bottom`, `to
 
 ### A card under the words
 
-<!-- camera: behind left, behind left card 50%, behind left card -->
+<!-- camera: behind left, behind left card 50%, behind left card, behind bottom card 70%, behind left-right card -->
 
-Busy background? Put a card under the words: `card 50%` lets half the camera through, `card` alone hides it, for a split screen.
+Busy background? Put a card under the words: it fills its side edge to edge, `card 50%` lets half the camera through, `card` alone hides it, for a split screen.
 
 ### A picture beside you
 
