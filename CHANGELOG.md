@@ -35,6 +35,8 @@ package can notice. Tests, CI and tooling do not belong here.
 - With the camera off, a slide with the camera behind it still shows its layout,
   over an empty frame (*Camera off · press C*), and its steps still step.
 - The camera remembers being on or off: a reload brings it back as it was.
+- The overview (O) and a map moment show the map from a slide with the camera
+  behind it: the camera waits in its corner until you're back on the slide.
 - The camera **behind** stays on its own slide: the slides after it go back to
   the camera in its corner (or the deck's `pip:`), instead of carrying it on.
 

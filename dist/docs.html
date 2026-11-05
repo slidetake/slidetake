@@ -2964,6 +2964,10 @@ camera: 24%, full, off ← what V cycles
   function applyPipState() {
     const first = !pipEl.hidden && pipEl.offsetWidth ? pipEl.getBoundingClientRect() : null;
     const st = pipState = computePipState();
+    if (st.behind && (!currentId || mapTimer)) {
+      st.full = false;
+      st.behind = false;
+    }
     const valid = CORNERS.includes(st.corner);
     const empty = cameraOff && !!st.behind && !st.off;
     pipEl.className = valid ? [st.corner, st.circle && "circle", cameraStream && "live", st.mirror && "mirror", st.full && "full", st.behind && "behind", empty && "empty", pipEl.classList.contains("msg") && "msg"].filter(Boolean).join(" ") : "";
@@ -4162,8 +4166,12 @@ camera: 24%, full, off ← what V cycles
       fitAll();
       mapTimer = setTimeout(() => {
         mapTimer = null;
-        if (currentId === id) focusOn(id);
+        if (currentId === id) {
+          applyPipState();
+          focusOn(id);
+        }
       }, 1900);
+      applyPipState();
     } else focusOn(id, instant);
     updateActivePath();
     updateMinimap();
@@ -4192,6 +4200,7 @@ camera: 24%, full, off ← what V cycles
     leaveSlide();
     clearTimeout(autoTimer);
     currentId = null;
+    applyPipState();
     updateActivePath();
     updateMinimap();
     fitAll();
@@ -4201,6 +4210,7 @@ camera: 24%, full, off ← what V cycles
     if (mapTimer) {
       clearTimeout(mapTimer);
       mapTimer = null;
+      applyPipState();
       focusOn(currentId);
       return true;
     }
@@ -4220,6 +4230,7 @@ camera: 24%, full, off ← what V cycles
     if (mapTimer && dir > 0) {
       clearTimeout(mapTimer);
       mapTimer = null;
+      applyPipState();
       focusOn(currentId);
       return;
     }

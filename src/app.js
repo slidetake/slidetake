@@ -318,6 +318,8 @@ function computePipState(){
 function applyPipState(){
   const first = (!pipEl.hidden && pipEl.offsetWidth) ? pipEl.getBoundingClientRect() : null;
   const st = pipState = computePipState();
+  // the overview and a map moment show the map, not the words around you: the camera waits in its corner
+  if (st.behind && (!currentId || mapTimer)){ st.full = false; st.behind = false; }
   const valid = CORNERS.includes(st.corner);
   // (a message showing in the box keeps its class through a re-layout: fullscreen, resizing, a new slide)
   // the camera behind the slide shows even while the camera is off: an empty frame, so the layout reads
@@ -1464,7 +1466,8 @@ function navigate(id, instant, atLastStep){
   if (arriving && n.mapFirst && !atLastStep && !instant && layoutMode !== 'focus'){
     // a map moment: show the whole deck for a beat, then fly in
     fitAll();
-    mapTimer = setTimeout(()=>{ mapTimer = null; if (currentId === id) focusOn(id); }, 1900);
+    mapTimer = setTimeout(()=>{ mapTimer = null; if (currentId === id){ applyPipState(); focusOn(id); } }, 1900);
+    applyPipState();
   } else focusOn(id, instant);
   updateActivePath();
   updateMinimap();
@@ -1490,6 +1493,7 @@ function overview(){
   leaveSlide();
   clearTimeout(autoTimer);
   currentId = null;
+  applyPipState();
   updateActivePath();
   updateMinimap();
   fitAll();
@@ -1497,14 +1501,14 @@ function overview(){
 }
 // Esc during either overview: the map moment flies on into its slide, O's overview returns to the slide it left
 function backFromOverview(){
-  if (mapTimer){ clearTimeout(mapTimer); mapTimer = null; focusOn(currentId); return true; }
+  if (mapTimer){ clearTimeout(mapTimer); mapTimer = null; applyPipState(); focusOn(currentId); return true; }
   if (!currentId && overviewFrom && nodes.has(overviewFrom)){ const id = overviewFrom; overviewFrom = null; navigate(id); return true; }
   return false;
 }
 function step(dir){
   if (!currentId){ if (order.length) navigate(order[dir > 0 ? 0 : order.length-1]); return; }
   // a press during a map moment finishes it, flying into the slide, rather than skipping past the slide
-  if (mapTimer && dir > 0){ clearTimeout(mapTimer); mapTimer = null; focusOn(currentId); return; }
+  if (mapTimer && dir > 0){ clearTimeout(mapTimer); mapTimer = null; applyPipState(); focusOn(currentId); return; }
   const steps = slideSteps(nodes.get(currentId));
   const ns = Math.min(stepPos, steps.length - 1) + dir;
   if (ns >= 0 && ns < steps.length){
