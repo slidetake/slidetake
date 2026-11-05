@@ -722,20 +722,27 @@
   #pip.empty:not(.msg) > span::after{content:"Camera off · press C";font-size:12px;color:var(--text);opacity:.45;letter-spacing:.08em;}
   html.no-record #pip.empty > span{display:none;}
   #stage-wrap.cam-behind #stage{z-index:1;background:transparent;}
-  /* behind: the slide's content in regions around the person (the card itself steps aside), its text white with
-     a soft shadow so it reads over any picture, code and table cells on a dark tint; images as they are */
+  /* behind: the slide's content in regions around the person (the card itself steps aside).
+     Colours, one rule for light and dark: over the empty frame (camera off) the words are a card's, in the deck's
+     own colours. Over live video, which is neither light nor dark, they're white with a soft shadow, the accent
+     kept (lifted toward white in light mode, where it's deep), a card under them dark, and diagrams and charts,
+     drawn for the deck's mode, on a pane of the deck's background */
   #cam-overlay{position:absolute;inset:0;z-index:2;pointer-events:none;display:none;color:var(--text);
-    --cam-card-bg:12,12,14;}
-  #stage-wrap:not(.cam-empty) #cam-overlay{
+    --cam-card-color:var(--panel);}
+  #stage-wrap.cam-live #cam-overlay{
     --text:#fff;--text-muted:rgba(255,255,255,.85);--code-bg:rgba(0,0,0,.45);--panel-line:rgba(255,255,255,.35);
-    text-shadow:0 1px 2px rgba(0,0,0,.9), 0 0 14px rgba(0,0,0,.55);}
-  /* with the camera off there's no picture to read over: the words and the card take the deck's own colours */
-  body[data-mode="light"] #stage-wrap.cam-empty #cam-overlay{--cam-card-bg:255,255,255;}
+    --cam-card-color:#0c0c0e;text-shadow:0 1px 2px rgba(0,0,0,.9), 0 0 14px rgba(0,0,0,.55);}
+  body[data-mode="light"] #stage-wrap{--cam-accent:color-mix(in srgb, var(--accent) 50%, #fff);}
+  body[data-mode="light"] #stage-wrap.cam-live #cam-overlay{--accent:var(--cam-accent);--accent-teal:var(--cam-accent);}
+  #stage-wrap.cam-live #cam-overlay .cam-media :is(.diagram, .echarts-container){
+    background:color-mix(in srgb, var(--bg) 85%, transparent);border-radius:14px;padding:14px;text-shadow:none;}
+  #stage-wrap.cam-live #cam-overlay .body :is(th, td){background:rgba(0,0,0,.35);}
+  #cam-overlay .body pre, #cam-overlay .body code{text-shadow:none;}
   #stage-wrap:not([data-place=""])[data-place] #cam-overlay{display:block;}
   #stage-wrap:not([data-place=""])[data-place] #world{opacity:0;}
-  /* card 40%: a dark card under the words, from none to solid (no camera through it) */
+  /* card 40%: a card under the words, from none to solid (no camera through it) */
   #cam-overlay .cam-box{position:absolute;display:flex;flex-direction:column;gap:3%;box-sizing:border-box;padding:1.2%;
-    border-radius:18px;background:rgba(var(--cam-card-bg),var(--cam-card,0));}
+    border-radius:18px;background:color-mix(in srgb, var(--cam-card-color) calc(var(--cam-card, 0) * 100%), transparent);}
   #cam-overlay .cam-box.left{left:4%;top:8%;width:42%;height:84%;}
   #cam-overlay .cam-box.right{right:4%;top:8%;width:42%;height:84%;}
   #cam-overlay .cam-box.top{left:5%;top:3%;width:90%;height:22%;flex-direction:row;}
@@ -762,13 +769,6 @@
   #cam-overlay .cam-box.left .cam-text > .node, #cam-overlay .cam-box.right .cam-text > .node{transform-origin:0 50%;}
   #cam-overlay .cam-media > .node{position:absolute;left:50%;top:50%;transform-origin:50% 50%;}
   #cam-overlay .cam-media > .node > .body > *{margin:0;}
-  /* diagrams and charts are drawn for the card's background: a dark pane keeps them readable on video */
-  #stage-wrap:not(.cam-empty) #cam-overlay .cam-media :is(.diagram, .echarts-container){background:rgba(10,10,12,.72);border-radius:14px;padding:14px;text-shadow:none;}
-  #cam-overlay .body pre, #cam-overlay .body code{text-shadow:none;}
-  #stage-wrap:not(.cam-empty) #cam-overlay .body :is(th, td){background:rgba(0,0,0,.35);}
-  /* light mode's deep accent would sink into the video: the overlay takes it lifted toward white, still the accent */
-  body[data-mode="light"] #stage-wrap{--cam-accent:color-mix(in srgb, var(--accent) 50%, #fff);}
-  body[data-mode="light"] #stage-wrap:not(.cam-empty) #cam-overlay{--accent:var(--cam-accent);--accent-teal:var(--cam-accent);}
   /* while presenting the box is empty so the camera overlay sits on plain background */
   /* while presenting, the empty box stays as a faint guide for lining up a camera overlay */
   body.presenting #pip{border-color:color-mix(in srgb, var(--accent-teal) 30%, transparent);background:none;}

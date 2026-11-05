@@ -332,7 +332,8 @@ function applyPipState(){
   stageWrap.classList.toggle('cam-behind', !pipEl.hidden && !!st.behind);
   stageWrap.style.setProperty('--cam-card', String((st.card || 0) / 100));
   stageWrap.classList.toggle('cam-card', (st.card || 0) > 0);
-  stageWrap.classList.toggle('cam-empty', empty && !pipEl.hidden);
+  // the words are over live video (white, whatever the mode) or over the empty frame (the deck's own colours)
+  stageWrap.classList.toggle('cam-live', !pipEl.hidden && !!st.behind && !empty);
   renderCamOverlay(!pipEl.hidden && st.behind ? st.place || '' : '');
   if (pipEl.hidden || reduceMotion || !pipEl.animate) return;
   const ease = 'cubic-bezier(.65,0,.35,1)';

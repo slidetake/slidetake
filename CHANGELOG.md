@@ -20,7 +20,7 @@ package can notice. Tests, CI and tooling do not belong here.
   `left-right` (split across both, you in the middle), as in
   `<!-- camera: behind right -->` or `pip: behind left`. The content is scaled to
   fill its place and never past it, and steps reveal there as they do on a card.
-- `card 50%` puts a dark card under the content over the camera, from `card 0%`
+- `card 50%` puts a card under the content over the camera, from `card 0%`
   (none, the default) to `card` alone (solid, no camera through it).
   With a card the words fill their part of the frame edge to edge: a half, a
   quarter band, or a quarter on each side.
@@ -37,8 +37,11 @@ package can notice. Tests, CI and tooling do not belong here.
 - With the camera off, a slide with the camera behind it still shows its layout,
   over an empty frame (*Camera off · press C*) in the deck's own light or dark
   colours, and its steps still step.
-- Over the camera in light mode, headings keep the accent, lifted toward white
-  so they read on video.
+- One colour rule for the words around you, in light and dark: over the empty
+  frame they take the deck's own colours (a card is the deck's panel); over live
+  video they're white with a soft shadow, keep the accent (lifted toward white in
+  light mode), sit on a dark card, and diagrams and charts get a pane of the
+  deck's background, since they're drawn for its mode.
 - The camera remembers being on or off: a reload brings it back as it was.
 - The overview (O) and a map moment show the map from a slide with the camera
   behind it: the camera waits in its corner until you're back on the slide.
