@@ -771,19 +771,15 @@
   html.no-record #pip.empty > span{display:none;}
   #stage-wrap.cam-behind #stage{z-index:1;background:transparent;}
   /* behind: the slide's content in regions around the person (the card itself steps aside).
-     Colours, one rule for light and dark: on a card, or over the empty frame (camera off), the words are a slide's,
-     in the deck's own colours, the card its panel (white in light, black in dark). Straight on live video, which is
-     neither light nor dark, they're white with a soft shadow, the accent kept (lifted toward white in light mode,
-     where it's deep), and diagrams and charts, drawn for the deck's mode, on a pane of the deck's background */
+     Colours are the deck's, light or dark, camera on or off: dark words in light mode, light in dark. Straight on
+     live video (no card), a halo of the deck's background keeps them readable, and diagrams, charts and table
+     cells sit on a pane of it */
   #cam-overlay{position:absolute;inset:0;z-index:2;pointer-events:none;display:none;color:var(--text);}
   #stage-wrap.cam-live:not(.cam-card) #cam-overlay{
-    --text:#fff;--text-muted:rgba(255,255,255,.85);--code-bg:rgba(0,0,0,.45);--panel-line:rgba(255,255,255,.35);
-    text-shadow:0 1px 2px rgba(0,0,0,.9), 0 0 14px rgba(0,0,0,.55);}
-  body[data-mode="light"] #stage-wrap{--cam-accent:color-mix(in srgb, var(--accent) 50%, #fff);}
-  body[data-mode="light"] #stage-wrap.cam-live:not(.cam-card) #cam-overlay{--accent:var(--cam-accent);--accent-teal:var(--cam-accent);}
+    text-shadow:0 0 2px var(--bg), 0 0 10px color-mix(in srgb, var(--bg) 85%, transparent), 0 0 24px color-mix(in srgb, var(--bg) 60%, transparent);}
   #stage-wrap.cam-live:not(.cam-card) #cam-overlay .cam-media :is(.diagram, .echarts-container){
     background:color-mix(in srgb, var(--bg) 85%, transparent);border-radius:14px;padding:14px;text-shadow:none;}
-  #stage-wrap.cam-live:not(.cam-card) #cam-overlay .body :is(th, td){background:rgba(0,0,0,.35);}
+  #stage-wrap.cam-live:not(.cam-card) #cam-overlay .body :is(th, td){background:color-mix(in srgb, var(--bg) 70%, transparent);}
   #cam-overlay .body pre, #cam-overlay .body code{text-shadow:none;}
   #stage-wrap:not([data-place=""])[data-place] #cam-overlay{display:block;}
   #stage-wrap:not([data-place=""])[data-place] #world{opacity:0;}
