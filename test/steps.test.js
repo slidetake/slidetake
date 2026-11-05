@@ -24,9 +24,13 @@ test('presets', ()=>{
   assert.deepEqual(applyPreset({}, 'full'), {full: true, behind: false, place: '', off: false, used: true});
   assert.deepEqual(applyPreset({}, 'behind'), {full: true, behind: true, place: '', off: false, used: true});   // the camera under the slides
   assert.equal(applyPreset({}, 'behind right').place, 'right');                                   // the content in the right half
-  assert.equal(applyPreset({}, 'behind around').place, 'around');
-  assert.equal(applyPreset(applyPreset({}, 'behind title'), 'behind').place, '');                // plain behind: centred again
-  assert.equal(applyPreset(applyPreset({}, 'behind left'), 'on').place, '');                     // back to its box
+  assert.equal(applyPreset({}, 'behind top-bottom').place, 'top-bottom');
+  assert.equal(applyPreset(applyPreset({}, 'behind left-right'), 'behind').place, '');                // plain behind: centred again
+  assert.equal(applyPreset(applyPreset({}, 'behind left'), 'on').place, '');
+  const carded = applyPreset({size: 24}, 'behind left card 40%');
+  assert.equal(carded.card, 40);                                                                   // a card under the words
+  assert.equal(carded.size, 24);                                                                   // its number isn't the camera's size
+  assert.equal(applyPreset({}, 'behind card').card, 100);                                          // card alone: solid                     // back to its box
   assert.equal(applyPreset(applyPreset({}, 'behind'), 'on').behind, false);                       // back to its box
   assert.equal(applyPreset(applyPreset({}, 'behind'), 'full').behind, false);                     // over the slides
   assert.equal(applyPreset({}, '30%').size, 30);

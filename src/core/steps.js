@@ -3,10 +3,11 @@
 //   off · on · full · behind · 18% (size) · top-left … bottom-right · flip (other side) · circle · rect · mirror · unmirror
 // full puts the camera over the whole frame; behind puts it there under the slides, which stay on top.
 // With behind, a placement puts the slide's content around the person: left or right (a half), top or bottom
-// (a band of a quarter), around (the heading in the top band, the rest in the bottom one), title (the heading only)
+// (a band), top-bottom or left-right (split across both, the person in the middle). card 40% puts a dark
+// card under the content, from 0% (none, the default) to 100% (solid: no camera through it); card alone is solid.
 
 export const CORNERS = ['top-left', 'top-right', 'bottom-left', 'bottom-right'];
-export const PLACES = ['left', 'right', 'top', 'bottom', 'around', 'title'];
+export const PLACES = ['left', 'right', 'top', 'bottom', 'top-bottom', 'left-right'];
 /** @param {number} v */
 export const clampPipSize = v=>Math.max(8, Math.min(60, v));
 
@@ -18,7 +19,8 @@ export const clampPipSize = v=>Math.max(8, Math.min(60, v));
  * @property {boolean} [mirror]
  * @property {boolean} [full]
  * @property {boolean} [behind]  full frame, under the slides
- * @property {string} [place]  with behind: '' (centred), left, right, top, bottom, around, title
+ * @property {string} [place]  with behind: '' (centred), left, right, top, bottom, top-bottom, left-right
+ * @property {number} [card]  with behind: the card's opacity under the content, 0 to 100
  * @property {boolean} [off]
  * @property {boolean} [flip]
  * @property {boolean} [used]
@@ -28,9 +30,16 @@ export const clampPipSize = v=>Math.max(8, Math.min(60, v));
 
 /** @param {PipState} st @param {string|null|undefined} preset @returns {PipState} */
 export function applyPreset(st, preset){
-  String(preset || '').toLowerCase().split(/\s+/).forEach(t=>{
+  const words = String(preset || '').toLowerCase().split(/\s+/);
+  words.forEach((t, i)=>{
     if (!t) return;
-    if (t === 'off' || t === 'hide'){ st.off = true; }
+    if (t === 'card'){
+      const n = /^\d+(\.\d+)?%?$/.test(words[i + 1] || '') ? parseFloat(words[i + 1]) : 100;
+      st.card = Math.max(0, Math.min(100, n));
+      if (words[i + 1] && /^\d/.test(words[i + 1])) words[i + 1] = '';   // the number is the card's, not a size
+      st.used = true;
+    }
+    else if (t === 'off' || t === 'hide'){ st.off = true; }
     else if (t === 'on' || t === 'pip' || t === 'show'){ st.off = false; st.full = false; st.behind = false; st.place = ''; st.used = true; }
     else if (t === 'full' || t === 'fullscreen'){ st.full = true; st.behind = false; st.place = ''; st.off = false; st.used = true; }
     else if (t === 'behind' || t === 'under'){ st.full = true; st.behind = true; st.place = ''; st.off = false; st.used = true; }

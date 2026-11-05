@@ -177,13 +177,19 @@ Try it: press **C** to turn on your camera, then →. This card puts you in the 
 
 <!-- camera: behind -->
 
-With the camera on, you fill the frame and this slide's words sit right on top of you: a talking head with slides. One comment does it: `<!-- camera: behind -->`, or `pip: behind` for a whole deck. Add `left`, `right`, `top`, `bottom`, `around` or `title` to put the words around you.
+With the camera on, you fill the frame and this slide's words sit right on top of you: a talking head with slides. One comment does it: `<!-- camera: behind -->`, or `pip: behind` for a whole deck. Add `left`, `right`, `top`, `bottom`, `top-bottom` or `left-right` to put the words around you, and `card 50%` for a card under them.
 
 ### Words around you
 
-<!-- camera: behind left, behind right, behind top, behind bottom, behind around, behind title, behind -->
+<!-- camera: behind left, behind right, behind top, behind bottom, behind top-bottom, behind left-right, behind -->
 
-Press → and these words move around you: `left`, `right`, `top`, `bottom`, `around`, `title`, then centred. One comment, one press each.
+Press → and these words move around you: `left`, `right`, `top`, `bottom`, `top-bottom`, `left-right`, then centred. One comment, one press each.
+
+### A card under the words
+
+<!-- camera: behind left, behind left card 50%, behind left card -->
+
+Busy background? Put a card under the words: `card 50%` lets half the camera through, `card` alone hides it, for a split screen.
 
 ### A picture beside you
 
@@ -193,7 +199,7 @@ Press → and these words move around you: `left`, `right`, `top`, `bottom`, `ar
 
 ### A Graphviz diagram beside you
 
-<!-- camera: behind left, behind bottom -->
+<!-- camera: behind left, behind left-right -->
 
 Talk through the flow while it sits beside you.
 
@@ -219,7 +225,7 @@ write -> present -> record
 
 ### An SVG beside you
 
-<!-- camera: behind left, behind around -->
+<!-- camera: behind left, behind top-bottom -->
 
 Drawn in the deck's colours.
 

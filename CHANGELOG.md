@@ -16,10 +16,12 @@ package can notice. Tests, CI and tooling do not belong here.
 
 - The Showcase has a card for the camera behind the slide.
 - With the camera **behind**, a placement puts the slide's content around you:
-  `left` or `right` (a half), `top` or `bottom` (a quarter band), `around` (the
-  heading above you, the rest below) and `title` (the heading alone), as in
+  `left` or `right` (a half), `top` or `bottom` (a band), `top-bottom` and
+  `left-right` (split across both, you in the middle), as in
   `<!-- camera: behind right -->` or `pip: behind left`. The content is scaled to
   fill its place and never past it, and steps reveal there as they do on a card.
+- `card 50%` puts a dark card under the content over the camera, from `card 0%`
+  (none, the default) to `card` alone (solid, no camera through it).
 - Pictures, Graphviz, D2, SVG and charts come along in a placement, with their
   own share of it (below the words beside you, to their right in a band), drawn
   as on the card and scaled to fit; diagrams and charts sit on a dark pane. The

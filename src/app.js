@@ -320,6 +320,7 @@ function applyPipState(){
   stageWrap.dataset.pip = pipEl.hidden || st.full ? 'none' : st.corner;
   // behind: the camera fills the frame under the slides, so the stage's own background steps aside
   stageWrap.classList.toggle('cam-behind', !pipEl.hidden && !!st.behind);
+  stageWrap.style.setProperty('--cam-card', String((st.card || 0) / 100));
   renderCamOverlay(!pipEl.hidden && st.behind ? st.place || '' : '');
   if (pipEl.hidden || reduceMotion || !pipEl.animate) return;
   const ease = 'cubic-bezier(.65,0,.35,1)';
@@ -351,14 +352,18 @@ function renderCamOverlay(place){
   const body = n.el.querySelector('.body');
   const all = [...body.children].map(c=>c.cloneNode(true));
   const isHead = /** @param {Element} e */ e=>/^H[1-6]$/.test(e.tagName);
+  const isMedia = /** @param {Element} e */ e=>e.matches('figure.media, .diagram, .echarts-container, .gallery');
   const head = all.filter((e, i)=>i === 0 && isHead(e)), rest = all.filter(e=>!head.includes(e));
+  // split across both sides: the words on one and the pictures on the other, or with no pictures the heading
+  // on one and the rest on the other
+  const [a, b] = place === 'top-bottom' ? ['top', 'bottom'] : ['left', 'right'];
+  const media = all.filter(isMedia), words = all.filter(e=>!isMedia(e));
   /** @type {[string, Element[]][]} */
-  const boxes = place === 'around' ? [['top', head], ['bottom', rest]]
-    : place === 'title' ? [['top', head.length ? head : all.slice(0, 1)]]
-    : [[place, all]];
+  const boxes = !/-/.test(place) ? [[place, all]]
+    : media.length && words.length ? [[a, words], [b, media]]
+    : [[a, head], [b, rest]];
   // pictures, diagrams and charts get their own share of a region, shown as they are on the card and
   // scaled to fit, so a big image doesn't shrink the words beside it
-  const isMedia = /** @param {Element} e */ e=>e.matches('figure.media, .diagram, .echarts-container, .gallery');
   const cardWidth = body.clientWidth;
   boxes.forEach(([where, els])=>{
     if (!els.length) return;
