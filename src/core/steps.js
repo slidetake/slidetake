@@ -3,8 +3,8 @@
 //   off · on · full · behind · 18% (size) · top-left … bottom-right · flip (other side) · circle · rect · mirror · unmirror
 // full puts the camera over the whole frame; behind puts it there under the slides, which stay on top.
 // With behind, a placement puts the slide's content around the person (behind alone is left): left or right (a half), top or bottom
-// (a band), top-bottom or left-right (split across both, the person in the middle). card 40% puts a dark
-// card under the content, from 0% (none, the default) to 100% (solid: no camera through it); card alone is solid.
+// (a band), top-bottom or left-right (split across both, the person in the middle). card 40% sets the
+// card under the content, from 0% (none) to 100% (solid: no camera through it); half see-through unless set; card alone is solid.
 
 export const CORNERS = ['top-left', 'top-right', 'bottom-left', 'bottom-right'];
 export const PLACES = ['left', 'right', 'top', 'bottom', 'top-bottom', 'left-right'];

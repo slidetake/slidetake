@@ -729,17 +729,13 @@
   #pip.empty:not(.msg) > span::after{content:"Camera off · press C";font-size:12px;color:var(--text);opacity:.45;letter-spacing:.08em;}
   html.no-record #pip.empty > span{display:none;}
   #stage-wrap.cam-behind #stage{z-index:1;background:transparent;}
-  /* behind: the slide's content in regions around the person (the card itself steps aside).
-     Colours are the deck's, light or dark, camera on or off: dark words in light mode, light in dark. Straight on
-     live video (no card), a halo of the deck's background keeps them readable, and diagrams, charts and table
-     cells sit on a pane of it */
+  /* behind: the slide's content in regions around the person (the card itself steps aside), in the deck's own
+     colours, light or dark, camera on or off. A card under the words (half see-through unless set) keeps them
+     readable; with card 0% they sit straight on the video, and diagrams, charts and table cells keep a pane */
   #cam-overlay{position:absolute;inset:0;z-index:2;pointer-events:none;display:none;color:var(--text);}
-  #stage-wrap.cam-live:not(.cam-card) #cam-overlay{
-    text-shadow:0 0 2px var(--bg), 0 0 10px color-mix(in srgb, var(--bg) 85%, transparent), 0 0 24px color-mix(in srgb, var(--bg) 60%, transparent);}
   #stage-wrap.cam-live:not(.cam-card) #cam-overlay .cam-media :is(.diagram, .echarts-container){
-    background:color-mix(in srgb, var(--bg) 85%, transparent);border-radius:14px;padding:14px;text-shadow:none;}
+    background:color-mix(in srgb, var(--bg) 85%, transparent);border-radius:14px;padding:14px;}
   #stage-wrap.cam-live:not(.cam-card) #cam-overlay .body :is(th, td){background:color-mix(in srgb, var(--bg) 70%, transparent);}
-  #cam-overlay .body pre, #cam-overlay .body code{text-shadow:none;}
   #stage-wrap:not([data-place=""])[data-place] #cam-overlay{display:block;}
   #stage-wrap:not([data-place=""])[data-place] #world{opacity:0;}
   /* card 40%: a card under the words, from none to solid (no camera through it) */

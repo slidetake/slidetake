@@ -20,31 +20,27 @@ package can notice. Tests, CI and tooling do not belong here.
   `left-right` (split across both, you in the middle), as in
   `<!-- camera: behind right -->` or `pip: behind left`. The content is scaled to
   fill its place and never past it, and steps reveal there as they do on a card.
-- `card 50%` puts a card under the content over the camera, from `card 0%`
-  (none, the default) to `card` alone (solid, no camera through it).
-  With a card the words fill their part of the frame edge to edge: a half, a
-  quarter band, or a quarter on each side. A solid `card` is a split screen:
-  the camera glides into the rest of the frame, so sitting in the middle of
-  your camera puts you in the middle of your side.
+- The words sit on a card, half see-through (`card 50%`) unless set, from
+  `card 0%` (none) to `card` alone (solid, no camera through it). The card
+  fills their part of the frame edge to edge: a half, a quarter band, or a
+  quarter on each side. A solid `card` is a split screen: the camera glides
+  into the rest of the frame, so sitting in the middle of your camera puts you
+  in the middle of your side.
 - Pictures, Graphviz, D2, SVG and charts come along in a placement, with their
   own share of it (below the words beside you, to their right in a band), drawn
-  as on the card and scaled to fit; diagrams and charts sit on a dark pane. The
-  Showcase has a card for each.
+  as on the card and scaled to fit. The Showcase has a card for each.
 
 ### Changed
 
 - The camera no longer stretches as it moves between its corner and the full
   frame: the box glides and resizes, and the video keeps its shape.
 - `behind` no longer lays the whole slide over the camera: on its own it puts
-  the content beside you, on the left, its text white with a soft shadow so it
-  reads over any picture.
+  the content beside you, on the left.
 - With the camera off, a slide with the camera behind it still shows its layout,
   over an empty frame (*Camera off · press C*) in the deck's own light or dark
   colours, and its steps still step.
 - The words around you keep the deck's colours, camera on or off: dark in light
-  mode, light in dark, the accent as it is, a card white or dark to match.
-  Straight on the camera a soft halo of the deck's background keeps them
-  readable, and diagrams, charts and table cells sit on a pane of it.
+  mode, light in dark, the accent as it is, the card white or dark to match.
 - The camera remembers being on or off: a reload brings it back as it was.
 - The overview (O) and a map moment show the map from a slide with the camera
   behind it: the camera waits in its corner until you're back on the slide.

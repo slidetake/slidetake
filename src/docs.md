@@ -338,7 +338,7 @@ A comment in a slide changes the camera from that slide on:
 <!-- camera: 18% flip --> ← small, other side
 ```
 
-Words you can combine: `on`, `off`, `full`, `behind` (the camera fills the frame and the slide's content sits beside you, on the left: a talking head with slides; or `right`, `top`, `bottom`, `top-bottom` or `left-right`, and `card 50%` for a dark card under it, edge to edge, up to `card` for solid, a split screen with the camera in the rest of the frame; it stays on that slide, and the next goes back to the corner; with the camera off the slide still shows this way, over an empty frame), a size like `30%`, a corner, `flip`, `circle` / `rect`, `mirror` / `unmirror`. List them with commas to step through them on one slide: `full, on` opens on you, and the next → shrinks the camera to its corner and shows the slide.
+Words you can combine: `on`, `off`, `full`, `behind` (the camera fills the frame and the slide's content sits beside you, on the left: a talking head with slides; or `right`, `top`, `bottom`, `top-bottom` or `left-right`, on a half see-through card in the deck's colours, edge to edge: `card 0%` takes it away, `card` makes it solid, a split screen with the camera in the rest of the frame; it stays on that slide, and the next goes back to the corner; with the camera off the slide still shows this way, over an empty frame), a size like `30%`, a corner, `flip`, `circle` / `rect`, `mirror` / `unmirror`. List them with commas to step through them on one slide: `full, on` opens on you, and the next → shrinks the camera to its corner and shows the slide.
 
 **V** steps through the deck's `camera:` list by hand.
 

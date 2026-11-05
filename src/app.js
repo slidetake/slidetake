@@ -301,7 +301,8 @@ function computePipState(){
     size: clampPipSize(parseFloat(deck.pip_size) || 24),
     circle: (deck.pip_shape || '').toLowerCase() === 'circle',
     mirror: !/^(no|false|off)$/i.test(deck.pip_mirror || ''),
-    full: false, off: false, flip: false, used: false
+    full: false, off: false, flip: false, used: false,
+    card: 50                // with behind, the words sit on a half see-through card unless the deck or slide says otherwise
   };
   // pip: behind (and a placement, pip: behind right) sets the deck's default to the camera under the slides
   if (/^(behind|under)\b/.test(st.corner)){ const words = st.corner; st.corner = 'bottom-right'; applyPreset(st, words); }

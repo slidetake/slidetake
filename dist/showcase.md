@@ -177,7 +177,7 @@ Try it: press **C** to turn on your camera, then →. This card puts you in the 
 
 <!-- camera: behind -->
 
-With the camera on, you fill the frame and this slide's words sit beside you: a talking head with slides. One comment does it: `<!-- camera: behind -->`, or `pip: behind` for a whole deck. They go on the left; `right`, `top`, `bottom`, `top-bottom` or `left-right` put them elsewhere, and `card 50%` puts a card under them.
+With the camera on, you fill the frame and this slide's words sit beside you: a talking head with slides. One comment does it: `<!-- camera: behind -->`, or `pip: behind` for a whole deck. They go on the left; `right`, `top`, `bottom`, `top-bottom` or `left-right` put them elsewhere, on a half see-through card.
 
 ### Words around you
 
@@ -187,9 +187,9 @@ Press → and these words move around you: `left`, `right`, `top`, `bottom`, `to
 
 ### A card under the words
 
-<!-- camera: behind left, behind left card 50%, behind left card, behind bottom card 70%, behind left-right card -->
+<!-- camera: behind left, behind left card, behind left card 0%, behind bottom card 80%, behind left-right card -->
 
-Busy background? Put a card under the words: it fills its side edge to edge, `card 50%` lets half the camera through, `card` alone makes a split screen, the camera centred on the other side.
+The words sit on a half see-through card, edge to edge. `card` alone makes it solid, a split screen with the camera centred on the other side; `card 0%` takes it away; `card 80%` anything between.
 
 ### A picture beside you
 
