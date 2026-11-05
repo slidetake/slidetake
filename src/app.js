@@ -359,7 +359,8 @@ function renderCamOverlay(place){
   stageWrap.dataset.place = place;
   camOverlay.innerHTML = '';
   const n = place && nodes.get(currentId);
-  if (!n) return;
+  // (a re-read deck has its cards before they're built: the overlay comes back once they are)
+  if (!n || !n.el) return;
   const body = n.el.querySelector('.body');
   const all = [...body.children].map(c=>c.cloneNode(true));
   const isHead = /** @param {Element} e */ e=>/^H[1-6]$/.test(e.tagName);

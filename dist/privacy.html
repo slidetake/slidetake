@@ -2581,7 +2581,7 @@
     stageWrap.dataset.place = place;
     camOverlay.innerHTML = "";
     const n = place && nodes.get(currentId);
-    if (!n) return;
+    if (!n || !n.el) return;
     const body = n.el.querySelector(".body");
     const all = [...body.children].map((c) => c.cloneNode(true));
     const isHead = (
