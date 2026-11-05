@@ -1251,6 +1251,12 @@ Try it: press **C** to turn on your camera, then \u2192. This card puts you in t
 
 With the camera on, you fill the frame and this slide's words sit right on top of you: a talking head with slides. One comment does it: \`<!-- camera: behind -->\`, or \`pip: behind\` for a whole deck. Add \`left\`, \`right\`, \`top\`, \`bottom\`, \`around\` or \`title\` to put the words around you.
 
+### Words around you
+
+<!-- camera: behind left, behind right, behind top, behind bottom, behind around, behind title, behind -->
+
+Press \u2192 and these words move around you: \`left\`, \`right\`, \`top\`, \`bottom\`, \`around\`, \`title\`, then centred. One comment, one press each.
+
 ## \u{1F5FA}\uFE0F Layouts and the map
 
 <!-- view: overview -->
