@@ -31,6 +31,8 @@ package can notice. Tests, CI and tooling do not belong here.
 
 ### Changed
 
+- The camera no longer stretches as it moves between its corner and the full
+  frame: the box glides and resizes, and the video keeps its shape.
 - `behind` no longer lays the whole slide over the camera: on its own it puts
   the content beside you, on the left, its text white with a soft shadow so it
   reads over any picture.

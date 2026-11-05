@@ -341,13 +341,14 @@ function applyPipState(){
     pipEl.animate([{opacity:0}, {opacity:1}], {duration:300, easing:'ease-out'});
     return;
   }
-  // FLIP: start from where the box was and glide to where it is now (full ↔ corner, resize, flip)
+  // glide from where the box was to where it is now (full ↔ corner, resize, flip). The box itself moves and
+  // resizes, rather than being scaled, so the video keeps its shape and is only cropped differently on the way
   const last = pipEl.getBoundingClientRect();
   if (Math.abs(first.left - last.left) + Math.abs(first.top - last.top) + Math.abs(first.width - last.width) + Math.abs(first.height - last.height) < 2) return;
-  pipEl.animate([
-    {transformOrigin:'0 0', transform:'translate('+(first.left - last.left)+'px,'+(first.top - last.top)+'px) scale('+(first.width / last.width)+','+(first.height / last.height)+')'},
-    {transformOrigin:'0 0', transform:'none'}
-  ], {duration:600, easing:ease});
+  const o = (pipEl.offsetParent || stageWrap).getBoundingClientRect();
+  /** @param {DOMRect} r */
+  const box = r=>({left:(r.left - o.left)+'px', top:(r.top - o.top)+'px', width:r.width+'px', height:r.height+'px', right:'auto', bottom:'auto', aspectRatio:'auto'});
+  pipEl.animate([box(first), box(last)], {duration:600, easing:ease});
 }
 // ---------- the slide around the person: behind left, right, top, bottom, around, title ----------
 // The current slide's content is drawn into regions over the camera instead of its card: a half, a quarter

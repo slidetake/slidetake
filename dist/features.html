@@ -2747,10 +2747,9 @@
     }
     const last = pipEl.getBoundingClientRect();
     if (Math.abs(first.left - last.left) + Math.abs(first.top - last.top) + Math.abs(first.width - last.width) + Math.abs(first.height - last.height) < 2) return;
-    pipEl.animate([
-      { transformOrigin: "0 0", transform: "translate(" + (first.left - last.left) + "px," + (first.top - last.top) + "px) scale(" + first.width / last.width + "," + first.height / last.height + ")" },
-      { transformOrigin: "0 0", transform: "none" }
-    ], { duration: 600, easing: ease });
+    const o = (pipEl.offsetParent || stageWrap).getBoundingClientRect();
+    const box = (r) => ({ left: r.left - o.left + "px", top: r.top - o.top + "px", width: r.width + "px", height: r.height + "px", right: "auto", bottom: "auto", aspectRatio: "auto" });
+    pipEl.animate([box(first), box(last)], { duration: 600, easing: ease });
   }
   var camOverlay = document.getElementById("cam-overlay");
   var camPlace = "";
