@@ -356,7 +356,12 @@ function applyPipState(){
   const o = (pipEl.offsetParent || stageWrap).getBoundingClientRect();
   /** @param {DOMRect} r */
   const box = r=>({left:(r.left - o.left)+'px', top:(r.top - o.top)+'px', width:r.width+'px', height:r.height+'px', right:'auto', bottom:'auto', aspectRatio:'auto'});
-  pipEl.animate([box(first), box(last)], {duration:600, easing:ease});
+  // from one side to the other (a split screen swapping sides), where it was is under the card now: it starts from
+  // the whole frame instead, so the free side has the camera in it at once, and you slide over to its middle
+  const apart = first.right <= last.left + 1 || last.right <= first.left + 1 || first.bottom <= last.top + 1 || last.bottom <= first.top + 1;
+  const both = new DOMRect(Math.min(first.left, last.left), Math.min(first.top, last.top),
+    Math.max(first.right, last.right) - Math.min(first.left, last.left), Math.max(first.bottom, last.bottom) - Math.min(first.top, last.top));
+  pipEl.animate([box(apart ? both : first), box(last)], {duration:600, easing:ease});
 }
 // ---------- the slide beside the person: behind left, right, top, bottom ----------
 // The current slide's content is drawn into a region over the camera instead of its card: a half (left, right)
