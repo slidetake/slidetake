@@ -33,7 +33,7 @@ import {parseHash} from './share.js';
  * @property {string|null} exported  the text as last saved or shared; null if never
  */
 
-export const TEMPLATES = /** @type {const} */ (['blank', 'talk', 'recording']);
+export const TEMPLATES = /** @type {const} */ (['blank', 'talk', 'recording', 'short']);
 
 /**
  * @param {string} pathname

@@ -11,6 +11,7 @@ test('routes', ()=>{
   assert.deepEqual(routeOf('/examples', '', ''), {page: 'source', source: {kind: 'builtin', id: 'showcase'}, slide: ''});
   assert.deepEqual(routeOf('/new', '', ''), {page: 'pick'});
   assert.deepEqual(routeOf('/new', '?template=talk', ''), {page: 'source', source: {kind: 'builtin', id: 'template:talk'}, slide: ''});
+  assert.deepEqual(routeOf('/new', '?template=short', ''), {page: 'source', source: {kind: 'builtin', id: 'template:short'}, slide: ''});
   assert.deepEqual(routeOf('/new', '?template=nope', ''), {page: 'pick'});
   assert.deepEqual(routeOf('/share', '', '#deflate:abc~s'), {page: 'share', data: 'abc', slide: 's'});
   assert.equal(routeOf('/share', '', '').page, 'source');            // nothing to show: home

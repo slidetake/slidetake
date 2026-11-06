@@ -199,7 +199,7 @@ Add `solid` and the card hides the camera behind it: a split screen, with the ca
 
 ### Shorts and Reels
 
-`format: portrait` in the top block turns the whole deck into a 9:16 column, for a video at 1080×1920. The words go above or below you. [Open the example](https://slidetake.com/gh/slidetake/slidetake/examples/portrait.md).
+`format: portrait` in the top block turns the whole deck into a 9:16 column, for a video at 1080×1920. The words go above or below you. Start from the [Short template](https://slidetake.com/new?template=short).
 
 ### A picture beside you
 
@@ -288,7 +288,7 @@ Try it: this deck is a file on GitHub, and opens from there too: **[slidetake.co
 
 ## 🚀 Start your own
 
-Open **✎ Editor** and press **New** for a template (blank, talk or recording), or type in this deck to make it your copy.
+Open **✎ Editor** and press **New** for a template (blank, talk, recording or a 9:16 short), or type in this deck to make it your copy.
 
 The templates and this deck live in [examples/](https://github.com/slidetake/slidetake/tree/main/examples) on GitHub.
 

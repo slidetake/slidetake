@@ -5,6 +5,7 @@ import PRIVACY_MD from './privacy.md';
 import BLANK_MD from '../examples/blank.md';
 import TALK_MD from '../examples/talk.md';
 import RECORDING_MD from '../examples/recording.md';
+import SHORT_MD from '../examples/portrait.md';
 import SHOWCASE_MD from '../examples/showcase.md';
 import {slugify, escapeHtml, attrsOf, parseDuration, fmtTime, fmtLength} from './core/text.js';
 import {parseDeck as parseDeckCore, cameraDirective, mapDirective, settingsBlock} from './core/parse.js';
@@ -37,7 +38,7 @@ const RECORDING_UI = !EMBED || EMBED.recording === true;
 document.documentElement.classList.toggle('no-record', !RECORDING_UI);
 const reduceMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
 // Slidetake's own read-only decks
-const BUILTIN = {home: SAMPLE_MD, docs: DOCS_MD, features: FEATURES_MD, privacy: PRIVACY_MD, showcase: SHOWCASE_MD, 'template:blank': BLANK_MD, 'template:talk': TALK_MD, 'template:recording': RECORDING_MD};
+const BUILTIN = {home: SAMPLE_MD, docs: DOCS_MD, features: FEATURES_MD, privacy: PRIVACY_MD, showcase: SHOWCASE_MD, 'template:blank': BLANK_MD, 'template:talk': TALK_MD, 'template:recording': RECORDING_MD, 'template:short': SHORT_MD};
 
 // ---------- DOM refs ----------
 const editor = document.getElementById('editor');

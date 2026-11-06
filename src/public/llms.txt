@@ -45,7 +45,7 @@ Slidetake runs in the browser at https://slidetake.com, on your own computer wit
 - https://slidetake.com/gist/ID opens a gist.
 - https://slidetake.com/?src=URL opens any markdown URL that allows cross-origin reads.
 - https://slidetake.com/share#deflate:DATA opens a deck carried inside the link (deflate-raw, base64url).
-- https://slidetake.com/new?template=blank (or talk, recording) opens a starting template.
+- https://slidetake.com/new?template=blank (or talk, recording, short) opens a starting template; short is a 9:16 deck for Shorts and Reels.
 
 ## Editing
 
