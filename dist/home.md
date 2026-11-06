@@ -205,7 +205,7 @@ Your headings are the hierarchy: `#` is the first card, `##` branches from it, `
 
 <!-- camera: on, full, on -->
 
-A comment in a slide moves you: corner, full screen, or off. Turn on **Camera** and watch this slide do it.
+A comment in a slide moves you: corner, full screen, beside the words, or a split screen. Turn on **Camera** and watch this slide do it.
 
 ### Your colours
 

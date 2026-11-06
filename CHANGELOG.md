@@ -12,6 +12,49 @@ package can notice. Tests, CI and tooling do not belong here.
 
 ## [Unreleased]
 
+## [0.4.6] - 2026-11-06
+
+### Added
+
+- **Mirror** in Setup's camera section flips the camera like a mirror, and is
+  remembered. It's off unless you turn it on, so the camera shows you as others
+  see you; a deck's `pip_mirror:` decides until you choose.
+- The Showcase has a card for the camera behind the slide.
+- With the camera **behind**, the slide's content sits beside you: `left` (the
+  default) or `right` (a half), `top` or `bottom` (a quarter band), as in
+  `<!-- camera: behind right -->` or `pip: behind bottom`. The content is
+  scaled to fill its place and never past it, and steps reveal there as they do
+  on a card.
+- The words sit on a half see-through card, edge to edge. `solid` makes it a
+  split screen: the card hides the camera and the camera glides into the rest
+  of the frame, so sitting in the middle of your camera puts you in the middle
+  of your side. `clear` takes the card away, for a plain wall or green screen.
+  Moving the words to the other side (`left` ↔ `right`, `top` ↔ `bottom`) slides
+  them across while the camera slides the other way.
+- Pictures, Graphviz, D2, SVG and charts come along in a placement, with their
+  own share of it (below the words beside you, to their right in a band), drawn
+  as on the card and scaled to fit. The Showcase has a card for each.
+
+### Changed
+
+- The camera no longer stretches as it moves between its corner and the full
+  frame: the box glides and resizes, and the video keeps its shape.
+- Arriving on a slide with the camera behind it, the camera grows to fill the
+  frame first, then the words fade in around you.
+- `behind` no longer lays the whole slide over the camera: on its own it puts
+  the content beside you, on the left.
+- With the camera off, a slide with the camera behind it still shows its layout,
+  over an empty frame (*Camera off · press C*) in the deck's own light or dark
+  colours, and its steps still step.
+- The words around you keep the deck's colours, camera on or off: dark in light
+  mode, light in dark, the accent as it is, the card white or dark to match.
+- The camera remembers being on or off: a reload brings it back as it was.
+- The camera is no longer mirrored by default (Mirror in Setup turns it on).
+- The overview (O) and a map moment show the map from a slide with the camera
+  behind it: the camera waits in its corner until you're back on the slide.
+- The camera **behind** stays on its own slide: the slides after it go back to
+  the camera in its corner (or the deck's `pip:`), instead of carrying it on.
+
 ## [0.4.5] - 2026-11-04
 
 ### Added

@@ -171,7 +171,92 @@ A YouTube link alone on a line becomes the video: the next press plays it, leavi
 
 <!-- camera: on, full, on -->
 
-Try it: press **C** to turn on your camera, then →. This card puts you in the corner, then full screen, then back, from one comment: `<!-- camera: on, full, on -->`.
+Try it: press **C** to turn on your camera, then →. This card puts you in the corner, then full screen, then back, from one comment: `<!-- camera: on, full, on -->`. The cards after it put the words beside you.
+
+### Behind the slide
+
+<!-- camera: behind -->
+
+With the camera on, you fill the frame and this slide's words sit beside you: a talking head with slides. One comment does it: `<!-- camera: behind -->`, or `pip: behind` for a whole deck. They go on the left, on a half see-through card; `right`, `top` or `bottom` put them elsewhere.
+
+### Words around you
+
+<!-- camera: behind left, behind right, behind top, behind bottom -->
+
+Press → and these words move around you: `left`, `right`, `top`, `bottom`. One comment, one press each.
+
+### Split screen
+
+<!-- camera: behind solid, behind right solid, behind top solid, behind bottom solid -->
+
+Add `solid` and the card hides the camera behind it: a split screen, with the camera moved to the other side and you centred there.
+
+### Clear
+
+<!-- camera: behind clear, behind bottom clear -->
+
+`clear` takes the card away: the words sit straight on the camera. Best over a plain wall or a green screen.
+
+### A picture beside you
+
+<!-- camera: behind right, behind left, behind bottom -->
+
+![The link preview, beside you](https://slidetake.com/og.jpg)
+
+### A Graphviz diagram beside you
+
+<!-- camera: behind left, behind left solid -->
+
+Talk through the flow while it sits beside you.
+
+```dot
+digraph {
+  rankdir=LR
+  node [shape=box style=rounded]
+  Markdown -> Deck -> Takes -> Video
+}
+```
+
+### A D2 diagram beside you
+
+<!-- camera: behind right, behind top -->
+
+```d2
+direction: right
+write: Write
+present: Present
+record: Record
+write -> present -> record
+```
+
+### An SVG beside you
+
+<!-- camera: behind left, behind bottom solid -->
+
+Drawn in the deck's colours.
+
+```svg
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 320 130">
+  <rect x="10" y="10" width="90" height="80" rx="10" style="fill:var(--accent)"/>
+  <rect x="115" y="10" width="90" height="80" rx="10" style="fill:var(--accent);opacity:.6"/>
+  <rect x="220" y="10" width="90" height="80" rx="10" fill="none" stroke="currentColor" stroke-width="2"/>
+  <text x="160" y="120" text-anchor="middle" font-size="14" fill="currentColor">accent, faded, outlined</text>
+</svg>
+```
+
+### A chart beside you
+
+<!-- camera: behind right, behind bottom -->
+
+Views a month, and growing.
+
+```echarts
+{
+  "xAxis": {"type": "category", "data": ["Jan", "Feb", "Mar", "Apr", "May"]},
+  "yAxis": {"type": "value"},
+  "series": [{"type": "bar", "data": [12, 19, 15, 24, 30]}]
+}
+```
 
 ## 🗺️ Layouts and the map
 

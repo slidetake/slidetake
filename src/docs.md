@@ -262,7 +262,7 @@ Two modes, both slide by slide, so there's no timeline to edit afterwards. **●
 
 ### Easy mode: record in the browser
 
-1. **● Record** (R) the first time opens **⚙ Setup**: pick your camera (or **No camera**) and microphone. Recording turns the camera on and off by itself.
+1. **● Record** (R) the first time opens **⚙ Setup**: pick your camera (or **No camera**, and **Mirror** if you want it flipped; off, it shows you as others see you) and microphone. Recording turns the camera on and off by itself.
 2. **● Record** again, and share **this tab** when the browser asks. Only the 16:9 frame is recorded: slides and camera.
 3. Next time, **● Record** carries on with the slides that have no take yet. When every slide has one, it records from the slide on screen to the end.
 
@@ -312,14 +312,14 @@ A dummy HDMI plug works on any system.
 
 ### Add your camera
 
-**C** (or **Camera**) turns your webcam on in its box while presenting. A recording doesn't depend on it: it turns on the camera chosen for the deck (or none) by itself. The camera is off every time the page opens; until it's on, the deck's camera settings are ignored, so readers get slides using the whole screen.
+**C** (or **Camera**) turns your webcam on in its box while presenting. A recording doesn't depend on it: it turns on the camera chosen for the deck (or none) by itself. It stays as you left it when the page reloads. While it's off, the deck's camera settings are ignored, so readers get slides using the whole screen, except a slide with the camera behind it, which shows its layout over an empty frame.
 
 ```yaml
 ---
 pip: bottom-right      ← corner, or none
 pip_size: 24%          ← box width
 pip_shape: rect        ← or circle
-pip_mirror: yes        ← mirror the webcam
+pip_mirror: yes        ← mirror the webcam (until you choose in Setup)
 camera: 24%, full, off ← what V cycles
 ---
 ```
@@ -338,9 +338,22 @@ A comment in a slide changes the camera from that slide on:
 <!-- camera: 18% flip --> ← small, other side
 ```
 
-Words you can combine: `on`, `off`, `full`, `behind` (the camera fills the frame under the slide, which stays on top: a talking head with slides), a size like `30%`, a corner, `flip`, `circle` / `rect`, `mirror` / `unmirror`. List them with commas to step through them on one slide: `full, on` opens on you, and the next → shrinks the camera to its corner and shows the slide.
+Words you can combine: `on`, `off`, `full`, `behind` (next), a size like `30%`, a corner, `flip`, `circle` / `rect`, `mirror` / `unmirror`. List them with commas to step through them on one slide: `full, on` opens on you, and the next → shrinks the camera to its corner and shows the slide.
 
 **V** steps through the deck's `camera:` list by hand.
+
+### Talk beside your slides
+
+`behind` fills the frame with you and puts the slide's words beside you, on a half see-through card:
+
+```md
+<!-- camera: behind -->               ← words on the left
+<!-- camera: behind right -->         ← or right, top, bottom
+<!-- camera: behind solid -->         ← split screen: you centred on the other side
+<!-- camera: behind bottom clear -->  ← no card, for a plain wall
+```
+
+It stays on its slide; `pip: behind` makes it the whole deck's. With the camera off, the slide still shows this way, over an empty frame.
 
 ### Take by take
 

@@ -91,6 +91,7 @@
     <div id="minimap"><div class="mm-label" id="mm-label">map</div><svg id="mm-svg" width="180" height="130"></svg></div>
     <div id="brand" hidden></div>
     <div id="pip" hidden><span>PIP camera</span></div>
+    <div id="cam-overlay" aria-hidden="true"></div>
     <div id="pip-msg" role="status"></div>
   </div>
   <div id="editor-resizer" role="separator" aria-orientation="vertical" aria-label="Resize the editor" title="Drag to resize"></div>
@@ -224,6 +225,9 @@
             <h4>Camera</h4>
             <select id="rec-cam" aria-label="Camera"></select>
             <div class="setup-cam"><video id="rec-cam-preview" muted playsinline autoplay></video><span id="rec-cam-none">No camera</span></div>
+            <div class="rv-setup-row">
+              <label class="check rv-setup-label" title="Flip the camera left to right, like a mirror. Off, it shows you as others see you, and words on a shirt or sign read the right way."><input type="checkbox" id="rec-mirror"> Mirror</label>
+            </div>
             <p class="rv-setup-note">Turns on by itself when recording starts. Choose No camera for slides only.</p>
           </section>
           <section class="for-browser">

@@ -72,7 +72,8 @@ let layoutMode = 'path';
 let presenting = false;
 let deck = {};           // settings from the deck's frontmatter: brand, logo, pip, pip_size, pip_shape, title
 // global camera switch (◉ Camera / C): when off, camera comments are ignored, camera-only steps are
-// skipped and slides get the whole screen. Every page load starts with it off; it comes on only by hand.
+// skipped and slides get the whole screen, except a slide with the camera behind it, which keeps its layout over
+// an empty camera. It comes on only by hand, and a reload remembers it.
 let cameraOff = true;
 // Camera, Record and Fullscreen are always there. The camera is off until someone turns it on, and until
 // then the deck's camera settings are ignored, so readers get slides using the whole screen. ?obs=host:port
@@ -255,8 +256,13 @@ function cameraList(){
 }
 // a slide's directive can list several layouts, "full, on": → steps through them before leaving the slide
 function cameraSteps(n){
-  return !cameraOff && n ? cameraPresets(n.camera) : [];
+  if (!n) return [];
+  const steps = cameraPresets(n.camera);
+  // with the camera off, a slide laid out around the camera keeps its steps, over an empty camera
+  return !cameraOff || steps.some(isBehind) ? steps : [];
 }
+/** @param {string} preset */
+function isBehind(preset){ return !!applyPreset({}, preset).behind; }
 // A slide's steps are its camera layouts and its fragments (reveal-one-at-a-time items). Camera layouts
 // up to the first one that shows the slide come first, then the fragments, then any remaining layouts,
 // so "full, on" opens on camera and "on, full" ends on camera after everything is revealed.
@@ -269,7 +275,7 @@ function currentStep(){
   return steps[Math.min(stepPos, steps.length - 1)] || {cam:0, frag:0};
 }
 // the layout in force for the current slide: its own current step, otherwise the final step
-// of the nearest directive before it in document order. A full-screen card is the slide alone, so the
+// of the nearest directive before it in document order, unless that put the camera behind the slide. A full-screen card is the slide alone, so the
 // camera stays off it unless the card has its own directive (V still brings the camera back), and the
 // slides after it carry on with the camera as before.
 function slideCameraPreset(){
@@ -281,7 +287,8 @@ function slideCameraPreset(){
   if (n && n.el && n.el.classList.contains('card-full')) return 'off';
   for (let i = order.indexOf(currentId) - 1; i >= 0; i--){
     const steps = cameraSteps(nodes.get(order[i])); // order can be stale for a moment while the deck re-parses
-    if (steps.length) return steps[steps.length - 1];
+    // the camera behind the slide stays on its own card: the slides after it go back to the deck's camera
+    if (steps.length) return applyPreset({}, steps[steps.length - 1]).behind ? null : steps[steps.length - 1];
   }
   return null;
 }
@@ -293,11 +300,12 @@ function computePipState(){
     corner: (deck.pip || 'none').toLowerCase(),
     size: clampPipSize(parseFloat(deck.pip_size) || 24),
     circle: (deck.pip_shape || '').toLowerCase() === 'circle',
-    mirror: !/^(no|false|off)$/i.test(deck.pip_mirror || ''),
-    full: false, off: false, flip: false, used: false
+    mirror: cameraMirrored(),
+    full: false, off: false, flip: false, used: false,
+    card: 50                // with behind, the words sit on a half see-through card unless the deck or slide says otherwise
   };
-  // pip: behind sets the deck's default to the camera under the slides
-  if (st.corner === 'behind' || st.corner === 'under'){ st.corner = 'bottom-right'; applyPreset(st, 'behind'); }
+  // pip: behind (and a placement, pip: behind right) sets the deck's default to the camera under the slides
+  if (/^(behind|under)\b/.test(st.corner)){ const words = st.corner; st.corner = 'bottom-right'; applyPreset(st, words); }
   applyPreset(st, slideCameraPreset());
   // a layout picked with V shows the camera unless it is "off" itself, even on a slide that turns it off
   if (camManual && !/\b(off|hide)\b/i.test(camManual)) st.off = false;
@@ -311,28 +319,126 @@ function computePipState(){
 function applyPipState(){
   const first = (!pipEl.hidden && pipEl.offsetWidth) ? pipEl.getBoundingClientRect() : null;
   const st = pipState = computePipState();
+  // the overview and a map moment show the map, not the words around you: the camera waits in its corner
+  if (st.behind && (!currentId || mapTimer)){ st.full = false; st.behind = false; }
   const valid = CORNERS.includes(st.corner);
   // (a message showing in the box keeps its class through a re-layout: fullscreen, resizing, a new slide)
-  pipEl.className = valid ? [st.corner, st.circle && 'circle', cameraStream && 'live', st.mirror && 'mirror', st.full && 'full', st.behind && 'behind', pipEl.classList.contains('msg') && 'msg'].filter(Boolean).join(' ') : '';
-  pipEl.style.width = st.size + '%';
-  pipEl.hidden = !valid || cameraOff || st.off;
+  // the camera behind the slide shows even while the camera is off: an empty frame, so the layout reads
+  const empty = cameraOff && !!st.behind && !st.off;
+  pipEl.className = valid ? [st.corner, st.circle && 'circle', cameraStream && 'live', st.mirror && 'mirror', st.full && 'full', st.behind && 'behind', empty && 'empty', pipEl.classList.contains('msg') && 'msg'].filter(Boolean).join(' ') : '';
+  // (full sets its own size: an important or inline width here would pin the box before it can glide)
+  pipEl.style.width = st.full ? '' : st.size + '%';
+  pipEl.hidden = !valid || st.off || (cameraOff && !empty);
   stageWrap.dataset.pip = pipEl.hidden || st.full ? 'none' : st.corner;
   // behind: the camera fills the frame under the slides, so the stage's own background steps aside
   stageWrap.classList.toggle('cam-behind', !pipEl.hidden && !!st.behind);
+  stageWrap.style.setProperty('--cam-card', String((st.card || 0) / 100));
+  stageWrap.classList.toggle('cam-card', (st.card || 0) > 0);
+  // a solid card is a split screen: the camera takes the rest of the frame, so you sit in the middle of your side
+  stageWrap.classList.toggle('cam-solid', (st.card || 0) >= 100);
+  // the words are over live video (white, whatever the mode) or over the empty frame (the deck's own colours)
+  stageWrap.classList.toggle('cam-live', !pipEl.hidden && !!st.behind && !empty);
+  const wasPlaced = !!camPlace;
+  renderCamOverlay(!pipEl.hidden && st.behind ? st.place || '' : '');
+  // arriving from the corner: the camera grows to fill the frame first, then the words come in around you
+  if (camPlace && !wasPlaced && first && !reduceMotion && camOverlay.animate)
+    camOverlay.animate([{opacity:0}, {opacity:1}], {duration:300, delay:550, easing:'ease-out', fill:'backwards'});
   if (pipEl.hidden || reduceMotion || !pipEl.animate) return;
   const ease = 'cubic-bezier(.65,0,.35,1)';
   if (!first){
     pipEl.animate([{opacity:0}, {opacity:1}], {duration:300, easing:'ease-out'});
     return;
   }
-  // FLIP: start from where the box was and glide to where it is now (full ↔ corner, resize, flip)
+  // glide from where the box was to where it is now (full ↔ corner, resize, flip). The box itself moves and
+  // resizes, rather than being scaled, so the video keeps its shape and is only cropped differently on the way
   const last = pipEl.getBoundingClientRect();
   if (Math.abs(first.left - last.left) + Math.abs(first.top - last.top) + Math.abs(first.width - last.width) + Math.abs(first.height - last.height) < 2) return;
-  pipEl.animate([
-    {transformOrigin:'0 0', transform:'translate('+(first.left - last.left)+'px,'+(first.top - last.top)+'px) scale('+(first.width / last.width)+','+(first.height / last.height)+')'},
-    {transformOrigin:'0 0', transform:'none'}
-  ], {duration:600, easing:ease});
+  const o = (pipEl.offsetParent || stageWrap).getBoundingClientRect();
+  /** @param {DOMRect} r */
+  const box = r=>({left:(r.left - o.left)+'px', top:(r.top - o.top)+'px', width:r.width+'px', height:r.height+'px', right:'auto', bottom:'auto', aspectRatio:'auto'});
+  pipEl.animate([box(first), box(last)], {duration:600, easing:ease});
 }
+// ---------- the slide beside the person: behind left, right, top, bottom ----------
+// The current slide's content is drawn into a region over the camera instead of its card: a half (left, right)
+// or a quarter band (top, bottom). The region's content is
+// laid out at the card's text size and scaled to fill it, never past it, so short text is large and long text
+// shrinks rather than spilling onto the person. Redrawn at every step, so reveals show as they happen.
+const camOverlay = document.getElementById('cam-overlay');
+let camPlace = '';
+function renderCamOverlay(place){
+  // where the words were, so a move to the other side (left ↔ right, top ↔ bottom) slides them across
+  const was = camPlace, wasBox = camOverlay.querySelector('.cam-box'), from = wasBox && wasBox.getBoundingClientRect();
+  camPlace = place;
+  stageWrap.dataset.place = place;
+  camOverlay.innerHTML = '';
+  const n = place && nodes.get(currentId);
+  // (a re-read deck has its cards before they're built: the overlay comes back once they are)
+  if (!n || !n.el) return;
+  const body = n.el.querySelector('.body');
+  const all = [...body.children].map(c=>c.cloneNode(true));
+  const isMedia = /** @param {Element} e */ e=>e.matches('figure.media, .diagram, .echarts-container, .gallery');
+  /** @type {[string, Element[]][]} */
+  const boxes = [[place, all]];
+  // pictures, diagrams and charts get their own share of a region, shown as they are on the card and
+  // scaled to fit, so a big image doesn't shrink the words beside it
+  const cardWidth = body.clientWidth;
+  boxes.forEach(([where, els])=>{
+    if (!els.length) return;
+    const box = document.createElement('div');
+    box.className = 'cam-box ' + where;
+    /** @param {string} cls @param {Element[]} kids */
+    const part = (cls, kids)=>{
+      if (!kids.length) return;
+      const wrap = document.createElement('div');
+      wrap.className = cls;
+      const card = document.createElement('section');
+      card.className = 'node';
+      const inner = document.createElement('div');
+      inner.className = 'body';
+      kids.forEach(e=>inner.appendChild(e));
+      card.appendChild(inner);
+      if (cls === 'cam-media') card.style.width = cardWidth + 'px';
+      wrap.appendChild(card);
+      box.appendChild(wrap);
+    };
+    part('cam-text', els.filter(e=>!isMedia(e)));
+    part('cam-media', els.filter(isMedia));
+    camOverlay.appendChild(box);
+  });
+  camOverlay.querySelectorAll('img').forEach(img=>{ if (!img.complete) img.addEventListener('load', fitCamOverlay, {once:true}); });
+  fitCamOverlay();
+  // swapping sides: the words slide over as the camera slides the other way, passing each other
+  const nowBox = /** @type {HTMLElement|null} */ (camOverlay.querySelector('.cam-box'));
+  if (from && was && was !== place && nowBox && !reduceMotion && nowBox.animate){
+    const to = nowBox.getBoundingClientRect();
+    if (Math.abs(from.width - to.width) < 2 && Math.abs(from.height - to.height) < 2)
+      nowBox.animate([{transform:'translate(' + (from.left - to.left) + 'px,' + (from.top - to.top) + 'px)'}, {transform:'none'}],
+        {duration:600, easing:'cubic-bezier(.65,0,.35,1)'});
+  }
+}
+// each region's content at the largest scale that fits it (and no larger than reads well on the frame)
+function fitCamOverlay(){
+  const most = stage.clientHeight / 240;   // body text up to about 5% of the frame's height
+  camOverlay.querySelectorAll('.cam-media').forEach(box=>{
+    const card = /** @type {HTMLElement} */ (box.firstElementChild);
+    const s = Math.min(box.clientWidth / card.offsetWidth, box.clientHeight / card.offsetHeight, most * 1.5);
+    card.style.transform = 'translate(-50%, -50%) scale(' + s + ')';
+  });
+  camOverlay.querySelectorAll('.cam-text').forEach(box=>{
+    const card = /** @type {HTMLElement} */ (box.firstElementChild);
+    const bw = box.clientWidth, bh = box.clientHeight;
+    let lo = 0.3, hi = most;
+    for (let i = 0; i < 12; i++){
+      const s = (lo + hi) / 2;
+      card.style.width = (bw / s) + 'px';
+      if (card.offsetHeight * s <= bh) lo = s; else hi = s;
+    }
+    card.style.width = (bw / lo) + 'px';
+    card.style.transform = 'scale(' + lo + ')';
+  });
+}
+new ResizeObserver(()=>{ if (camPlace) fitCamOverlay(); }).observe(stageWrap);
+
 // where the PIP box will be once its CSS transition finishes, in stage coordinates
 function pipRect(){
   const st = pipState;
@@ -935,11 +1041,16 @@ async function renderRich(){
         try { opt = JSON.parse(div.dataset.chart); }
         catch(e){ div.textContent = 'Chart data is not valid JSON.'; return; }
         // SVG stays sharp however far the camera zooms in
-        echarts.init(div, theme, {renderer:'svg'}).setOption(Object.assign({backgroundColor:'transparent', animation:!reduceMotion}, opt));
+        const chart = echarts.init(div, theme, {renderer:'svg'});
+        // the camera's placement copies the chart: copy it again once its bars have grown
+        chart.on('finished', ()=>{ if (camPlace && div.closest('.node') === (nodes.get(currentId) || {}).el) renderCamOverlay(camPlace); });
+        chart.setOption(Object.assign({backgroundColor:'transparent', animation:!reduceMotion}, opt));
       });
     } catch(e){ problems.push('charts'); }
   }
   if (gen !== buildGen) return;
+  // the camera's placement copies the card, so it takes the diagrams and charts now drawn
+  if (camPlace) renderCamOverlay(camPlace);
   if (problems.length) statusErr.textContent = 'Could not load the ' + problems.join(' and ') + ' renderer (offline?)';
   // diagrams and charts change card sizes
   nodes.forEach(sizeCard);
@@ -1373,7 +1484,8 @@ function navigate(id, instant, atLastStep){
   if (arriving && n.mapFirst && !atLastStep && !instant && layoutMode !== 'focus'){
     // a map moment: show the whole deck for a beat, then fly in
     fitAll();
-    mapTimer = setTimeout(()=>{ mapTimer = null; if (currentId === id) focusOn(id); }, 1900);
+    mapTimer = setTimeout(()=>{ mapTimer = null; if (currentId === id){ applyPipState(); focusOn(id); } }, 1900);
+    applyPipState();
   } else focusOn(id, instant);
   updateActivePath();
   updateMinimap();
@@ -1399,6 +1511,7 @@ function overview(){
   leaveSlide();
   clearTimeout(autoTimer);
   currentId = null;
+  applyPipState();
   updateActivePath();
   updateMinimap();
   fitAll();
@@ -1406,14 +1519,14 @@ function overview(){
 }
 // Esc during either overview: the map moment flies on into its slide, O's overview returns to the slide it left
 function backFromOverview(){
-  if (mapTimer){ clearTimeout(mapTimer); mapTimer = null; focusOn(currentId); return true; }
+  if (mapTimer){ clearTimeout(mapTimer); mapTimer = null; applyPipState(); focusOn(currentId); return true; }
   if (!currentId && overviewFrom && nodes.has(overviewFrom)){ const id = overviewFrom; overviewFrom = null; navigate(id); return true; }
   return false;
 }
 function step(dir){
   if (!currentId){ if (order.length) navigate(order[dir > 0 ? 0 : order.length-1]); return; }
   // a press during a map moment finishes it, flying into the slide, rather than skipping past the slide
-  if (mapTimer && dir > 0){ clearTimeout(mapTimer); mapTimer = null; focusOn(currentId); return; }
+  if (mapTimer && dir > 0){ clearTimeout(mapTimer); mapTimer = null; applyPipState(); focusOn(currentId); return; }
   const steps = slideSteps(nodes.get(currentId));
   const ns = Math.min(stepPos, steps.length - 1) + dir;
   if (ns >= 0 && ns < steps.length){
@@ -1859,6 +1972,7 @@ function stopCamPreview(){
 }
 async function startCamPreview(){
   stopCamPreview();
+  showMirror();
   const token = camPreviewToken, id = recCam.value;
   camNone.hidden = id !== 'none' && !!id;
   camNone.textContent = 'No camera';
@@ -1930,6 +2044,19 @@ async function fillDevices(withMeter = true){
   } catch(e){}
 }
 recMic.onchange = ()=>{ save('slidetake:mic', recMic.value); startMeter(); setupSummary(); };
+// Mirror (Setup): off unless chosen, so the camera shows you as others see you; until chosen, a deck's pip_mirror
+// decides. A slide's mirror / unmirror still flips it for that slide.
+const recMirror = /** @type {HTMLInputElement} */ (document.getElementById('rec-mirror'));
+function cameraMirrored(){
+  const chosen = load('slidetake:mirror');
+  return chosen ? chosen === 'on' : /^(yes|true|on)$/i.test(deck.pip_mirror || '');
+}
+function showMirror(){
+  recMirror.checked = cameraMirrored();
+  /** @type {HTMLElement} */ (camPreview.parentElement).classList.toggle('mirror', recMirror.checked);
+}
+recMirror.onchange = ()=>{ save('slidetake:mirror', recMirror.checked ? 'on' : 'off'); showMirror(); applyPipState(); };
+showMirror();
 recCam.onchange = ()=>{
   setCamChoice(recCam.value);
   if (recCam.value !== 'none' && cameraStream){ stopWebcam(); startWebcam(); }
@@ -3311,6 +3438,7 @@ function updateCamBtn(){
 function setCameraEnabled(on, quiet){
   if (on && !RECORDING_UI) return;
   cameraOff = !on;
+  if (!quiet) save('slidetake:camera', on ? 'on' : 'off');   // a reload comes back the same
   if (cameraOff){ stopWebcam(); hidePipMsg(); }
   camManual = null; camCycle = -1;
   stepPos = Math.min(stepPos, Math.max(0, slideSteps(nodes.get(currentId)).length - 1));
@@ -3667,4 +3795,6 @@ loadInitialDeck().then(text=>{
   nodes.forEach(sizeCard);
   position();
   navigate(nodes.has(startId) ? startId : order[0], true);
+  // the camera as it was left: on again after a reload (the browser asks only if it hasn't been allowed)
+  if (RECORDING_UI && load('slidetake:camera') === 'on') setCameraEnabled(true, true);
 });
