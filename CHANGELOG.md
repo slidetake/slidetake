@@ -14,6 +14,9 @@ package can notice. Tests, CI and tooling do not belong here.
 
 ### Added
 
+- **Mirror** in Setup's camera section flips the camera like a mirror, and is
+  remembered. It's off unless you turn it on, so the camera shows you as others
+  see you; a deck's `pip_mirror:` decides until you choose.
 - The Showcase has a card for the camera behind the slide.
 - With the camera **behind**, a placement puts the slide's content around you:
   `left` or `right` (a half), `top` or `bottom` (a band), `top-bottom` and
@@ -44,6 +47,7 @@ package can notice. Tests, CI and tooling do not belong here.
 - The words around you keep the deck's colours, camera on or off: dark in light
   mode, light in dark, the accent as it is, the card white or dark to match.
 - The camera remembers being on or off: a reload brings it back as it was.
+- The camera is no longer mirrored by default (Mirror in Setup turns it on).
 - The overview (O) and a map moment show the map from a slide with the camera
   behind it: the camera waits in its corner until you're back on the slide.
 - The camera **behind** stays on its own slide: the slides after it go back to

@@ -300,7 +300,7 @@ function computePipState(){
     corner: (deck.pip || 'none').toLowerCase(),
     size: clampPipSize(parseFloat(deck.pip_size) || 24),
     circle: (deck.pip_shape || '').toLowerCase() === 'circle',
-    mirror: !/^(no|false|off)$/i.test(deck.pip_mirror || ''),
+    mirror: cameraMirrored(),
     full: false, off: false, flip: false, used: false,
     card: 50                // with behind, the words sit on a half see-through card unless the deck or slide says otherwise
   };
@@ -1970,6 +1970,7 @@ function stopCamPreview(){
 }
 async function startCamPreview(){
   stopCamPreview();
+  showMirror();
   const token = camPreviewToken, id = recCam.value;
   camNone.hidden = id !== 'none' && !!id;
   camNone.textContent = 'No camera';
@@ -2041,6 +2042,19 @@ async function fillDevices(withMeter = true){
   } catch(e){}
 }
 recMic.onchange = ()=>{ save('slidetake:mic', recMic.value); startMeter(); setupSummary(); };
+// Mirror (Setup): off unless chosen, so the camera shows you as others see you; until chosen, a deck's pip_mirror
+// decides. A slide's mirror / unmirror still flips it for that slide.
+const recMirror = /** @type {HTMLInputElement} */ (document.getElementById('rec-mirror'));
+function cameraMirrored(){
+  const chosen = load('slidetake:mirror');
+  return chosen ? chosen === 'on' : /^(yes|true|on)$/i.test(deck.pip_mirror || '');
+}
+function showMirror(){
+  recMirror.checked = cameraMirrored();
+  /** @type {HTMLElement} */ (camPreview.parentElement).classList.toggle('mirror', recMirror.checked);
+}
+recMirror.onchange = ()=>{ save('slidetake:mirror', recMirror.checked ? 'on' : 'off'); showMirror(); applyPipState(); };
+showMirror();
 recCam.onchange = ()=>{
   setCamChoice(recCam.value);
   if (recCam.value !== 'none' && cameraStream){ stopWebcam(); startWebcam(); }
