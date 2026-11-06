@@ -2822,9 +2822,14 @@
     }
     const last = pipEl.getBoundingClientRect();
     if (Math.abs(first.left - last.left) + Math.abs(first.top - last.top) + Math.abs(first.width - last.width) + Math.abs(first.height - last.height) < 2) return;
-    const o = (pipEl.offsetParent || stageWrap).getBoundingClientRect();
-    const box = (r) => ({ left: r.left - o.left + "px", top: r.top - o.top + "px", width: r.width + "px", height: r.height + "px", right: "auto", bottom: "auto", aspectRatio: "auto" });
-    pipEl.animate([box(first), box(last)], { duration: 600, easing: ease });
+    const s = Math.max(first.width / last.width, first.height / last.height);
+    const dx = first.left + first.width / 2 - (last.left + last.width / 2), dy = first.top + first.height / 2 - (last.top + last.height / 2);
+    const ix = Math.max(0, (last.width - first.width / s) / 2), iy = Math.max(0, (last.height - first.height / s) / 2);
+    const r0 = parseFloat(getComputedStyle(pipEl).borderTopLeftRadius) || 0;
+    pipEl.animate([
+      { transformOrigin: "50% 50%", transform: "translate(" + dx + "px," + dy + "px) scale(" + s + ")", clipPath: "inset(" + iy + "px " + ix + "px round " + 10 / s + "px)" },
+      { transformOrigin: "50% 50%", transform: "none", clipPath: "inset(0px 0px round " + r0 + "px)" }
+    ], { duration: 600, easing: ease });
   }
   var camOverlay = document.getElementById("cam-overlay");
   var camPlace = "";

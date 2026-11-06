@@ -25,6 +25,9 @@ package can notice. Tests, CI and tooling do not belong here.
 
 ### Fixed
 
+- The camera's moves (corner ↔ full frame, split screens) no longer drop frames
+  from a recording: the box is scaled and clipped, which the browser composites,
+  instead of being laid out again on every frame.
 - Takes recorded in the browser all come out the same size: the recorded frame is
   whole pixels at a whole-pixel place, so a portrait deck's takes no longer
   differ by a pixel or two and fail to join.

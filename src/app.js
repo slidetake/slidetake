@@ -356,14 +356,19 @@ function applyPipState(){
     pipEl.animate([{opacity:0}, {opacity:1}], {duration:300, easing:'ease-out'});
     return;
   }
-  // glide from where the box was to where it is now (full ↔ corner, resize, flip). The box itself moves and
-  // resizes, rather than being scaled, so the video keeps its shape and is only cropped differently on the way
+  // glide from where the box was to where it is now (full ↔ corner, resize, flip). The box is scaled the same
+  // across and down, so the video keeps its shape, and clipped to the old box's shape, which opens out to the new
+  // one: the browser only composites it (no layout on each frame, which dropped frames from a recording)
   const last = pipEl.getBoundingClientRect();
   if (Math.abs(first.left - last.left) + Math.abs(first.top - last.top) + Math.abs(first.width - last.width) + Math.abs(first.height - last.height) < 2) return;
-  const o = (pipEl.offsetParent || stageWrap).getBoundingClientRect();
-  /** @param {DOMRect} r */
-  const box = r=>({left:(r.left - o.left)+'px', top:(r.top - o.top)+'px', width:r.width+'px', height:r.height+'px', right:'auto', bottom:'auto', aspectRatio:'auto'});
-  pipEl.animate([box(first), box(last)], {duration:600, easing:ease});
+  const s = Math.max(first.width / last.width, first.height / last.height);
+  const dx = first.left + first.width / 2 - (last.left + last.width / 2), dy = first.top + first.height / 2 - (last.top + last.height / 2);
+  const ix = Math.max(0, (last.width - first.width / s) / 2), iy = Math.max(0, (last.height - first.height / s) / 2);
+  const r0 = parseFloat(getComputedStyle(pipEl).borderTopLeftRadius) || 0;
+  pipEl.animate([
+    {transformOrigin:'50% 50%', transform:'translate(' + dx + 'px,' + dy + 'px) scale(' + s + ')', clipPath:'inset(' + iy + 'px ' + ix + 'px round ' + (10 / s) + 'px)'},
+    {transformOrigin:'50% 50%', transform:'none', clipPath:'inset(0px 0px round ' + r0 + 'px)'}
+  ], {duration:600, easing:ease});
 }
 // ---------- the slide beside the person: behind left, right, top, bottom ----------
 // The current slide's content is drawn into a region over the camera instead of its card: a half (left, right)
