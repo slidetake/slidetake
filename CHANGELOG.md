@@ -23,6 +23,9 @@ package can notice. Tests, CI and tooling do not belong here.
 
 ### Fixed
 
+- Takes recorded in the browser all come out the same size: the recorded frame is
+  whole pixels at a whole-pixel place, so a portrait deck's takes no longer
+  differ by a pixel or two and fail to join.
 - The words over the camera on a deck's first or last slide no longer go
   missing while its entrance plays.
 

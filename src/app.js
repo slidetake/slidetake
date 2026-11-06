@@ -2180,6 +2180,25 @@ async function deleteTakes(id){
 // when the tab was shared, and the page can still be mid-layout then (going fullscreen), which came out
 // 1828×1080 instead of 1920×1080. With the shape fixed, Chrome crops to it and the size is exact.
 const outputSize = q=>{ const t = turned(q, isPortrait()); return {width:t.w, height:t.h, aspectRatio:t.w / t.h, frameRate:FPS, resizeMode:'crop-and-scale'}; };
+// The recorded frame in whole, even pixels at a whole-pixel place. Left to CSS, a 9:16 column is a fraction of a
+// pixel wide and centred at a fraction, so one take came out 1004 pixels wide and the next 1006, and takes of
+// different sizes can't be joined.
+function fitRecFrame(){
+  if (!document.body.classList.contains('rec-frame')) return;
+  const dpr = devicePixelRatio || 1, aspect = isPortrait() ? 9 / 16 : 16 / 9;
+  const W = mainEl.clientWidth, H = mainEl.clientHeight;
+  const even = /** @param {number} css */ css=>Math.floor(css * dpr / 2) * 2 / dpr;   // whole, even device pixels
+  let h = even(Math.min(H, W / aspect)), w = even(h * aspect);
+  if (w > W){ w = even(W); h = even(w / aspect); }
+  Object.assign(stageWrap.style, {width:w + 'px', height:h + 'px', aspectRatio:'auto',
+    margin:Math.floor((H - h) / 2) + 'px 0 0 ' + Math.floor((W - w) / 2) + 'px'});
+}
+function setRecFrame(on){
+  document.body.classList.toggle('rec-frame', on);
+  if (on) fitRecFrame();
+  else ['width', 'height', 'aspectRatio', 'margin'].forEach(k=>stageWrap.style.removeProperty(k.replace(/[A-Z]/g, c=>'-' + c.toLowerCase())));
+}
+new ResizeObserver(fitRecFrame).observe(mainEl);
 async function attachCapture(track){
   if (window.RestrictionTarget && track.restrictTo) await track.restrictTo(await RestrictionTarget.fromElement(stageWrap));
   else await track.cropTo(await CropTarget.fromElement(stageWrap));
@@ -2197,7 +2216,7 @@ async function beginBrowserCapture(){
   const b = browserRecording();
   if (!b.ok) throw new Error(b.why);
   const quality = QUALITIES.find(q=>q.name === recQuality.value) || b.quality;
-  document.body.classList.add('rec-frame');   // the frame must exist (and be capturable) before the capture is cut to it
+  setRecFrame(true);   // the frame must exist (and be capturable) before the capture is cut to it
   const display = await navigator.mediaDevices.getDisplayMedia({video:{frameRate:FPS}, audio:false,
     preferCurrentTab:true, selfBrowserSurface:'include', surfaceSwitching:'exclude', monitorTypeSurfaces:'exclude'});
   const track = display.getVideoTracks()[0];
@@ -2222,7 +2241,7 @@ function endBrowserCapture(){
   if (!b) return;
   b.display.getTracks().forEach(t=>t.stop());
   b.mic.getTracks().forEach(t=>t.stop());
-  document.body.classList.remove('rec-frame');
+  setRecFrame(false);
 }
 // a new take: its own recorder and file. The new one starts first and the one before stops once it is
 // running, so no moment is missed; the take's start is stamped when its recorder actually starts.
@@ -2259,7 +2278,7 @@ async function startTake(kind, only){
     if (!presenting) setPresent(true);        // fullscreen first, while the click still counts
     try { await beginBrowserCapture(); }
     catch(e){
-      document.body.classList.remove('rec-frame');
+      setRecFrame(false);
       if (presenting) setPresent(false);
       recNote = e.name === 'NotAllowedError' ? 'Recording needs this tab shared: press ● Record again and choose Share.' : e.message;
       openBoard({setup:true});
