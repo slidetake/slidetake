@@ -38,7 +38,7 @@ The complete list, one line each. Press → to walk it, **O** for the map.
 |---|---|
 | **Webcam in its box** | you and the slides in one recording, no compositing |
 | **Camera per slide** | corner, size, side, circle, full screen, behind the slide or off |
-| **Words around you** (`behind left`…) | the slide's content beside, above or below you, or on both sides, with a card under it as see-through as you like |
+| **Words around you** (`behind left`…) | the slide's content beside, above or below you, on a see-through card, a solid one (split screen) or none |
 | **Steps on one slide** | open on you, then reveal the slide |
 | **Camera layouts** (V) | try them live, without editing the deck |
 | **Off until you turn it on** | not shown to viewers: the slides get the whole screen |

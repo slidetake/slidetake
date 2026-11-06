@@ -177,19 +177,25 @@ Try it: press **C** to turn on your camera, then →. This card puts you in the 
 
 <!-- camera: behind -->
 
-With the camera on, you fill the frame and this slide's words sit beside you: a talking head with slides. One comment does it: `<!-- camera: behind -->`, or `pip: behind` for a whole deck. They go on the left; `right`, `top`, `bottom`, `top-bottom` or `left-right` put them elsewhere, on a half see-through card.
+With the camera on, you fill the frame and this slide's words sit beside you: a talking head with slides. One comment does it: `<!-- camera: behind -->`, or `pip: behind` for a whole deck. They go on the left, on a half see-through card; `right`, `top` or `bottom` put them elsewhere.
 
 ### Words around you
 
-<!-- camera: behind left, behind right, behind top, behind bottom, behind top-bottom, behind left-right -->
+<!-- camera: behind left, behind right, behind top, behind bottom -->
 
-Press → and these words move around you: `left`, `right`, `top`, `bottom`, `top-bottom`, `left-right`. One comment, one press each.
+Press → and these words move around you: `left`, `right`, `top`, `bottom`. One comment, one press each.
 
-### A card under the words
+### Split screen
 
-<!-- camera: behind left, behind left card, behind left card 0%, behind bottom card 80%, behind left-right card -->
+<!-- camera: behind solid, behind right solid, behind top solid, behind bottom solid -->
 
-The words sit on a half see-through card, edge to edge. `card` alone makes it solid, a split screen with the camera centred on the other side; `card 0%` takes it away; `card 80%` anything between.
+Add `solid` and the card hides the camera behind it: a split screen, with the camera moved to the other side and you centred there.
+
+### Clear
+
+<!-- camera: behind clear, behind bottom clear -->
+
+`clear` takes the card away: the words sit straight on the camera. Best over a plain wall or a green screen.
 
 ### A picture beside you
 
@@ -199,7 +205,7 @@ The words sit on a half see-through card, edge to edge. `card` alone makes it so
 
 ### A Graphviz diagram beside you
 
-<!-- camera: behind left, behind left-right -->
+<!-- camera: behind left, behind left solid -->
 
 Talk through the flow while it sits beside you.
 
@@ -225,7 +231,7 @@ write -> present -> record
 
 ### An SVG beside you
 
-<!-- camera: behind left, behind top-bottom -->
+<!-- camera: behind left, behind bottom solid -->
 
 Drawn in the deck's colours.
 

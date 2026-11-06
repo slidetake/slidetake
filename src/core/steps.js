@@ -2,12 +2,12 @@
 // Camera presets and a slide's steps. A preset is a few words applied on top of the deck's pip settings:
 //   off · on · full · behind · 18% (size) · top-left … bottom-right · flip (other side) · circle · rect · mirror · unmirror
 // full puts the camera over the whole frame; behind puts it there under the slides, which stay on top.
-// With behind, a placement puts the slide's content around the person (behind alone is left): left or right (a half), top or bottom
-// (a band), top-bottom or left-right (split across both, the person in the middle). card 40% sets the
-// card under the content, from 0% (none) to 100% (solid: no camera through it); half see-through unless set; card alone is solid.
+// With behind, the slide's content sits beside the person: left (the default) or right (a half), top or bottom (a
+// band), on a half see-through card; solid makes the card opaque (a split screen, the camera centred in the rest of
+// the frame), clear takes it away.
 
 export const CORNERS = ['top-left', 'top-right', 'bottom-left', 'bottom-right'];
-export const PLACES = ['left', 'right', 'top', 'bottom', 'top-bottom', 'left-right'];
+export const PLACES = ['left', 'right', 'top', 'bottom'];
 /** @param {number} v */
 export const clampPipSize = v=>Math.max(8, Math.min(60, v));
 
@@ -19,8 +19,8 @@ export const clampPipSize = v=>Math.max(8, Math.min(60, v));
  * @property {boolean} [mirror]
  * @property {boolean} [full]
  * @property {boolean} [behind]  full frame, under the slides
- * @property {string} [place]  with behind: left, right, top, bottom, top-bottom, left-right
- * @property {number} [card]  with behind: the card's opacity under the content, 0 to 100
+ * @property {string} [place]  with behind: left, right, top, bottom
+ * @property {number} [card]  with behind: the card under the content, 0 (clear), 50 (see-through) or 100 (solid)
  * @property {boolean} [off]
  * @property {boolean} [flip]
  * @property {boolean} [used]
@@ -30,15 +30,10 @@ export const clampPipSize = v=>Math.max(8, Math.min(60, v));
 
 /** @param {PipState} st @param {string|null|undefined} preset @returns {PipState} */
 export function applyPreset(st, preset){
-  const words = String(preset || '').toLowerCase().split(/\s+/);
-  words.forEach((t, i)=>{
+  String(preset || '').toLowerCase().split(/\s+/).forEach(t=>{
     if (!t) return;
-    if (t === 'card'){
-      const n = /^\d+(\.\d+)?%?$/.test(words[i + 1] || '') ? parseFloat(words[i + 1]) : 100;
-      st.card = Math.max(0, Math.min(100, n));
-      if (words[i + 1] && /^\d/.test(words[i + 1])) words[i + 1] = '';   // the number is the card's, not a size
-      st.used = true;
-    }
+    if (t === 'solid'){ st.card = 100; st.used = true; }
+    else if (t === 'clear'){ st.card = 0; st.used = true; }
     else if (t === 'off' || t === 'hide'){ st.off = true; }
     else if (t === 'on' || t === 'pip' || t === 'show'){ st.off = false; st.full = false; st.behind = false; st.place = ''; st.used = true; }
     else if (t === 'full' || t === 'fullscreen'){ st.full = true; st.behind = false; st.place = ''; st.off = false; st.used = true; }

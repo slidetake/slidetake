@@ -716,10 +716,8 @@
   /* split screen (a solid card): the camera fills what the card leaves, centred there, and glides into it */
   #stage-wrap.cam-solid[data-place="left"] #pip.full.behind{left:50%;width:50%;}
   #stage-wrap.cam-solid[data-place="right"] #pip.full.behind{right:50%;width:50%;}
-  #stage-wrap.cam-solid[data-place="left-right"] #pip.full.behind{left:25%;width:50%;}
   #stage-wrap.cam-solid[data-place="top"] #pip.full.behind{top:25%;height:75%;}
   #stage-wrap.cam-solid[data-place="bottom"] #pip.full.behind{bottom:25%;height:75%;}
-  #stage-wrap.cam-solid[data-place="top-bottom"] #pip.full.behind{top:25%;height:50%;}
   /* the camera behind the slide while it is off: an empty frame with a faint person where you'd be */
   #stage-wrap #pip.empty{border:none;background:color-mix(in srgb, var(--text) 6%, var(--bg)) url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Cg fill='%23fff' fill-opacity='.07'%3E%3Ccircle cx='50' cy='40' r='15'/%3E%3Cpath d='M18 100c0-22 14-36 32-36s32 14 32 36z'/%3E%3C/g%3E%3C/svg%3E") 50% 100%/auto 70% no-repeat;}
   body[data-mode="light"] #stage-wrap #pip.empty{background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Cg fill='%23000' fill-opacity='.06'%3E%3Ccircle cx='50' cy='40' r='15'/%3E%3Cpath d='M18 100c0-22 14-36 32-36s32 14 32 36z'/%3E%3C/g%3E%3C/svg%3E");}
@@ -739,22 +737,19 @@
   #stage-wrap.cam-live:not(.cam-card) #cam-overlay .body :is(th, td){background:color-mix(in srgb, var(--bg) 70%, transparent);}
   #stage-wrap:not([data-place=""])[data-place] #cam-overlay{display:block;}
   #stage-wrap:not([data-place=""])[data-place] #world{opacity:0;}
-  /* card 40%: a card under the words, from none to solid (no camera through it) */
+  /* the card under the words: half see-through, solid (no camera through it) or clear (none, kept off the edges) */
   #cam-overlay .cam-box{position:absolute;display:flex;flex-direction:column;gap:3%;box-sizing:border-box;padding:1.2%;
     border-radius:18px;background:color-mix(in srgb, var(--panel) calc(var(--cam-card, 0) * 100%), transparent);}
   #cam-overlay .cam-box.left{left:4%;top:8%;width:42%;height:84%;}
   #cam-overlay .cam-box.right{right:4%;top:8%;width:42%;height:84%;}
   #cam-overlay .cam-box.top{left:5%;top:3%;width:90%;height:22%;flex-direction:row;}
   #cam-overlay .cam-box.bottom{left:5%;bottom:3%;width:90%;height:22%;flex-direction:row;}
-  /* left-right: a quarter each side, the person in the middle half */
-  #stage-wrap[data-place="left-right"] #cam-overlay .cam-box:is(.left, .right){width:27%;}
-  /* with a card, the region fills its whole part of the frame, edge to edge: a half, a quarter band, a quarter side */
+  /* with a card, the region fills its part of the frame edge to edge: a half or a quarter band */
   #stage-wrap.cam-card #cam-overlay .cam-box{border-radius:0;padding:2.5%;}
   #stage-wrap.cam-card #cam-overlay .cam-box.left{left:0;top:0;width:50%;height:100%;}
   #stage-wrap.cam-card #cam-overlay .cam-box.right{right:0;top:0;width:50%;height:100%;}
   #stage-wrap.cam-card #cam-overlay .cam-box.top{left:0;top:0;width:100%;height:25%;}
   #stage-wrap.cam-card #cam-overlay .cam-box.bottom{left:0;bottom:0;width:100%;height:25%;}
-  #stage-wrap.cam-card[data-place="left-right"] #cam-overlay .cam-box:is(.left, .right){width:25%;}
   /* the words take what the picture leaves: below it beside you, to its left in a band */
   #cam-overlay .cam-text{flex:1 1 0;min-width:0;min-height:0;display:flex;align-items:center;}
   #cam-overlay .cam-box.top .cam-text{align-items:flex-start;}

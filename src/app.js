@@ -358,9 +358,9 @@ function applyPipState(){
   const box = r=>({left:(r.left - o.left)+'px', top:(r.top - o.top)+'px', width:r.width+'px', height:r.height+'px', right:'auto', bottom:'auto', aspectRatio:'auto'});
   pipEl.animate([box(first), box(last)], {duration:600, easing:ease});
 }
-// ---------- the slide around the person: behind left, right, top, bottom, around, title ----------
-// The current slide's content is drawn into regions over the camera instead of its card: a half, a quarter
-// band, the heading on top and the rest below (around), or the heading alone (title). Each region's content is
+// ---------- the slide beside the person: behind left, right, top, bottom ----------
+// The current slide's content is drawn into a region over the camera instead of its card: a half (left, right)
+// or a quarter band (top, bottom). The region's content is
 // laid out at the card's text size and scaled to fill it, never past it, so short text is large and long text
 // shrinks rather than spilling onto the person. Redrawn at every step, so reveals show as they happen.
 const camOverlay = document.getElementById('cam-overlay');
@@ -374,17 +374,9 @@ function renderCamOverlay(place){
   if (!n || !n.el) return;
   const body = n.el.querySelector('.body');
   const all = [...body.children].map(c=>c.cloneNode(true));
-  const isHead = /** @param {Element} e */ e=>/^H[1-6]$/.test(e.tagName);
   const isMedia = /** @param {Element} e */ e=>e.matches('figure.media, .diagram, .echarts-container, .gallery');
-  const head = all.filter((e, i)=>i === 0 && isHead(e)), rest = all.filter(e=>!head.includes(e));
-  // split across both sides: the words on one and the pictures on the other, or with no pictures the heading
-  // on one and the rest on the other
-  const [a, b] = place === 'top-bottom' ? ['top', 'bottom'] : ['left', 'right'];
-  const media = all.filter(isMedia), words = all.filter(e=>!isMedia(e));
   /** @type {[string, Element[]][]} */
-  const boxes = !/-/.test(place) ? [[place, all]]
-    : media.length && words.length ? [[a, words], [b, media]]
-    : [[a, head], [b, rest]];
+  const boxes = [[place, all]];
   // pictures, diagrams and charts get their own share of a region, shown as they are on the card and
   // scaled to fit, so a big image doesn't shrink the words beside it
   const cardWidth = body.clientWidth;

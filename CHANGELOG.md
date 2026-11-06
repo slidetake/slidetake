@@ -18,17 +18,15 @@ package can notice. Tests, CI and tooling do not belong here.
   remembered. It's off unless you turn it on, so the camera shows you as others
   see you; a deck's `pip_mirror:` decides until you choose.
 - The Showcase has a card for the camera behind the slide.
-- With the camera **behind**, a placement puts the slide's content around you:
-  `left` or `right` (a half), `top` or `bottom` (a band), `top-bottom` and
-  `left-right` (split across both, you in the middle), as in
-  `<!-- camera: behind right -->` or `pip: behind left`. The content is scaled to
-  fill its place and never past it, and steps reveal there as they do on a card.
-- The words sit on a card, half see-through (`card 50%`) unless set, from
-  `card 0%` (none) to `card` alone (solid, no camera through it). The card
-  fills their part of the frame edge to edge: a half, a quarter band, or a
-  quarter on each side. A solid `card` is a split screen: the camera glides
-  into the rest of the frame, so sitting in the middle of your camera puts you
-  in the middle of your side.
+- With the camera **behind**, the slide's content sits beside you: `left` (the
+  default) or `right` (a half), `top` or `bottom` (a quarter band), as in
+  `<!-- camera: behind right -->` or `pip: behind bottom`. The content is
+  scaled to fill its place and never past it, and steps reveal there as they do
+  on a card.
+- The words sit on a half see-through card, edge to edge. `solid` makes it a
+  split screen: the card hides the camera and the camera glides into the rest
+  of the frame, so sitting in the middle of your camera puts you in the middle
+  of your side. `clear` takes the card away, for a plain wall or green screen.
 - Pictures, Graphviz, D2, SVG and charts come along in a placement, with their
   own share of it (below the words beside you, to their right in a band), drawn
   as on the card and scaled to fit. The Showcase has a card for each.
