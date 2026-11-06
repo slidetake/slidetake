@@ -12,6 +12,30 @@ package can notice. Tests, CI and tooling do not belong here.
 
 ## [Unreleased]
 
+## [0.5.0] - 2026-11-06
+
+### Added
+
+- **Shorts and Reels:** `format: portrait` in a deck's top block makes it a 9:16
+  column and its video 1080×1920 (or 720×1280), recorded in the browser from
+  the middle of the screen. With the camera behind, `top` and `bottom` are
+  halves and `left` and `right` go below you; a slide's words are larger, to
+  read on a phone; the corner camera is wider; the bottom bar and the map sit
+  beside the column. Takes are drawn to the exact size, since Chrome doesn't
+  scale a tall frame to the size asked for. `examples/portrait.md` shows one
+  (#30).
+
+### Fixed
+
+- The camera's moves (corner ↔ full frame, split screens) drop far fewer frames
+  from a recording: the box is scaled and clipped, which the browser composites,
+  instead of being laid out again on every frame.
+- Takes recorded in the browser all come out the same size: the recorded frame is
+  whole pixels at a whole-pixel place, so a portrait deck's takes no longer
+  differ by a pixel or two and fail to join.
+- The words over the camera on a deck's first or last slide no longer go
+  missing while its entrance plays.
+
 ## [0.4.6] - 2026-11-06
 
 ### Added

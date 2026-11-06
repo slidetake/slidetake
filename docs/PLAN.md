@@ -46,7 +46,7 @@ The **core** is shared: parsing (headings, `+++`, reveal.js), layouts, camera mo
 - ⬜ An example gallery of real decks.
 - ⬜ Code highlighting (highlight.js, in the deck's colours).
 - ⬜ Easy mode in Safari and Firefox, a constant frame rate, and saving next to the deck under `npx slidetake`.
-- ⬜ Portrait recording, for Shorts and Reels.
+- 🟡 Portrait recording, for Shorts and Reels: `format: portrait` (a 9:16 deck and video). Not done: OBS's canvas is set by hand.
 - ⬜ Download for pro mode: cut the OBS recording in the browser, so ffmpeg isn't needed.
 - ⬜ YouTube info cards and end screens.
 

@@ -13,7 +13,7 @@ import {normalizeSource, shortLink} from './core/source.js';
 import {encodeDeck, decodeDeck, parseHash, deckHash} from './core/share.js';
 import {routeOf, originLabel, makeCopy, isEdited, matchesOrigin, parseCopy} from './core/doc.js';
 import {youtubeVideo, embedUrl} from './core/media.js';
-import {QUALITIES, AUDIO_BITRATE, FPS, bestQuality, recordingType, clipExt, bytesPerMinute, clipPlan, afterPrevious, deviceName, sizeName} from './core/record.js';
+import {QUALITIES, AUDIO_BITRATE, FPS, bestQuality, turned, recordingType, clipExt, bytesPerMinute, clipPlan, afterPrevious, deviceName, sizeName} from './core/record.js';
 import {YOUTUBE_LUFS, MAX_BOOST_DB, loudnessMeter, gainToTarget, dbToGain, peakLimiter} from './core/loudness.js';
 import {fingerprint, deckSlides, takesFromRun, boardRows, boardSession, selectedInOrder, rangeOf} from './core/board.js';
 import {takesOf, pickedRanges, mergedRanges, sessionFps, baseName, sectionChapters as sectionChaptersCore,
@@ -125,6 +125,7 @@ function markName(body){
   });
 }
 
+const isPortrait = ()=>/^(portrait|vertical|9:16)$/i.test(String(deck.format || '').trim());
 function applyDeckSettings(){
   const name = deck.brand || '', logo = deck.logo || '';
   const chip = /^chip$/i.test(deck.brand_style || '');
@@ -139,6 +140,10 @@ function applyDeckSettings(){
     if (img) img.onload = img.onerror = ()=>refocus(true);
   }
   brandEl.hidden = !html;
+  // format: portrait — a 9:16 deck for Shorts and Reels: the stage, the recording and the camera layouts turn
+  const wasPortrait = document.body.classList.contains('portrait');
+  document.body.classList.toggle('portrait', isPortrait());
+  if (wasPortrait !== isPortrait()) refocus(true);
 
   applyPipState();
   document.title = deck.title || 'Slidetake';
@@ -298,7 +303,7 @@ let pipState = null;
 function computePipState(){
   const st = {
     corner: (deck.pip || 'none').toLowerCase(),
-    size: clampPipSize(parseFloat(deck.pip_size) || 24),
+    size: clampPipSize(parseFloat(deck.pip_size) || (isPortrait() ? 40 : 24)),   // a narrow frame needs a wider box
     circle: (deck.pip_shape || '').toLowerCase() === 'circle',
     mirror: cameraMirrored(),
     full: false, off: false, flip: false, used: false,
@@ -339,6 +344,8 @@ function applyPipState(){
   // the words are over live video (white, whatever the mode) or over the empty frame (the deck's own colours)
   stageWrap.classList.toggle('cam-live', !pipEl.hidden && !!st.behind && !empty);
   const wasPlaced = !!camPlace;
+  // portrait has no room for words beside you: left and right go below you, and top and bottom are halves
+  if (isPortrait() && /^(left|right)$/.test(st.place || '')) st.place = 'bottom';
   renderCamOverlay(!pipEl.hidden && st.behind ? st.place || '' : '');
   // arriving from the corner: the camera grows to fill the frame first, then the words come in around you
   if (camPlace && !wasPlaced && first && !reduceMotion && camOverlay.animate)
@@ -349,14 +356,19 @@ function applyPipState(){
     pipEl.animate([{opacity:0}, {opacity:1}], {duration:300, easing:'ease-out'});
     return;
   }
-  // glide from where the box was to where it is now (full ↔ corner, resize, flip). The box itself moves and
-  // resizes, rather than being scaled, so the video keeps its shape and is only cropped differently on the way
+  // glide from where the box was to where it is now (full ↔ corner, resize, flip). The box is scaled the same
+  // across and down, so the video keeps its shape, and clipped to the old box's shape, which opens out to the new
+  // one: the browser only composites it (no layout on each frame, which dropped frames from a recording)
   const last = pipEl.getBoundingClientRect();
   if (Math.abs(first.left - last.left) + Math.abs(first.top - last.top) + Math.abs(first.width - last.width) + Math.abs(first.height - last.height) < 2) return;
-  const o = (pipEl.offsetParent || stageWrap).getBoundingClientRect();
-  /** @param {DOMRect} r */
-  const box = r=>({left:(r.left - o.left)+'px', top:(r.top - o.top)+'px', width:r.width+'px', height:r.height+'px', right:'auto', bottom:'auto', aspectRatio:'auto'});
-  pipEl.animate([box(first), box(last)], {duration:600, easing:ease});
+  const s = Math.max(first.width / last.width, first.height / last.height);
+  const dx = first.left + first.width / 2 - (last.left + last.width / 2), dy = first.top + first.height / 2 - (last.top + last.height / 2);
+  const ix = Math.max(0, (last.width - first.width / s) / 2), iy = Math.max(0, (last.height - first.height / s) / 2);
+  const r0 = parseFloat(getComputedStyle(pipEl).borderTopLeftRadius) || 0;
+  pipEl.animate([
+    {transformOrigin:'50% 50%', transform:'translate(' + dx + 'px,' + dy + 'px) scale(' + s + ')', clipPath:'inset(' + iy + 'px ' + ix + 'px round ' + (10 / s) + 'px)'},
+    {transformOrigin:'50% 50%', transform:'none', clipPath:'inset(0px 0px round ' + r0 + 'px)'}
+  ], {duration:600, easing:ease});
 }
 // ---------- the slide beside the person: behind left, right, top, bottom ----------
 // The current slide's content is drawn into a region over the camera instead of its card: a half (left, right)
@@ -375,7 +387,14 @@ function renderCamOverlay(place){
   // (a re-read deck has its cards before they're built: the overlay comes back once they are)
   if (!n || !n.el) return;
   const body = n.el.querySelector('.body');
-  const all = [...body.children].map(c=>c.cloneNode(true));
+  // the copy shows the slide as it ends up: an entrance still playing on the card (a fade, a scrambling title)
+  // would otherwise be copied half-done, or invisible
+  const all = [...body.children].map(c=>{
+    const k = /** @type {HTMLElement} */ (c.cloneNode(true));
+    [k, ...k.querySelectorAll('[style]')].forEach(e=>{ e.style.removeProperty('opacity'); e.style.removeProperty('transform'); e.style.removeProperty('visibility'); });
+    [k, ...k.querySelectorAll('[data-text]')].forEach(e=>{ if (e.dataset.text) e.textContent = e.dataset.text; });
+    return k;
+  });
   const isMedia = /** @param {Element} e */ e=>e.matches('figure.media, .diagram, .echarts-container, .gallery');
   /** @type {[string, Element[]][]} */
   const boxes = [[place, all]];
@@ -1920,6 +1939,10 @@ obsRemember.addEventListener('change', saveObsSettings);
 function showScreenAdvice(){
   const el = document.getElementById('rec-screen');
   const w = screen.width, h = screen.height;
+  if (isPortrait()){
+    el.innerHTML = '<span class="warn">This deck is portrait (9:16). In OBS, set the canvas to 1080×1920 (Settings → Video) and fit the 9:16 column in the middle of the screen to it.</span>';
+    return;
+  }
   if (Math.abs(w / h - 16 / 9) < 0.02){ el.innerHTML = '<span class="ok">This screen is 16:9 (' + w + '×' + h + '), right for YouTube.</span>'; return; }
   // name the nearest familiar shape (a MacBook's 1512×982 is "about 3:2"), not a ratio like 756:491
   const shapes = [['16:10', 1.6], ['3:2', 1.5], ['4:3', 4 / 3], ['21:9', 21 / 9], ['16:9', 16 / 9]];
@@ -1944,8 +1967,8 @@ function browserRecording(){
   if (!window.RestrictionTarget && !window.CropTarget) return {why:'Recording in the browser needs Chrome or Edge (or another Chromium browser) on a computer.'};
   const type = window.MediaRecorder ? recordingType(t=>MediaRecorder.isTypeSupported(t)) : '';
   if (!type || !navigator.storage || !navigator.storage.getDirectory) return {why:'This browser can’t record video here. Use a recent Chrome or Edge.'};
-  // in fullscreen the frame is the largest 16:9 area of the screen
-  const {quality, device} = bestQuality(screen.width, screen.height, devicePixelRatio || 1);
+  // in fullscreen the frame is the largest 16:9 area of the screen (9:16 for a portrait deck)
+  const {quality, device} = bestQuality(screen.width, screen.height, devicePixelRatio || 1, isPortrait());
   if (!quality) return {why:'This screen gives a ' + device[0] + '×' + device[1] + ' frame, less than 720p. Use pro mode (OBS), or a larger screen.'};
   return {ok:true, type, quality};
 }
@@ -2158,20 +2181,62 @@ async function takesDir(id, create){
 async function deleteTakes(id){
   try { const root = await navigator.storage.getDirectory(); await (await root.getDirectoryHandle('slidetake-takes')).removeEntry(id, {recursive:true}); } catch(e){}
 }
-// The recorded size. The 16:9 shape is asked for outright: Chrome keeps the shape of the page as it measured it
+// The recorded size. The frame's shape (16:9, or 9:16 for a portrait deck) is asked for outright: Chrome keeps the shape of the page as it measured it
 // when the tab was shared, and the page can still be mid-layout then (going fullscreen), which came out
 // 1828×1080 instead of 1920×1080. With the shape fixed, Chrome crops to it and the size is exact.
-const outputSize = q=>({width:q.w, height:q.h, aspectRatio:16 / 9, frameRate:FPS, resizeMode:'crop-and-scale'});
+const outputSize = q=>{ const t = turned(q, isPortrait()); return {width:t.w, height:t.h, aspectRatio:t.w / t.h, frameRate:FPS, resizeMode:'crop-and-scale'}; };
+// The recorded frame in whole, even pixels at a whole-pixel place. Left to CSS, a 9:16 column is a fraction of a
+// pixel wide and centred at a fraction, so one take came out 1004 pixels wide and the next 1006, and takes of
+// different sizes can't be joined.
+function fitRecFrame(){
+  if (!document.body.classList.contains('rec-frame')) return;
+  const dpr = devicePixelRatio || 1, aspect = isPortrait() ? 9 / 16 : 16 / 9;
+  const W = mainEl.clientWidth, H = mainEl.clientHeight;
+  const even = /** @param {number} css */ css=>Math.floor(css * dpr / 2) * 2 / dpr;   // whole, even device pixels
+  let h = even(Math.min(H, W / aspect)), w = even(h * aspect);
+  if (w > W){ w = even(W); h = even(w / aspect); }
+  Object.assign(stageWrap.style, {width:w + 'px', height:h + 'px', aspectRatio:'auto',
+    margin:Math.floor((H - h) / 2) + 'px 0 0 ' + Math.floor((W - w) / 2) + 'px'});
+}
+function setRecFrame(on){
+  document.body.classList.toggle('rec-frame', on);
+  if (on) fitRecFrame();
+  else ['width', 'height', 'aspectRatio', 'margin'].forEach(k=>stageWrap.style.removeProperty(k.replace(/[A-Z]/g, c=>'-' + c.toLowerCase())));
+}
+new ResizeObserver(fitRecFrame).observe(mainEl);
 async function attachCapture(track){
   if (window.RestrictionTarget && track.restrictTo) await track.restrictTo(await RestrictionTarget.fromElement(stageWrap));
   else await track.cropTo(await CropTarget.fromElement(stageWrap));
+}
+// The captured frame drawn onto a canvas of exactly w×h, filling it (any sliver of difference is cropped), each time
+// a new frame arrives; the canvas's own stream is what's recorded.
+function exactSize(track, {w, h}){
+  const video = document.createElement('video');
+  video.muted = true; video.playsInline = true; video.srcObject = new MediaStream([track]);
+  const canvas = document.createElement('canvas');
+  canvas.width = w; canvas.height = h;
+  const ctx = /** @type {CanvasRenderingContext2D} */ (canvas.getContext('2d', {alpha:false}));
+  let live = true;
+  const draw = ()=>{
+    if (!live) return;
+    const vw = video.videoWidth, vh = video.videoHeight;
+    if (vw && vh){
+      const s = Math.max(w / vw, h / vh), dw = vw * s, dh = vh * s;
+      ctx.drawImage(video, (w - dw) / 2, (h - dh) / 2, dw, dh);
+    }
+    video.requestVideoFrameCallback(draw);
+  };
+  video.requestVideoFrameCallback(draw);
+  video.play().catch(()=>{});
+  const out = canvas.captureStream(FPS).getVideoTracks()[0];
+  return {track:out, stop(){ live = false; out.stop(); video.srcObject = null; }};
 }
 async function reattachCapture(b){
   try {
     if (window.RestrictionTarget && b.track.restrictTo) await b.track.restrictTo(null); else await b.track.cropTo(null);
     await attachCapture(b.track);
   } catch(e){}
-  await b.track.applyConstraints(outputSize(b.quality)).catch(()=>{});
+  if (!b.scaled) await b.track.applyConstraints(outputSize(b.quality)).catch(e=>console.warn('Slidetake: the recording size was refused', e));
   await nextFrame();
 }
 // called from the Start click, before anything else: sharing the tab needs that click
@@ -2179,7 +2244,7 @@ async function beginBrowserCapture(){
   const b = browserRecording();
   if (!b.ok) throw new Error(b.why);
   const quality = QUALITIES.find(q=>q.name === recQuality.value) || b.quality;
-  document.body.classList.add('rec-frame');   // the frame must exist (and be capturable) before the capture is cut to it
+  setRecFrame(true);   // the frame must exist (and be capturable) before the capture is cut to it
   const display = await navigator.mediaDevices.getDisplayMedia({video:{frameRate:FPS}, audio:false,
     preferCurrentTab:true, selfBrowserSurface:'include', surfaceSwitching:'exclude', monitorTypeSurfaces:'exclude'});
   const track = display.getVideoTracks()[0];
@@ -2187,14 +2252,17 @@ async function beginBrowserCapture(){
   if (!track.restrictTo && !track.cropTo){ stopAll(); throw new Error('Share “this tab” to record the slides.'); }
   try { await attachCapture(track); }
   catch(e){ stopAll(); throw new Error('Chrome could not record just the slides (' + (e.message || e.name) + ').'); }
-  await track.applyConstraints(outputSize(quality)).catch(()=>{});
+  // landscape: Chrome scales the frame to the size asked for, exactly. Portrait: it doesn't (a 9:16 element came
+  // back 720×1206 when asked for 720×1280), so the frame is drawn to a canvas of the exact size and that is recorded
+  const scaled = isPortrait() ? exactSize(track, turned(quality, true)) : null;
+  if (!scaled) await track.applyConstraints(outputSize(quality)).catch(e=>console.warn('Slidetake: the recording size was refused', e));
   let mic;
   try {
     const id = load('slidetake:mic');
     mic = await navigator.mediaDevices.getUserMedia({audio:micConstraints(id)});
   } catch(e){ stopAll(); throw new Error('The microphone isn’t available (' + (e.message || e.name) + ').'); }
   const id = new Date().toISOString().replace(/[:.]/g, '-');
-  rec.browser = {id, display, mic, track, quality, type:b.type, stream:new MediaStream([track, ...mic.getAudioTracks()]),
+  rec.browser = {id, display, mic, track, quality, type:b.type, scaled, stream:new MediaStream([scaled ? scaled.track : track, ...mic.getAudioTracks()]),
     dir:await takesDir(id, true), clips:[], cur:null, chain:Promise.resolve(), error:null};
   // stopping the share from Chrome's bar ends the take like Esc
   track.addEventListener('ended', ()=>{ if (rec.active && !rec.finishing) finishTake('Sharing stopped'); });
@@ -2204,7 +2272,8 @@ function endBrowserCapture(){
   if (!b) return;
   b.display.getTracks().forEach(t=>t.stop());
   b.mic.getTracks().forEach(t=>t.stop());
-  document.body.classList.remove('rec-frame');
+  if (b.scaled) b.scaled.stop();
+  setRecFrame(false);
 }
 // a new take: its own recorder and file. The new one starts first and the one before stops once it is
 // running, so no moment is missed; the take's start is stamped when its recorder actually starts.
@@ -2241,7 +2310,7 @@ async function startTake(kind, only){
     if (!presenting) setPresent(true);        // fullscreen first, while the click still counts
     try { await beginBrowserCapture(); }
     catch(e){
-      document.body.classList.remove('rec-frame');
+      setRecFrame(false);
       if (presenting) setPresent(false);
       recNote = e.name === 'NotAllowedError' ? 'Recording needs this tab shared: press ● Record again and choose Share.' : e.message;
       openBoard({setup:true});

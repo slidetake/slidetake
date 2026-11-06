@@ -1,10 +1,19 @@
 import {test} from 'node:test';
 import assert from 'node:assert/strict';
-import {frame16x9, bestQuality, recordingType, clipExt, bytesPerMinute, QUALITIES, clipPlan, afterPrevious, deviceName, sizeName} from '../src/core/record.js';
+import {frame16x9, bestQuality, turned, recordingType, clipExt, bytesPerMinute, QUALITIES, clipPlan, afterPrevious, deviceName, sizeName} from '../src/core/record.js';
 
 test('the 16:9 frame fits the area and is centred', ()=>{
   assert.deepEqual(frame16x9(1440, 900), {w: 1440, h: 810, x: 0, y: 45});      // 16:10: bars top and bottom
   assert.deepEqual(frame16x9(2560, 1080), {w: 1920, h: 1080, x: 320, y: 0});   // ultrawide: bars at the sides
+  assert.deepEqual(frame16x9(1920, 1080, true), {w: 607.5, h: 1080, x: 656.25, y: 0});   // portrait: a 9:16 column
+});
+
+test('a portrait deck records the qualities turned', ()=>{
+  assert.equal(bestQuality(1920, 1080, 1, true).quality, null);                 // a 1080p screen gives a 607×1080 column
+  assert.equal(bestQuality(1440, 900, 2, true).quality.name, '720p');            // a Retina MacBook: 1012×1800
+  assert.equal(bestQuality(1728, 1117, 2, true).quality.name, '1080p');          // a 16" one: 1256×2234
+  assert.equal(bestQuality(1080, 1920, 1, true).quality.name, '1080p');          // a screen turned on its side
+  assert.deepEqual(turned(QUALITIES[0], true), {...QUALITIES[0], w: 1080, h: 1920});
 });
 
 test('quality from the frame in device pixels', ()=>{

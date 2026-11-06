@@ -143,6 +143,7 @@ title: My talk        ← page and video title
 duration: 10m         ← for the timer
 accent: "#3b82f6"     ← the deck's colour
 mode: light           ← open in light mode
+format: portrait      ← a 9:16 deck, for Shorts and Reels
 brand: example.com    ← top-right corner text
 brand_style: chip     ← the brand as a pill
 logo: https://…/l.png ← image beside it
@@ -354,6 +355,16 @@ Words you can combine: `on`, `off`, `full`, `behind` (next), a size like `30%`, 
 ```
 
 It stays on its slide; `pip: behind` makes it the whole deck's. With the camera off, the slide still shows this way, over an empty frame.
+
+### Shorts and Reels
+
+`format: portrait` in the top block makes the deck a 9:16 column, and its video 1080×1920 (or 720×1280):
+
+- `top` and `bottom` are halves, above or below you; `left` and `right` go below you
+- a slide's words are larger, to read on a phone
+- easy mode records the column from the middle of the screen: a Retina laptop makes 720p, a 16" one or a screen on its side 1080p
+
+[An example](https://slidetake.com/gh/slidetake/slidetake/examples/portrait.md).
 
 ### Take by take
 

@@ -197,6 +197,10 @@ Add `solid` and the card hides the camera behind it: a split screen, with the ca
 
 `clear` takes the card away: the words sit straight on the camera. Best over a plain wall or a green screen.
 
+### Shorts and Reels
+
+`format: portrait` in the top block turns the whole deck into a 9:16 column, for a video at 1080×1920. The words go above or below you. [Open the example](https://slidetake.com/gh/slidetake/slidetake/examples/portrait.md).
+
 ### A picture beside you
 
 <!-- camera: behind right, behind left, behind bottom -->

@@ -1,11 +1,11 @@
 // @ts-check
-// Recording in the browser: the 16:9 frame that is captured, the quality a screen allows, the recorder's
+// Recording in the browser: the frame that is captured (16:9, or 9:16 for a portrait deck), the quality a screen allows, the recorder's
 // format, and which part of which take clip goes into the final video. Pure: the app passes in what the
 // browser reports.
 import {takesOf} from './cut.js';
 
 /** @typedef {{name: string, w: number, h: number, bitrate: number}} Quality */
-/** @type {Quality[]} best first */
+/** @type {Quality[]} best first, landscape; a portrait deck records them turned (1080p is 1080×1920) */
 export const QUALITIES = [
   {name: '1080p', w: 1920, h: 1080, bitrate: 8e6},
   {name: '720p', w: 1280, h: 720, bitrate: 5e6},
@@ -13,25 +13,29 @@ export const QUALITIES = [
 export const AUDIO_BITRATE = 192e3;
 export const FPS = 30;
 
+/** A quality turned for a portrait deck: the same name, width and height swapped. @param {Quality} q @param {boolean} [portrait] */
+export const turned = (q, portrait)=>portrait ? {...q, w: q.h, h: q.w} : q;
+
 /**
- * The largest 16:9 rectangle that fits a w×h area, centred in it.
- * @param {number} w @param {number} h
+ * The largest 16:9 rectangle (9:16 for portrait) that fits a w×h area, centred in it.
+ * @param {number} w @param {number} h @param {boolean} [portrait]
  */
-export function frame16x9(w, h){
-  const fw = Math.min(w, h * 16 / 9), fh = fw * 9 / 16;
+export function frame16x9(w, h, portrait){
+  const aspect = portrait ? 9 / 16 : 16 / 9;
+  const fw = Math.min(w, h * aspect), fh = fw / aspect;
   return {w: fw, h: fh, x: (w - fw) / 2, y: (h - fh) / 2};
 }
 
 /**
- * The best quality a w×h area (CSS pixels, at a device pixel ratio) can record at: the 16:9 frame in it, in
+ * The best quality a w×h area (CSS pixels, at a device pixel ratio) can record at: the frame in it, in
  * device pixels, must cover the output size. null when it can't make even 720p.
- * @param {number} w @param {number} h @param {number} dpr
+ * @param {number} w @param {number} h @param {number} dpr @param {boolean} [portrait]
  * @returns {{quality: Quality | null, device: [number, number]}}
  */
-export function bestQuality(w, h, dpr){
-  const f = frame16x9(w, h);
+export function bestQuality(w, h, dpr, portrait){
+  const f = frame16x9(w, h, portrait);
   const device = /** @type {[number, number]} */ ([Math.floor(f.w * dpr), Math.floor(f.h * dpr)]);
-  return {quality: QUALITIES.find(q=>device[0] >= q.w && device[1] >= q.h) || null, device};
+  return {quality: QUALITIES.find(q=>{ const t = turned(q, portrait); return device[0] >= t.w && device[1] >= t.h; }) || null, device};
 }
 
 /** What the recorder writes, best first: MP4 (H.264 + AAC) where the browser can, otherwise WebM. */
