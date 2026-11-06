@@ -171,7 +171,7 @@ A YouTube link alone on a line becomes the video: the next press plays it, leavi
 
 <!-- camera: on, full, on -->
 
-Try it: press **C** to turn on your camera, then →. This card puts you in the corner, then full screen, then back, from one comment: `<!-- camera: on, full, on -->`.
+Try it: press **C** to turn on your camera, then →. This card puts you in the corner, then full screen, then back, from one comment: `<!-- camera: on, full, on -->`. The cards after it put the words beside you.
 
 ### Behind the slide
 

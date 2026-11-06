@@ -12,6 +12,8 @@ package can notice. Tests, CI and tooling do not belong here.
 
 ## [Unreleased]
 
+## [0.4.6] - 2026-11-06
+
 ### Added
 
 - **Mirror** in Setup's camera section flips the camera like a mirror, and is

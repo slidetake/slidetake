@@ -1,4 +1,4 @@
-/* Slidetake 0.4.5 · https://slidetake.com · Apache-2.0 */
+/* Slidetake 0.4.6 · https://slidetake.com · Apache-2.0 */
 "use strict";(()=>{var V=(e,t)=>()=>(e&&(t=e(e=0)),t);var yo,Hr=V(()=>{yo=`---
 title: Slidetake \u2014 write in markdown with AI, record without timeline editing
 description: "Write a deck in markdown, with AI, present it on a spatial canvas, and record it slide by slide: retake any slide, pick the best take, download the video. Open source."
@@ -206,7 +206,7 @@ Your headings are the hierarchy: \`#\` is the first card, \`##\` branches from i
 
 <!-- camera: on, full, on -->
 
-A comment in a slide moves you: corner, full screen, or off. Turn on **Camera** and watch this slide do it.
+A comment in a slide moves you: corner, full screen, beside the words, or a split screen. Turn on **Camera** and watch this slide do it.
 
 ### Your colours
 
@@ -705,9 +705,22 @@ A comment in a slide changes the camera from that slide on:
 <!-- camera: 18% flip --> \u2190 small, other side
 \`\`\`
 
-Words you can combine: \`on\`, \`off\`, \`full\`, \`behind\` (the camera fills the frame and the slide's content sits beside you on a half see-through card: a talking head with slides; on the left, or \`right\`, \`top\` or \`bottom\` (a band); add \`solid\` for a split screen, the camera centred in the rest of the frame, or \`clear\` for no card, best over a plain wall; it stays on that slide, and the next goes back to the corner; with the camera off the slide still shows this way, over an empty frame), a size like \`30%\`, a corner, \`flip\`, \`circle\` / \`rect\`, \`mirror\` / \`unmirror\`. List them with commas to step through them on one slide: \`full, on\` opens on you, and the next \u2192 shrinks the camera to its corner and shows the slide.
+Words you can combine: \`on\`, \`off\`, \`full\`, \`behind\` (next), a size like \`30%\`, a corner, \`flip\`, \`circle\` / \`rect\`, \`mirror\` / \`unmirror\`. List them with commas to step through them on one slide: \`full, on\` opens on you, and the next \u2192 shrinks the camera to its corner and shows the slide.
 
 **V** steps through the deck's \`camera:\` list by hand.
+
+### Talk beside your slides
+
+\`behind\` fills the frame with you and puts the slide's words beside you, on a half see-through card:
+
+\`\`\`md
+<!-- camera: behind -->               \u2190 words on the left
+<!-- camera: behind right -->         \u2190 or right, top, bottom
+<!-- camera: behind solid -->         \u2190 split screen: you centred on the other side
+<!-- camera: behind bottom clear -->  \u2190 no card, for a plain wall
+\`\`\`
+
+It stays on its slide; \`pip: behind\` makes it the whole deck's. With the camera off, the slide still shows this way, over an empty frame.
 
 ### Take by take
 
@@ -824,9 +837,11 @@ The complete list, one line each. Press \u2192 to walk it, **O** for the map.
 | **Webcam in its box** | you and the slides in one recording, no compositing |
 | **Camera per slide** | corner, size, side, circle, full screen, behind the slide or off |
 | **Words around you** (\`behind left\`\u2026) | the slide's content beside, above or below you, on a see-through card, a solid one (split screen) or none |
+| **Smooth moves** | the camera glides between corner, full frame and split screen, and swaps sides with the words |
 | **Steps on one slide** | open on you, then reveal the slide |
 | **Camera layouts** (V) | try them live, without editing the deck |
-| **Off until you turn it on** | not shown to viewers: the slides get the whole screen |
+| **Off until you turn it on** | the slides get the whole screen; a slide built around you shows an empty frame; a reload remembers it |
+| **Mirror** (Setup) | off by default, so writing behind you reads the right way |
 
 ### Your colours
 
@@ -1243,7 +1258,7 @@ A YouTube link alone on a line becomes the video: the next press plays it, leavi
 
 <!-- camera: on, full, on -->
 
-Try it: press **C** to turn on your camera, then \u2192. This card puts you in the corner, then full screen, then back, from one comment: \`<!-- camera: on, full, on -->\`.
+Try it: press **C** to turn on your camera, then \u2192. This card puts you in the corner, then full screen, then back, from one comment: \`<!-- camera: on, full, on -->\`. The cards after it put the words beside you.
 
 ### Behind the slide
 

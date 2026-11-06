@@ -338,9 +338,22 @@ A comment in a slide changes the camera from that slide on:
 <!-- camera: 18% flip --> ← small, other side
 ```
 
-Words you can combine: `on`, `off`, `full`, `behind` (the camera fills the frame and the slide's content sits beside you on a half see-through card: a talking head with slides; on the left, or `right`, `top` or `bottom` (a band); add `solid` for a split screen, the camera centred in the rest of the frame, or `clear` for no card, best over a plain wall; it stays on that slide, and the next goes back to the corner; with the camera off the slide still shows this way, over an empty frame), a size like `30%`, a corner, `flip`, `circle` / `rect`, `mirror` / `unmirror`. List them with commas to step through them on one slide: `full, on` opens on you, and the next → shrinks the camera to its corner and shows the slide.
+Words you can combine: `on`, `off`, `full`, `behind` (next), a size like `30%`, a corner, `flip`, `circle` / `rect`, `mirror` / `unmirror`. List them with commas to step through them on one slide: `full, on` opens on you, and the next → shrinks the camera to its corner and shows the slide.
 
 **V** steps through the deck's `camera:` list by hand.
+
+### Talk beside your slides
+
+`behind` fills the frame with you and puts the slide's words beside you, on a half see-through card:
+
+```md
+<!-- camera: behind -->               ← words on the left
+<!-- camera: behind right -->         ← or right, top, bottom
+<!-- camera: behind solid -->         ← split screen: you centred on the other side
+<!-- camera: behind bottom clear -->  ← no card, for a plain wall
+```
+
+It stays on its slide; `pip: behind` makes it the whole deck's. With the camera off, the slide still shows this way, over an empty frame.
 
 ### Take by take
 
