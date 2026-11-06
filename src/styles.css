@@ -714,6 +714,9 @@
      background makes way so the camera shows around them */
   #pip.full.behind{z-index:0;pointer-events:none;box-shadow:none;}
   /* split screen (a solid card): the camera fills what the card leaves, centred there, and glides into it */
+  /* behind a split screen the frame is the card's colour, so as the words and the camera pass each other on a
+     swap, the edges they uncover read as card */
+  #stage-wrap.cam-solid{background:var(--panel);}
   #stage-wrap.cam-solid[data-place="left"] #pip.full.behind{left:50%;width:50%;}
   #stage-wrap.cam-solid[data-place="right"] #pip.full.behind{right:50%;width:50%;}
   #stage-wrap.cam-solid[data-place="top"] #pip.full.behind{top:25%;height:75%;}

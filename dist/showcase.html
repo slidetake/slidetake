@@ -755,6 +755,9 @@
      background makes way so the camera shows around them */
   #pip.full.behind{z-index:0;pointer-events:none;box-shadow:none;}
   /* split screen (a solid card): the camera fills what the card leaves, centred there, and glides into it */
+  /* behind a split screen the frame is the card's colour, so as the words and the camera pass each other on a
+     swap, the edges they uncover read as card */
+  #stage-wrap.cam-solid{background:var(--panel);}
   #stage-wrap.cam-solid[data-place="left"] #pip.full.behind{left:50%;width:50%;}
   #stage-wrap.cam-solid[data-place="right"] #pip.full.behind{right:50%;width:50%;}
   #stage-wrap.cam-solid[data-place="top"] #pip.full.behind{top:25%;height:75%;}
@@ -2664,18 +2667,12 @@ write -&gt; present -&gt; record
     if (Math.abs(first.left - last.left) + Math.abs(first.top - last.top) + Math.abs(first.width - last.width) + Math.abs(first.height - last.height) < 2) return;
     const o = (pipEl.offsetParent || stageWrap).getBoundingClientRect();
     const box = (r) => ({ left: r.left - o.left + "px", top: r.top - o.top + "px", width: r.width + "px", height: r.height + "px", right: "auto", bottom: "auto", aspectRatio: "auto" });
-    const apart = first.right <= last.left + 1 || last.right <= first.left + 1 || first.bottom <= last.top + 1 || last.bottom <= first.top + 1;
-    const both = new DOMRect(
-      Math.min(first.left, last.left),
-      Math.min(first.top, last.top),
-      Math.max(first.right, last.right) - Math.min(first.left, last.left),
-      Math.max(first.bottom, last.bottom) - Math.min(first.top, last.top)
-    );
-    pipEl.animate([box(apart ? both : first), box(last)], { duration: 600, easing: ease });
+    pipEl.animate([box(first), box(last)], { duration: 600, easing: ease });
   }
   var camOverlay = document.getElementById("cam-overlay");
   var camPlace = "";
   function renderCamOverlay(place) {
+    const was = camPlace, wasBox = camOverlay.querySelector(".cam-box"), from = wasBox && wasBox.getBoundingClientRect();
     camPlace = place;
     stageWrap.dataset.place = place;
     camOverlay.innerHTML = "";
@@ -2715,6 +2712,18 @@ write -&gt; present -&gt; record
       if (!img.complete) img.addEventListener("load", fitCamOverlay, { once: true });
     });
     fitCamOverlay();
+    const nowBox = (
+      /** @type {HTMLElement|null} */
+      camOverlay.querySelector(".cam-box")
+    );
+    if (from && was && was !== place && nowBox && !reduceMotion && nowBox.animate) {
+      const to = nowBox.getBoundingClientRect();
+      if (Math.abs(from.width - to.width) < 2 && Math.abs(from.height - to.height) < 2)
+        nowBox.animate(
+          [{ transform: "translate(" + (from.left - to.left) + "px," + (from.top - to.top) + "px)" }, { transform: "none" }],
+          { duration: 600, easing: "cubic-bezier(.65,0,.35,1)" }
+        );
+    }
   }
   function fitCamOverlay() {
     const most = stage.clientHeight / 240;

@@ -356,12 +356,7 @@ function applyPipState(){
   const o = (pipEl.offsetParent || stageWrap).getBoundingClientRect();
   /** @param {DOMRect} r */
   const box = r=>({left:(r.left - o.left)+'px', top:(r.top - o.top)+'px', width:r.width+'px', height:r.height+'px', right:'auto', bottom:'auto', aspectRatio:'auto'});
-  // from one side to the other (a split screen swapping sides), where it was is under the card now: it starts from
-  // the whole frame instead, so the free side has the camera in it at once, and you slide over to its middle
-  const apart = first.right <= last.left + 1 || last.right <= first.left + 1 || first.bottom <= last.top + 1 || last.bottom <= first.top + 1;
-  const both = new DOMRect(Math.min(first.left, last.left), Math.min(first.top, last.top),
-    Math.max(first.right, last.right) - Math.min(first.left, last.left), Math.max(first.bottom, last.bottom) - Math.min(first.top, last.top));
-  pipEl.animate([box(apart ? both : first), box(last)], {duration:600, easing:ease});
+  pipEl.animate([box(first), box(last)], {duration:600, easing:ease});
 }
 // ---------- the slide beside the person: behind left, right, top, bottom ----------
 // The current slide's content is drawn into a region over the camera instead of its card: a half (left, right)
@@ -371,6 +366,8 @@ function applyPipState(){
 const camOverlay = document.getElementById('cam-overlay');
 let camPlace = '';
 function renderCamOverlay(place){
+  // where the words were, so a move to the other side (left ↔ right, top ↔ bottom) slides them across
+  const was = camPlace, wasBox = camOverlay.querySelector('.cam-box'), from = wasBox && wasBox.getBoundingClientRect();
   camPlace = place;
   stageWrap.dataset.place = place;
   camOverlay.innerHTML = '';
@@ -410,6 +407,14 @@ function renderCamOverlay(place){
   });
   camOverlay.querySelectorAll('img').forEach(img=>{ if (!img.complete) img.addEventListener('load', fitCamOverlay, {once:true}); });
   fitCamOverlay();
+  // swapping sides: the words slide over as the camera slides the other way, passing each other
+  const nowBox = /** @type {HTMLElement|null} */ (camOverlay.querySelector('.cam-box'));
+  if (from && was && was !== place && nowBox && !reduceMotion && nowBox.animate){
+    const to = nowBox.getBoundingClientRect();
+    if (Math.abs(from.width - to.width) < 2 && Math.abs(from.height - to.height) < 2)
+      nowBox.animate([{transform:'translate(' + (from.left - to.left) + 'px,' + (from.top - to.top) + 'px)'}, {transform:'none'}],
+        {duration:600, easing:'cubic-bezier(.65,0,.35,1)'});
+  }
 }
 // each region's content at the largest scale that fits it (and no larger than reads well on the frame)
 function fitCamOverlay(){

@@ -27,6 +27,8 @@ package can notice. Tests, CI and tooling do not belong here.
   split screen: the card hides the camera and the camera glides into the rest
   of the frame, so sitting in the middle of your camera puts you in the middle
   of your side. `clear` takes the card away, for a plain wall or green screen.
+  Moving the words to the other side (`left` ↔ `right`, `top` ↔ `bottom`) slides
+  them across while the camera slides the other way.
 - Pictures, Graphviz, D2, SVG and charts come along in a placement, with their
   own share of it (below the words beside you, to their right in a band), drawn
   as on the card and scaled to fit. The Showcase has a card for each.
