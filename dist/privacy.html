@@ -420,6 +420,13 @@
   body.portrait #stage-wrap, body.portrait.rec-frame #stage-wrap{flex:none;margin:0 auto;width:auto;height:100%;max-width:100%;aspect-ratio:9/16;isolation:isolate;}
   body.portrait.rec-frame main{background:#000;}
   body.portrait .rv-video{aspect-ratio:9/16;max-height:62vh;margin:0 auto;}
+  /* the bottom bar and the map go beside the column, where the window is empty (they're never recorded); a window
+     too narrow for that keeps the bar in the column and drops the map */
+  @media (min-aspect-ratio: 1/1){
+    body.portrait #navbar{position:fixed;left:16px;bottom:16px;transform:none;}
+    body.portrait #stage-wrap[data-pip] #minimap{position:fixed;right:16px;bottom:16px;left:auto;}
+  }
+  @media (max-aspect-ratio: 1/1){ body.portrait #minimap{display:none;} }
   /* a card's words are larger for its width, so a slide filling the narrow column reads on a phone */
   body.portrait #world .node > .body{zoom:1.8;}
   #review.in-browser #rv-novideo{display:none !important;}
@@ -4651,6 +4658,38 @@
     if (window.RestrictionTarget && track.restrictTo) await track.restrictTo(await RestrictionTarget.fromElement(stageWrap));
     else await track.cropTo(await CropTarget.fromElement(stageWrap));
   }
+  function exactSize(track, { w, h }) {
+    const video = document.createElement("video");
+    video.muted = true;
+    video.playsInline = true;
+    video.srcObject = new MediaStream([track]);
+    const canvas = document.createElement("canvas");
+    canvas.width = w;
+    canvas.height = h;
+    const ctx = (
+      /** @type {CanvasRenderingContext2D} */
+      canvas.getContext("2d", { alpha: false })
+    );
+    let live = true;
+    const draw = () => {
+      if (!live) return;
+      const vw = video.videoWidth, vh = video.videoHeight;
+      if (vw && vh) {
+        const s = Math.max(w / vw, h / vh), dw = vw * s, dh = vh * s;
+        ctx.drawImage(video, (w - dw) / 2, (h - dh) / 2, dw, dh);
+      }
+      video.requestVideoFrameCallback(draw);
+    };
+    video.requestVideoFrameCallback(draw);
+    video.play().catch(() => {
+    });
+    const out = canvas.captureStream(FPS).getVideoTracks()[0];
+    return { track: out, stop() {
+      live = false;
+      out.stop();
+      video.srcObject = null;
+    } };
+  }
   async function reattachCapture(b) {
     try {
       if (window.RestrictionTarget && b.track.restrictTo) await b.track.restrictTo(null);
@@ -4658,8 +4697,7 @@
       await attachCapture(b.track);
     } catch (e) {
     }
-    await b.track.applyConstraints(outputSize(b.quality)).catch(() => {
-    });
+    if (!b.scaled) await b.track.applyConstraints(outputSize(b.quality)).catch((e) => console.warn("Slidetake: the recording size was refused", e));
     await nextFrame();
   }
   async function beginBrowserCapture() {
@@ -4687,8 +4725,8 @@
       stopAll();
       throw new Error("Chrome could not record just the slides (" + (e.message || e.name) + ").");
     }
-    await track.applyConstraints(outputSize(quality)).catch(() => {
-    });
+    const scaled = isPortrait() ? exactSize(track, turned(quality, true)) : null;
+    if (!scaled) await track.applyConstraints(outputSize(quality)).catch((e) => console.warn("Slidetake: the recording size was refused", e));
     let mic;
     try {
       const id2 = load("slidetake:mic");
@@ -4705,7 +4743,8 @@
       track,
       quality,
       type: b.type,
-      stream: new MediaStream([track, ...mic.getAudioTracks()]),
+      scaled,
+      stream: new MediaStream([scaled ? scaled.track : track, ...mic.getAudioTracks()]),
       dir: await takesDir(id, true),
       clips: [],
       cur: null,
@@ -4721,6 +4760,7 @@
     if (!b) return;
     b.display.getTracks().forEach((t) => t.stop());
     b.mic.getTracks().forEach((t) => t.stop());
+    if (b.scaled) b.scaled.stop();
     setRecFrame(false);
   }
   function startClip(ev) {

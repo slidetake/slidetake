@@ -379,6 +379,13 @@
   body.portrait #stage-wrap, body.portrait.rec-frame #stage-wrap{flex:none;margin:0 auto;width:auto;height:100%;max-width:100%;aspect-ratio:9/16;isolation:isolate;}
   body.portrait.rec-frame main{background:#000;}
   body.portrait .rv-video{aspect-ratio:9/16;max-height:62vh;margin:0 auto;}
+  /* the bottom bar and the map go beside the column, where the window is empty (they're never recorded); a window
+     too narrow for that keeps the bar in the column and drops the map */
+  @media (min-aspect-ratio: 1/1){
+    body.portrait #navbar{position:fixed;left:16px;bottom:16px;transform:none;}
+    body.portrait #stage-wrap[data-pip] #minimap{position:fixed;right:16px;bottom:16px;left:auto;}
+  }
+  @media (max-aspect-ratio: 1/1){ body.portrait #minimap{display:none;} }
   /* a card's words are larger for its width, so a slide filling the narrow column reads on a phone */
   body.portrait #world .node > .body{zoom:1.8;}
   #review.in-browser #rv-novideo{display:none !important;}

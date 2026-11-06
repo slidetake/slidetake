@@ -2203,12 +2203,35 @@ async function attachCapture(track){
   if (window.RestrictionTarget && track.restrictTo) await track.restrictTo(await RestrictionTarget.fromElement(stageWrap));
   else await track.cropTo(await CropTarget.fromElement(stageWrap));
 }
+// The captured frame drawn onto a canvas of exactly w×h, filling it (any sliver of difference is cropped), each time
+// a new frame arrives; the canvas's own stream is what's recorded.
+function exactSize(track, {w, h}){
+  const video = document.createElement('video');
+  video.muted = true; video.playsInline = true; video.srcObject = new MediaStream([track]);
+  const canvas = document.createElement('canvas');
+  canvas.width = w; canvas.height = h;
+  const ctx = /** @type {CanvasRenderingContext2D} */ (canvas.getContext('2d', {alpha:false}));
+  let live = true;
+  const draw = ()=>{
+    if (!live) return;
+    const vw = video.videoWidth, vh = video.videoHeight;
+    if (vw && vh){
+      const s = Math.max(w / vw, h / vh), dw = vw * s, dh = vh * s;
+      ctx.drawImage(video, (w - dw) / 2, (h - dh) / 2, dw, dh);
+    }
+    video.requestVideoFrameCallback(draw);
+  };
+  video.requestVideoFrameCallback(draw);
+  video.play().catch(()=>{});
+  const out = canvas.captureStream(FPS).getVideoTracks()[0];
+  return {track:out, stop(){ live = false; out.stop(); video.srcObject = null; }};
+}
 async function reattachCapture(b){
   try {
     if (window.RestrictionTarget && b.track.restrictTo) await b.track.restrictTo(null); else await b.track.cropTo(null);
     await attachCapture(b.track);
   } catch(e){}
-  await b.track.applyConstraints(outputSize(b.quality)).catch(()=>{});
+  if (!b.scaled) await b.track.applyConstraints(outputSize(b.quality)).catch(e=>console.warn('Slidetake: the recording size was refused', e));
   await nextFrame();
 }
 // called from the Start click, before anything else: sharing the tab needs that click
@@ -2224,14 +2247,17 @@ async function beginBrowserCapture(){
   if (!track.restrictTo && !track.cropTo){ stopAll(); throw new Error('Share “this tab” to record the slides.'); }
   try { await attachCapture(track); }
   catch(e){ stopAll(); throw new Error('Chrome could not record just the slides (' + (e.message || e.name) + ').'); }
-  await track.applyConstraints(outputSize(quality)).catch(()=>{});
+  // landscape: Chrome scales the frame to the size asked for, exactly. Portrait: it doesn't (a 9:16 element came
+  // back 720×1206 when asked for 720×1280), so the frame is drawn to a canvas of the exact size and that is recorded
+  const scaled = isPortrait() ? exactSize(track, turned(quality, true)) : null;
+  if (!scaled) await track.applyConstraints(outputSize(quality)).catch(e=>console.warn('Slidetake: the recording size was refused', e));
   let mic;
   try {
     const id = load('slidetake:mic');
     mic = await navigator.mediaDevices.getUserMedia({audio:micConstraints(id)});
   } catch(e){ stopAll(); throw new Error('The microphone isn’t available (' + (e.message || e.name) + ').'); }
   const id = new Date().toISOString().replace(/[:.]/g, '-');
-  rec.browser = {id, display, mic, track, quality, type:b.type, stream:new MediaStream([track, ...mic.getAudioTracks()]),
+  rec.browser = {id, display, mic, track, quality, type:b.type, scaled, stream:new MediaStream([scaled ? scaled.track : track, ...mic.getAudioTracks()]),
     dir:await takesDir(id, true), clips:[], cur:null, chain:Promise.resolve(), error:null};
   // stopping the share from Chrome's bar ends the take like Esc
   track.addEventListener('ended', ()=>{ if (rec.active && !rec.finishing) finishTake('Sharing stopped'); });
@@ -2241,6 +2267,7 @@ function endBrowserCapture(){
   if (!b) return;
   b.display.getTracks().forEach(t=>t.stop());
   b.mic.getTracks().forEach(t=>t.stop());
+  if (b.scaled) b.scaled.stop();
   setRecFrame(false);
 }
 // a new take: its own recorder and file. The new one starts first and the one before stops once it is

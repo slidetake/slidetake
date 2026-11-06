@@ -18,7 +18,9 @@ package can notice. Tests, CI and tooling do not belong here.
   column and its video 1080×1920 (or 720×1280), recorded in the browser from
   the middle of the screen. With the camera behind, `top` and `bottom` are
   halves and `left` and `right` go below you; a slide's words are larger, to
-  read on a phone; the corner camera is wider. `examples/portrait.md` shows one
+  read on a phone; the corner camera is wider; the bottom bar and the map sit
+  beside the column. Takes are drawn to the exact size, since Chrome doesn't
+  scale a tall frame to the size asked for. `examples/portrait.md` shows one
   (#30).
 
 ### Fixed
