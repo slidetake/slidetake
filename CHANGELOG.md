@@ -12,6 +12,8 @@ package can notice. Tests, CI and tooling do not belong here.
 
 ## [Unreleased]
 
+## [0.5.0] - 2026-11-06
+
 ### Added
 
 - **Shorts and Reels:** `format: portrait` in a deck's top block makes it a 9:16
@@ -25,7 +27,7 @@ package can notice. Tests, CI and tooling do not belong here.
 
 ### Fixed
 
-- The camera's moves (corner ↔ full frame, split screens) no longer drop frames
+- The camera's moves (corner ↔ full frame, split screens) drop far fewer frames
   from a recording: the box is scaled and clipped, which the browser composites,
   instead of being laid out again on every frame.
 - Takes recorded in the browser all come out the same size: the recorded frame is
