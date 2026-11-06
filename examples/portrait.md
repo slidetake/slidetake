@@ -1,24 +1,19 @@
 ---
-title: Slidetake in a minute
+title: My Short
 description: "A portrait (9:16) deck for Shorts and Reels: one markdown file, the camera behind the words."
 format: portrait
-brand: slidetake
 pip: behind bottom
 ---
 
-# Slide*take* in a minute
+# A hook in one line
 
-A Short, written in markdown.
+What the viewer gets, in under a minute.
 
-## One file, every slide
-
-Each heading is a slide. A comment moves the camera.
-
-## Words above you
+## The first point
 
 <!-- camera: behind top -->
 
-Half the screen for the words, half for you.
+The words above, you below. Keep each slide to a line or two.
 
 ## Split screen
 
@@ -26,7 +21,7 @@ Half the screen for the words, half for you.
 
 `solid` hides the camera behind the card. Press → and you swap places.
 
-## A chart, too
+## A number that matters
 
 <!-- camera: behind top -->
 
@@ -42,7 +37,7 @@ Half the screen for the words, half for you.
 
 <!-- camera: full -->
 
-Say it to the camera.
+Say the key line straight to the camera.
 
 ## Follow for more
 

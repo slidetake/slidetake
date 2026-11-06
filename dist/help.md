@@ -29,7 +29,7 @@ Open a deck straight from a link: a GitHub file, a gist or any markdown URL. Or 
 | `/gh/owner/repo@branch/deck.md` | another branch or tag |
 | `/gist/<id>` | a gist's first markdown file |
 | `/?src=https://…/deck.md` | anything else |
-| `/new` | a template: blank, talk or recording |
+| `/new` | a template: blank, talk, recording or short (9:16) |
 
 ### On your computer
 
@@ -364,7 +364,7 @@ It stays on its slide; `pip: behind` makes it the whole deck's. With the camera 
 - a slide's words are larger, to read on a phone
 - easy mode records the column from the middle of the screen: a Retina laptop makes 720p, a 16" one or a screen on its side 1080p
 
-[An example](https://slidetake.com/gh/slidetake/slidetake/examples/portrait.md).
+Start from the [Short template](https://slidetake.com/new?template=short): **New** → **Short**.
 
 ### Take by take
 

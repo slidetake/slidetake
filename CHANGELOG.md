@@ -12,6 +12,15 @@ package can notice. Tests, CI and tooling do not belong here.
 
 ## [Unreleased]
 
+## [0.5.1] - 2026-11-06
+
+### Added
+
+- A **Short** template: **New** → **Short** (`/new?template=short`) opens a 9:16
+  deck to start from, with the words above you, a split screen, a chart, the
+  camera full screen and a closing slide. The Docs, Showcase and Features point
+  at it.
+
 ## [0.5.0] - 2026-11-06
 
 ### Added
