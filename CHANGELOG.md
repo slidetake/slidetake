@@ -34,6 +34,8 @@ package can notice. Tests, CI and tooling do not belong here.
 
 - The camera no longer stretches as it moves between its corner and the full
   frame: the box glides and resizes, and the video keeps its shape.
+- Arriving on a slide with the camera behind it, the camera grows to fill the
+  frame first, then the words fade in around you.
 - `behind` no longer lays the whole slide over the camera: on its own it puts
   the content beside you, on the left.
 - With the camera off, a slide with the camera behind it still shows its layout,

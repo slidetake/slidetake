@@ -338,7 +338,11 @@ function applyPipState(){
   stageWrap.classList.toggle('cam-solid', (st.card || 0) >= 100);
   // the words are over live video (white, whatever the mode) or over the empty frame (the deck's own colours)
   stageWrap.classList.toggle('cam-live', !pipEl.hidden && !!st.behind && !empty);
+  const wasPlaced = !!camPlace;
   renderCamOverlay(!pipEl.hidden && st.behind ? st.place || '' : '');
+  // arriving from the corner: the camera grows to fill the frame first, then the words come in around you
+  if (camPlace && !wasPlaced && first && !reduceMotion && camOverlay.animate)
+    camOverlay.animate([{opacity:0}, {opacity:1}], {duration:300, delay:550, easing:'ease-out', fill:'backwards'});
   if (pipEl.hidden || reduceMotion || !pipEl.animate) return;
   const ease = 'cubic-bezier(.65,0,.35,1)';
   if (!first){

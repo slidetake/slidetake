@@ -2992,7 +2992,10 @@ camera: 24%, full, off ← what V cycles
     stageWrap.classList.toggle("cam-card", (st.card || 0) > 0);
     stageWrap.classList.toggle("cam-solid", (st.card || 0) >= 100);
     stageWrap.classList.toggle("cam-live", !pipEl.hidden && !!st.behind && !empty);
+    const wasPlaced = !!camPlace;
     renderCamOverlay(!pipEl.hidden && st.behind ? st.place || "" : "");
+    if (camPlace && !wasPlaced && first && !reduceMotion && camOverlay.animate)
+      camOverlay.animate([{ opacity: 0 }, { opacity: 1 }], { duration: 300, delay: 550, easing: "ease-out", fill: "backwards" });
     if (pipEl.hidden || reduceMotion || !pipEl.animate) return;
     const ease = "cubic-bezier(.65,0,.35,1)";
     if (!first) {
