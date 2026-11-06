@@ -82,6 +82,7 @@ For Safari, Firefox or any browser, a screen too small for easy mode, or whateve
 |---|---|
 | **[OBS](https://obsproject.com), driven by the deck** | it starts and stops for you; you only talk |
 | **16:9 check** | Setup warns before a video with bars; use a 16:9 screen, physical or virtual |
+| **Shorts and Reels** (`format: portrait`) | a 9:16 deck and video, the words above or below you |
 
 ## ✂️ Edit by picking the best take
 

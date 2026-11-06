@@ -13,7 +13,7 @@ import {normalizeSource, shortLink} from './core/source.js';
 import {encodeDeck, decodeDeck, parseHash, deckHash} from './core/share.js';
 import {routeOf, originLabel, makeCopy, isEdited, matchesOrigin, parseCopy} from './core/doc.js';
 import {youtubeVideo, embedUrl} from './core/media.js';
-import {QUALITIES, AUDIO_BITRATE, FPS, bestQuality, recordingType, clipExt, bytesPerMinute, clipPlan, afterPrevious, deviceName, sizeName} from './core/record.js';
+import {QUALITIES, AUDIO_BITRATE, FPS, bestQuality, turned, recordingType, clipExt, bytesPerMinute, clipPlan, afterPrevious, deviceName, sizeName} from './core/record.js';
 import {YOUTUBE_LUFS, MAX_BOOST_DB, loudnessMeter, gainToTarget, dbToGain, peakLimiter} from './core/loudness.js';
 import {fingerprint, deckSlides, takesFromRun, boardRows, boardSession, selectedInOrder, rangeOf} from './core/board.js';
 import {takesOf, pickedRanges, mergedRanges, sessionFps, baseName, sectionChapters as sectionChaptersCore,
@@ -125,6 +125,7 @@ function markName(body){
   });
 }
 
+const isPortrait = ()=>/^(portrait|vertical|9:16)$/i.test(String(deck.format || '').trim());
 function applyDeckSettings(){
   const name = deck.brand || '', logo = deck.logo || '';
   const chip = /^chip$/i.test(deck.brand_style || '');
@@ -139,6 +140,10 @@ function applyDeckSettings(){
     if (img) img.onload = img.onerror = ()=>refocus(true);
   }
   brandEl.hidden = !html;
+  // format: portrait — a 9:16 deck for Shorts and Reels: the stage, the recording and the camera layouts turn
+  const wasPortrait = document.body.classList.contains('portrait');
+  document.body.classList.toggle('portrait', isPortrait());
+  if (wasPortrait !== isPortrait()) refocus(true);
 
   applyPipState();
   document.title = deck.title || 'Slidetake';
@@ -298,7 +303,7 @@ let pipState = null;
 function computePipState(){
   const st = {
     corner: (deck.pip || 'none').toLowerCase(),
-    size: clampPipSize(parseFloat(deck.pip_size) || 24),
+    size: clampPipSize(parseFloat(deck.pip_size) || (isPortrait() ? 40 : 24)),   // a narrow frame needs a wider box
     circle: (deck.pip_shape || '').toLowerCase() === 'circle',
     mirror: cameraMirrored(),
     full: false, off: false, flip: false, used: false,
@@ -339,6 +344,8 @@ function applyPipState(){
   // the words are over live video (white, whatever the mode) or over the empty frame (the deck's own colours)
   stageWrap.classList.toggle('cam-live', !pipEl.hidden && !!st.behind && !empty);
   const wasPlaced = !!camPlace;
+  // portrait has no room for words beside you: left and right go below you, and top and bottom are halves
+  if (isPortrait() && /^(left|right)$/.test(st.place || '')) st.place = 'bottom';
   renderCamOverlay(!pipEl.hidden && st.behind ? st.place || '' : '');
   // arriving from the corner: the camera grows to fill the frame first, then the words come in around you
   if (camPlace && !wasPlaced && first && !reduceMotion && camOverlay.animate)
@@ -375,7 +382,14 @@ function renderCamOverlay(place){
   // (a re-read deck has its cards before they're built: the overlay comes back once they are)
   if (!n || !n.el) return;
   const body = n.el.querySelector('.body');
-  const all = [...body.children].map(c=>c.cloneNode(true));
+  // the copy shows the slide as it ends up: an entrance still playing on the card (a fade, a scrambling title)
+  // would otherwise be copied half-done, or invisible
+  const all = [...body.children].map(c=>{
+    const k = /** @type {HTMLElement} */ (c.cloneNode(true));
+    [k, ...k.querySelectorAll('[style]')].forEach(e=>{ e.style.removeProperty('opacity'); e.style.removeProperty('transform'); e.style.removeProperty('visibility'); });
+    [k, ...k.querySelectorAll('[data-text]')].forEach(e=>{ if (e.dataset.text) e.textContent = e.dataset.text; });
+    return k;
+  });
   const isMedia = /** @param {Element} e */ e=>e.matches('figure.media, .diagram, .echarts-container, .gallery');
   /** @type {[string, Element[]][]} */
   const boxes = [[place, all]];
@@ -1920,6 +1934,10 @@ obsRemember.addEventListener('change', saveObsSettings);
 function showScreenAdvice(){
   const el = document.getElementById('rec-screen');
   const w = screen.width, h = screen.height;
+  if (isPortrait()){
+    el.innerHTML = '<span class="warn">This deck is portrait (9:16). In OBS, set the canvas to 1080×1920 (Settings → Video) and fit the 9:16 column in the middle of the screen to it.</span>';
+    return;
+  }
   if (Math.abs(w / h - 16 / 9) < 0.02){ el.innerHTML = '<span class="ok">This screen is 16:9 (' + w + '×' + h + '), right for YouTube.</span>'; return; }
   // name the nearest familiar shape (a MacBook's 1512×982 is "about 3:2"), not a ratio like 756:491
   const shapes = [['16:10', 1.6], ['3:2', 1.5], ['4:3', 4 / 3], ['21:9', 21 / 9], ['16:9', 16 / 9]];
@@ -1944,8 +1962,8 @@ function browserRecording(){
   if (!window.RestrictionTarget && !window.CropTarget) return {why:'Recording in the browser needs Chrome or Edge (or another Chromium browser) on a computer.'};
   const type = window.MediaRecorder ? recordingType(t=>MediaRecorder.isTypeSupported(t)) : '';
   if (!type || !navigator.storage || !navigator.storage.getDirectory) return {why:'This browser can’t record video here. Use a recent Chrome or Edge.'};
-  // in fullscreen the frame is the largest 16:9 area of the screen
-  const {quality, device} = bestQuality(screen.width, screen.height, devicePixelRatio || 1);
+  // in fullscreen the frame is the largest 16:9 area of the screen (9:16 for a portrait deck)
+  const {quality, device} = bestQuality(screen.width, screen.height, devicePixelRatio || 1, isPortrait());
   if (!quality) return {why:'This screen gives a ' + device[0] + '×' + device[1] + ' frame, less than 720p. Use pro mode (OBS), or a larger screen.'};
   return {ok:true, type, quality};
 }
@@ -2158,10 +2176,10 @@ async function takesDir(id, create){
 async function deleteTakes(id){
   try { const root = await navigator.storage.getDirectory(); await (await root.getDirectoryHandle('slidetake-takes')).removeEntry(id, {recursive:true}); } catch(e){}
 }
-// The recorded size. The 16:9 shape is asked for outright: Chrome keeps the shape of the page as it measured it
+// The recorded size. The frame's shape (16:9, or 9:16 for a portrait deck) is asked for outright: Chrome keeps the shape of the page as it measured it
 // when the tab was shared, and the page can still be mid-layout then (going fullscreen), which came out
 // 1828×1080 instead of 1920×1080. With the shape fixed, Chrome crops to it and the size is exact.
-const outputSize = q=>({width:q.w, height:q.h, aspectRatio:16 / 9, frameRate:FPS, resizeMode:'crop-and-scale'});
+const outputSize = q=>{ const t = turned(q, isPortrait()); return {width:t.w, height:t.h, aspectRatio:t.w / t.h, frameRate:FPS, resizeMode:'crop-and-scale'}; };
 async function attachCapture(track){
   if (window.RestrictionTarget && track.restrictTo) await track.restrictTo(await RestrictionTarget.fromElement(stageWrap));
   else await track.cropTo(await CropTarget.fromElement(stageWrap));

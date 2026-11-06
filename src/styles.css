@@ -374,6 +374,13 @@
      only while it is its own stacking context, hence the isolation (without it the capture is silently empty). */
   body.rec-frame main{background:#000;}
   body.rec-frame #stage-wrap{flex:none;margin:auto;width:min(100%, calc(100vh * 16 / 9));aspect-ratio:16/9;isolation:isolate;}
+  /* format: portrait — the deck is a 9:16 column, always: what you see is what a Short records */
+  body.portrait main{background:color-mix(in srgb, var(--text) 5%, var(--bg));}
+  body.portrait #stage-wrap, body.portrait.rec-frame #stage-wrap{flex:none;margin:0 auto;width:auto;height:100%;max-width:100%;aspect-ratio:9/16;isolation:isolate;}
+  body.portrait.rec-frame main{background:#000;}
+  body.portrait .rv-video{aspect-ratio:9/16;max-height:62vh;margin:0 auto;}
+  /* a card's words are larger for its width, so a slide filling the narrow column reads on a phone */
+  body.portrait #world .node > .body{zoom:1.8;}
   #review.in-browser #rv-novideo{display:none !important;}
   /* the takes screen records in this browser, or with OBS: each mode's own controls */
   #review.obs .for-browser, #review:not(.obs) .for-obs{display:none !important;}
@@ -721,6 +728,8 @@
   #stage-wrap.cam-solid[data-place="right"] #pip.full.behind{right:50%;width:50%;}
   #stage-wrap.cam-solid[data-place="top"] #pip.full.behind{top:25%;height:75%;}
   #stage-wrap.cam-solid[data-place="bottom"] #pip.full.behind{bottom:25%;height:75%;}
+  body.portrait #stage-wrap.cam-solid[data-place="top"] #pip.full.behind{top:50%;height:50%;}
+  body.portrait #stage-wrap.cam-solid[data-place="bottom"] #pip.full.behind{bottom:50%;height:50%;}
   /* the camera behind the slide while it is off: an empty frame with a faint person where you'd be */
   #stage-wrap #pip.empty{border:none;background:color-mix(in srgb, var(--text) 6%, var(--bg)) url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Cg fill='%23fff' fill-opacity='.07'%3E%3Ccircle cx='50' cy='40' r='15'/%3E%3Cpath d='M18 100c0-22 14-36 32-36s32 14 32 36z'/%3E%3C/g%3E%3C/svg%3E") 50% 100%/auto 70% no-repeat;}
   body[data-mode="light"] #stage-wrap #pip.empty{background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Cg fill='%23000' fill-opacity='.06'%3E%3Ccircle cx='50' cy='40' r='15'/%3E%3Cpath d='M18 100c0-22 14-36 32-36s32 14 32 36z'/%3E%3C/g%3E%3C/svg%3E");}
@@ -753,6 +762,10 @@
   #stage-wrap.cam-card #cam-overlay .cam-box.right{right:0;top:0;width:50%;height:100%;}
   #stage-wrap.cam-card #cam-overlay .cam-box.top{left:0;top:0;width:100%;height:25%;}
   #stage-wrap.cam-card #cam-overlay .cam-box.bottom{left:0;bottom:0;width:100%;height:25%;}
+  /* portrait: the words take half the column, above or below you, stacked like a card */
+  body.portrait #cam-overlay .cam-box:is(.top, .bottom){height:44%;flex-direction:column;}
+  body.portrait #stage-wrap.cam-card #cam-overlay .cam-box:is(.top, .bottom){height:50%;}
+  body.portrait #cam-overlay .cam-box:is(.top, .bottom) .cam-text + .cam-media{flex-basis:55%;}
   /* the words take what the picture leaves: below it beside you, to its left in a band */
   #cam-overlay .cam-text{flex:1 1 0;min-width:0;min-height:0;display:flex;align-items:center;}
   #cam-overlay .cam-box.top .cam-text{align-items:flex-start;}
