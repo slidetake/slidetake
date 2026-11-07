@@ -12,6 +12,8 @@ package can notice. Tests, CI and tooling do not belong here.
 
 ## [Unreleased]
 
+## [0.5.4] - 2026-11-07
+
 ### Changed
 
 - In a portrait deck, a `<!-- view: full -->` card is 9:16 and fills the
