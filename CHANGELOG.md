@@ -12,10 +12,14 @@ package can notice. Tests, CI and tooling do not belong here.
 
 ## [Unreleased]
 
+## [0.5.3] - 2026-11-07
+
 ### Changed
 
 - The editor's bar is two lines: the buttons, then what the text below is (the
   deck, read-only or your copy) with **Your copy →** beside it.
+- In a deck embedded on a site, **Keys** and **Fullscreen** in the header are
+  icons, beside light/dark: a site's header has little room.
 
 ## [0.5.2] - 2026-11-07
 
