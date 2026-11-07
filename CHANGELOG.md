@@ -22,9 +22,9 @@ package can notice. Tests, CI and tooling do not belong here.
   frame being captured, Chrome's sharing bar taken into account: a 14" MacBook
   records portrait at 720p, where it asked for 1080p and got odd sizes.
 - A deck's first and last slides no longer scramble their title as they open:
-  every line, the title too, just fades up. The scramble redrew the title on
-  every frame and made a recording drop frames on the move to the last slide
-  (#35). A deck's own `title-scramble` still works.
+  every line, the title too, just fades up: the scramble redrew the title on
+  every frame, extra work while recording. A deck's own `title-scramble` still
+  works.
 
 ### Fixed
 
