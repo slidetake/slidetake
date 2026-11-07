@@ -430,7 +430,9 @@
   }
   @media (max-aspect-ratio: 1/1){ body.portrait #minimap{display:none;} }
   /* a card's words are larger for its width, so a slide filling the narrow column reads on a phone */
-  body.portrait #world .node > .body{zoom:1.8;}
+  body.portrait #world .node:not(.card-full) > .body{zoom:1.8;}
+  /* a full card keeps its frame: only its heading grows, the chart or image fills the rest */
+  body.portrait #world .node.card-full > .body > :is(h1, h2, h3, h4){zoom:1.8;}
   #review.in-browser #rv-novideo{display:none !important;}
   /* the takes screen records in this browser, or with OBS: each mode's own controls */
   #review.obs .for-browser, #review:not(.obs) .for-obs{display:none !important;}
@@ -641,7 +643,11 @@
     color:#f4f4f5;background:linear-gradient(rgba(0,0,0,0), rgba(0,0,0,.78));}
   .node.img-overlay .body .gallery.carousel figure.media figcaption::before{color:color-mix(in srgb, var(--accent) 55%, #fff);}
   /* <!-- view: full -->: a 16:9 card, framed and placed like any other slide */
-  div.node.card-full{height:540px;overflow:hidden;}
+  div.node.card-full{height:540px;overflow:hidden;display:flex;flex-direction:column;}
+  body.portrait div.node.card-full{height:960px;}
+  /* a chart on a full card takes the room the heading leaves */
+  div.node.card-full > .body{flex:1;min-height:0;display:flex;flex-direction:column;}
+  div.node.card-full .echarts-container{flex:1;min-height:0;height:auto;margin:0;}
   /* measure cards at their resting size, without grow/zoom transforms */
   div.node.measuring .fragment{transform:none !important;transition:none !important;}
   /* a card re-measured mid-entrance (a theme switch replays it) must not count a gsap "from" state such
@@ -3125,7 +3131,7 @@
     if (n.visual) w = XWIDE_W;
     const full = el.classList.contains("card-full");
     el.classList.remove("img-portrait", "img-landscape", "img-overlay", "img-cover");
-    if (full) w = XWIDE_W;
+    if (full) w = isPortrait() ? BLEED_H : XWIDE_W;
     if (el.classList.contains("card-bleed")) {
       const aspect = Math.max(0, ...[...b.querySelectorAll("img")].map((i) => i.naturalWidth && i.naturalHeight ? i.naturalWidth / i.naturalHeight : 0)) || 16 / 9;
       const roomBeside = XWIDE_W - BLEED_H * aspect >= 260;
@@ -3174,8 +3180,9 @@
         w = Math.max(w, Math.min(XWIDE_W, Math.ceil(g.offsetWidth * 1.3) + pad));
       });
     }
+    if (full) w = isPortrait() ? BLEED_H : XWIDE_W;
     el.style.width = w + "px";
-    if (el.scrollWidth > w + 2) el.style.width = (w = Math.min(XWIDE_W, el.scrollWidth + 24)) + "px";
+    if (!full && el.scrollWidth > w + 2) el.style.width = (w = Math.min(XWIDE_W, el.scrollWidth + 24)) + "px";
     if (b.scrollWidth > b.clientWidth + 2) b.style.zoom = (b.clientWidth / b.scrollWidth).toFixed(3);
     n._w = w;
     n._h = el.offsetHeight || NODE_H_EST;
@@ -3242,7 +3249,10 @@
       line: { symbolSize: 6, lineStyle: { width: 2.5 } },
       // ECharts' own pie labels are #333 with a white outline: a dark smudge in a white halo on a dark card
       pie: { label: { color: t.text, textBorderWidth: 0 }, labelLine: { lineStyle: { color: t.muted } } },
-      funnel: { label: { color: t.text, textBorderWidth: 0 } }
+      funnel: { label: { color: t.text, textBorderWidth: 0 } },
+      // and a bar's or line's value label the same, in the text colour with no outline
+      bar: { label: { color: t.text, textBorderWidth: 0 } },
+      line: { label: { color: t.text, textBorderWidth: 0 } }
     });
   }
   var D2_URL = "https://esm.sh/@terrastruct/d2@0.1.33";
