@@ -964,6 +964,9 @@ function registerChartTheme(name, t, accent){
     // ECharts' own pie labels are #333 with a white outline: a dark smudge in a white halo on a dark card
     pie: {label: {color: t.text, textBorderWidth: 0}, labelLine: {lineStyle: {color: t.muted}}},
     funnel: {label: {color: t.text, textBorderWidth: 0}},
+    // and a bar's or line's value label the same, in the text colour with no outline
+    bar: {label: {color: t.text, textBorderWidth: 0}},
+    line: {label: {color: t.text, textBorderWidth: 0}},
   });
 }
 // D2 (https://d2lang.com) ships as an ES module; it loads only when a deck has a ```d2 block

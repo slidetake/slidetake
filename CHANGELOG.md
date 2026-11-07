@@ -17,6 +17,8 @@ package can notice. Tests, CI and tooling do not belong here.
 - In a portrait deck, a `<!-- view: full -->` card is 9:16 and fills the
   column, and a chart on a full card (either shape) fills the card under its
   heading.
+- A bar or line chart's value labels are in the deck's text colour with no
+  outline, readable in dark mode as a pie chart's already were.
 
 ## [0.5.3] - 2026-11-07
 
