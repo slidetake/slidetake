@@ -12,6 +12,11 @@ package can notice. Tests, CI and tooling do not belong here.
 
 ## [Unreleased]
 
+### Changed
+
+- The editor's bar is two lines: the buttons, then what the text below is (the
+  deck, read-only or your copy) with **Your copy →** beside it.
+
 ## [0.5.2] - 2026-11-07
 
 ### Changed
