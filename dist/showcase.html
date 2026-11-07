@@ -186,9 +186,11 @@
   #editor-resizer{flex:none;width:6px;margin-right:-3px;margin-left:-3px;z-index:5;cursor:col-resize;position:relative;}
   #editor-resizer:hover, main.resizing #editor-resizer{background:var(--accent-line, var(--accent));opacity:.6;}
   #editor-resizer:has(+ #editor-pane.collapsed){display:none;}
-  .pane-bar{flex:none;display:flex;align-items:center;justify-content:space-between;gap:8px;padding:8px 10px 8px 14px;border-bottom:1px solid var(--panel-line);}
-  .pane-actions{display:flex;gap:6px;flex-wrap:wrap;justify-content:flex-end;}
-  #doc-state{text-transform:none;letter-spacing:.02em;font-size:11px;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;}
+  /* two lines: the buttons, then what the text below is (the deck, read-only or your copy) */
+  .pane-bar{flex:none;display:flex;flex-direction:column;align-items:stretch;gap:8px;padding:8px 10px 8px 14px;border-bottom:1px solid var(--panel-line);}
+  .pane-actions{display:flex;gap:6px;flex-wrap:wrap;}
+  .pane-state{display:flex;align-items:center;justify-content:space-between;gap:8px;min-height:24px;}
+  #doc-state{text-transform:none;letter-spacing:.02em;font-size:11px;min-width:0;flex:1 1 auto;flex-shrink:1;}
   #doc-state .ro{color:var(--text-muted);}
   #doc-state .mine{color:var(--text);}
   #doc-state .edited{color:var(--accent);}
@@ -1118,14 +1120,17 @@ write -&gt; present -&gt; record
   <div id="editor-resizer" role="separator" aria-orientation="vertical" aria-label="Resize the editor" title="Drag to resize"></div>
   <div id="editor-pane" class="collapsed">
     <div class="pane-bar">
-      <span class="pane-label" id="doc-state" aria-live="polite"></span>
       <span class="pane-actions">
-        <a class="btn small" id="continue" href="/edit" hidden></a>
         <a class="btn small" id="btn-new" href="/new" title="Start from a template">New</a>
         <button class="btn small" id="btn-load" title="Load a deck from a link: GitHub, a gist or any URL">⇣ Load</button>
         <button class="btn small" id="btn-open" title="Open a markdown file from this computer">Open</button>
         <button class="btn small" id="btn-save" title="Save the markdown to a file on this computer">Save</button>
         <button class="btn small" id="btn-share" title="Copy a link to this deck">Share</button>
+      </span>
+      <!-- what the text below is: the deck, and whether typing makes your copy -->
+      <span class="pane-state">
+        <span class="pane-label" id="doc-state" aria-live="polite"></span>
+        <a class="btn small" id="continue" href="/edit" hidden></a>
       </span>
     </div>
     <textarea id="editor" spellcheck="false"></textarea>
