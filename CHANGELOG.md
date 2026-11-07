@@ -12,6 +12,8 @@ package can notice. Tests, CI and tooling do not belong here.
 
 ## [Unreleased]
 
+## [0.5.2] - 2026-11-07
+
 ### Changed
 
 - Portrait takes are scaled by Chrome, as landscape ones are, instead of being
