@@ -729,7 +729,7 @@ function applyMedia(el, body){
   const parts = [...body.children].filter(c=>!/^H[1-6]$/.test(c.tagName) && !(c.nodeType === 1 && c.tagName === 'HR'));
   const media = parts.filter(c=>c.matches('figure.media'));
   if (media.length === 1 && parts.length === 1) el.classList.add('card-media');
-  // <!-- view: full --> makes the card a 16:9 frame for its image, placed like any other slide
+  // <!-- view: full --> makes the card a 16:9 frame (9:16 in a portrait deck) for its image or chart, placed like any other slide
   const walker = document.createTreeWalker(body, NodeFilter.SHOW_COMMENT);
   while (walker.nextNode()) if (/^\s*view\s*:\s*full\s*$/i.test(walker.currentNode.data)) el.classList.add('card-full');
   // an image or a carousel alone runs edge to edge, the heading and caption laid over it; one image with
@@ -859,7 +859,7 @@ function sizeCard(n){
   // the card with the text over it.
   const full = el.classList.contains('card-full');
   el.classList.remove('img-portrait', 'img-landscape', 'img-overlay', 'img-cover');
-  if (full) w = XWIDE_W;
+  if (full) w = isPortrait() ? BLEED_H : XWIDE_W;   // a portrait deck's full card is 9:16: 540 wide, 960 tall
   if (el.classList.contains('card-bleed')){
     const aspect = Math.max(0, ...[...b.querySelectorAll('img')].map(i=>i.naturalWidth && i.naturalHeight ? i.naturalWidth / i.naturalHeight : 0)) || 16 / 9;
     const roomBeside = XWIDE_W - BLEED_H * aspect >= 260;
@@ -914,8 +914,10 @@ function sizeCard(n){
     const pad = el.offsetWidth - b.clientWidth;
     growers.forEach(g=>{ w = Math.max(w, Math.min(XWIDE_W, Math.ceil(g.offsetWidth * 1.3) + pad)); });
   }
+  // a full card is its frame, whatever it holds (a chart is still a code block when it's first measured)
+  if (full) w = isPortrait() ? BLEED_H : XWIDE_W;
   el.style.width = w + 'px';
-  if (el.scrollWidth > w + 2) el.style.width = (w = Math.min(XWIDE_W, el.scrollWidth + 24)) + 'px';
+  if (!full && el.scrollWidth > w + 2) el.style.width = (w = Math.min(XWIDE_W, el.scrollWidth + 24)) + 'px';
   if (b.scrollWidth > b.clientWidth + 2) b.style.zoom = (b.clientWidth / b.scrollWidth).toFixed(3);
   n._w = w;
   n._h = el.offsetHeight || NODE_H_EST;
