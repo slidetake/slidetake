@@ -2252,6 +2252,7 @@
     return out;
   }
   var afterPrevious = (prev, t) => t > prev ? t : prev + 1e-3;
+  var leadIn = (first) => first > 1 / FPS ? first : 0;
   var deviceName = (label) => label.replace(/\s*\([0-9a-f]{4}:[0-9a-f]{4}\)\s*$/i, "");
   var sizeName = (w, h) => Math.min(w, h) + "p" + (h > w ? " portrait" : "");
 
@@ -3900,12 +3901,7 @@
     const auto = autoEntrance(n);
     if (auto && auto.length) {
       n._auto = auto;
-      const [head, ...rest] = auto;
-      if (/^H[1-3]$/.test(head.tagName) && !head.children.length) {
-        head.classList.add("auto-scramble");
-        scramble(head);
-      } else rest.unshift(head);
-      gsap.from(rest, { opacity: 0, y: 24, duration: 0.7, ease: "power2.out", delay: 0.5, stagger: 0.45 });
+      gsap.from(auto, { opacity: 0, y: 24, duration: 0.7, ease: "power2.out", delay: 0.3, stagger: 0.45 });
     }
     n.el.querySelectorAll("[data-gsap]").forEach((el) => {
       let cfg;
@@ -3941,7 +3937,7 @@
       const props = new Set(Object.keys(Object.assign({}, cfg.from, cfg.to)).map((k) => TRANSFORM_PROPS.includes(k) ? "transform" : k));
       if (props.size) gsap.set(el, { clearProps: [...props].join(",") });
     });
-    n.el.querySelectorAll(".title-scramble, .auto-scramble").forEach((el) => {
+    n.el.querySelectorAll(".title-scramble").forEach((el) => {
       if (el._scramble) el._scramble.kill();
       if (el.dataset.text) el.textContent = el.dataset.text;
     });
@@ -4555,13 +4551,14 @@
   var recMode = load("slidetake:rec-mode") || "";
   var recNote = "";
   var meter = null;
+  var SHARE_BAR = 96;
   function browserRecording() {
     const md = navigator.mediaDevices;
     if (!window.isSecureContext || !md || !md.getDisplayMedia) return { why: "This page can\u2019t capture itself here. Open Slidetake in Chrome or Edge on a computer." };
     if (!window.RestrictionTarget && !window.CropTarget) return { why: "Recording in the browser needs Chrome or Edge (or another Chromium browser) on a computer." };
     const type = window.MediaRecorder ? recordingType((t) => MediaRecorder.isTypeSupported(t)) : "";
     if (!type || !navigator.storage || !navigator.storage.getDirectory) return { why: "This browser can\u2019t record video here. Use a recent Chrome or Edge." };
-    const { quality, device } = bestQuality(screen.width, screen.height, devicePixelRatio || 1, isPortrait());
+    const { quality, device } = bestQuality(screen.width, screen.height - SHARE_BAR, devicePixelRatio || 1, isPortrait());
     if (!quality) return { why: "This screen gives a " + device[0] + "\xD7" + device[1] + " frame, less than 720p. Use pro mode (OBS), or a larger screen." };
     return { ok: true, type, quality };
   }
@@ -4851,37 +4848,13 @@
     if (window.RestrictionTarget && track.restrictTo) await track.restrictTo(await RestrictionTarget.fromElement(stageWrap));
     else await track.cropTo(await CropTarget.fromElement(stageWrap));
   }
-  function exactSize(track, { w, h }) {
-    const video = document.createElement("video");
-    video.muted = true;
-    video.playsInline = true;
-    video.srcObject = new MediaStream([track]);
-    const canvas = document.createElement("canvas");
-    canvas.width = w;
-    canvas.height = h;
-    const ctx = (
-      /** @type {CanvasRenderingContext2D} */
-      canvas.getContext("2d", { alpha: false })
-    );
-    let live = true;
-    const draw = () => {
-      if (!live) return;
-      const vw = video.videoWidth, vh = video.videoHeight;
-      if (vw && vh) {
-        const s = Math.max(w / vw, h / vh), dw = vw * s, dh = vh * s;
-        ctx.drawImage(video, (w - dw) / 2, (h - dh) / 2, dw, dh);
-      }
-      video.requestVideoFrameCallback(draw);
-    };
-    video.requestVideoFrameCallback(draw);
-    video.play().catch(() => {
-    });
-    const out = canvas.captureStream(FPS).getVideoTracks()[0];
-    return { track: out, stop() {
-      live = false;
-      out.stop();
-      video.srcObject = null;
-    } };
+  function fittedQuality(q) {
+    const dpr = devicePixelRatio || 1, w = stageWrap.clientWidth * dpr, h = stageWrap.clientHeight * dpr;
+    const down = QUALITIES.slice(QUALITIES.indexOf(q));
+    return down.find((x) => {
+      const t = turned(x, isPortrait());
+      return w >= t.w - 2 && h >= t.h - 2;
+    }) || down[down.length - 1];
   }
   async function reattachCapture(b) {
     try {
@@ -4890,7 +4863,12 @@
       await attachCapture(b.track);
     } catch (e) {
     }
-    if (!b.scaled) await b.track.applyConstraints(outputSize(b.quality)).catch((e) => console.warn("Slidetake: the recording size was refused", e));
+    const fit = fittedQuality(b.quality);
+    if (fit !== b.quality) {
+      showToast("Recording at " + fit.name + ": the frame on this screen is too small for " + b.quality.name + ".", 5e3);
+      b.quality = fit;
+    }
+    await b.track.applyConstraints(outputSize(b.quality)).catch((e) => console.warn("Slidetake: the recording size was refused", e));
     await nextFrame();
   }
   async function beginBrowserCapture() {
@@ -4918,8 +4896,7 @@
       stopAll();
       throw new Error("Chrome could not record just the slides (" + (e.message || e.name) + ").");
     }
-    const scaled = isPortrait() ? exactSize(track, turned(quality, true)) : null;
-    if (!scaled) await track.applyConstraints(outputSize(quality)).catch((e) => console.warn("Slidetake: the recording size was refused", e));
+    await track.applyConstraints(outputSize(quality)).catch((e) => console.warn("Slidetake: the recording size was refused", e));
     let mic;
     try {
       const id2 = load("slidetake:mic");
@@ -4936,8 +4913,7 @@
       track,
       quality,
       type: b.type,
-      scaled,
-      stream: new MediaStream([scaled ? scaled.track : track, ...mic.getAudioTracks()]),
+      stream: new MediaStream([track, ...mic.getAudioTracks()]),
       dir: await takesDir(id, true),
       clips: [],
       cur: null,
@@ -4953,7 +4929,6 @@
     if (!b) return;
     b.display.getTracks().forEach((t) => t.stop());
     b.mic.getTracks().forEach((t) => t.stop());
-    if (b.scaled) b.scaled.stop();
     setRecFrame(false);
   }
   function startClip(ev) {
@@ -5761,21 +5736,23 @@
           await out.start();
         }
         const vMeta = { decoderConfig: await vt.getDecoderConfig() };
+        const firstPk = await new MB.EncodedPacketSink(vt).getFirstPacket();
+        const t0 = leadIn(firstPk ? firstPk.timestamp : 0);
         let end = 0, first = true;
         for await (const pk of new MB.EncodedPacketSink(vt).packets()) {
           if (pk.timestamp >= part.keep) continue;
-          lastV = afterPrevious(lastV, offset + pk.timestamp);
+          lastV = afterPrevious(lastV, offset + pk.timestamp - t0);
           await vSrc.add(pk.clone({ timestamp: lastV }), first && i === 0 ? vMeta : void 0);
           first = false;
-          end = Math.max(end, pk.timestamp + pk.duration);
+          end = Math.max(end, pk.timestamp - t0 + pk.duration);
         }
         if (at && aSrc && reencode) {
-          for await (const smp of new MB.AudioSampleSink(at).samples(0, end)) {
-            if (smp.timestamp + smp.duration > end + 1e-4) {
+          for await (const smp of new MB.AudioSampleSink(at).samples(t0, t0 + end)) {
+            if (smp.timestamp < t0 - 1e-4 || smp.timestamp - t0 + smp.duration > end + 1e-4) {
               smp.close();
               continue;
             }
-            lastA = afterPrevious(lastA, offset + smp.timestamp);
+            lastA = afterPrevious(lastA, offset + smp.timestamp - t0);
             const planes = planesOf(smp);
             planes.forEach((p) => {
               for (let k = 0; k < p.length; k++) p[k] *= gain;
@@ -5797,8 +5774,8 @@
           const aMeta = { decoderConfig: await at.getDecoderConfig() };
           let aFirst = true;
           for await (const pk of new MB.EncodedPacketSink(at).packets()) {
-            if (pk.timestamp + pk.duration > end + 1e-4) continue;
-            lastA = afterPrevious(lastA, offset + pk.timestamp);
+            if (pk.timestamp < t0 - 1e-4 || pk.timestamp - t0 + pk.duration > end + 1e-4) continue;
+            lastA = afterPrevious(lastA, offset + pk.timestamp - t0);
             await aSrc.add(pk.clone({ timestamp: lastA }), aFirst && i === 0 ? aMeta : void 0);
             aFirst = false;
           }

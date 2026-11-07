@@ -12,6 +12,27 @@ package can notice. Tests, CI and tooling do not belong here.
 
 ## [Unreleased]
 
+## [0.5.2] - 2026-11-07
+
+### Changed
+
+- Portrait takes are scaled by Chrome, as landscape ones are, instead of being
+  copied through a canvas, which cost a full-frame copy each frame and dropped
+  frames. Chrome scales down but never up, so the size is now chosen from the
+  frame being captured, Chrome's sharing bar taken into account: a 14" MacBook
+  records portrait at 720p, where it asked for 1080p and got odd sizes.
+- A deck's first and last slides no longer scramble their title as they open:
+  every line, the title too, just fades up: the scramble redrew the title on
+  every frame, extra work while recording. A deck's own `title-scramble` still
+  works.
+
+### Fixed
+
+- A downloaded video no longer freezes for a moment where two takes join: a
+  take whose first frame came a little after its recorder started now starts at
+  that frame, its sound too. Download again to get it; the takes don't change
+  (#35).
+
 ## [0.5.1] - 2026-11-06
 
 ### Added

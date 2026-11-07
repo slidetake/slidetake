@@ -90,6 +90,13 @@ export function clipPlan(sess){
 export const afterPrevious = (prev, t)=>t > prev ? t : prev + 0.001;
 
 /**
+ * Where a take starts in the joined video: at its first frame when that came later than a frame's length after
+ * its recorder started (the capture only sends a frame when the screen changes), so the join has no frozen gap.
+ * @param {number} first  the take's first video timestamp, seconds
+ */
+export const leadIn = first=>first > 1 / FPS ? first : 0;
+
+/**
  * A device's name as people know it: without the USB ids Chrome adds ("MacBook Pro Camera (0000:0001)").
  * @param {string} label
  */
