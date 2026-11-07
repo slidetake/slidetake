@@ -1959,14 +1959,16 @@ const recWave = /** @type {HTMLCanvasElement} */ (document.getElementById('rec-w
 let recMode = load('slidetake:rec-mode') || '';
 let recNote = '';   // why the last start failed, shown in place of the check once
 let meter = null;   // the mic preview while the dialog is open: {stream, ctx, raf}
+const SHARE_BAR = 96;
 function browserRecording(){
   const md = navigator.mediaDevices;
   if (!window.isSecureContext || !md || !md.getDisplayMedia) return {why:'This page can’t capture itself here. Open Slidetake in Chrome or Edge on a computer.'};
   if (!window.RestrictionTarget && !window.CropTarget) return {why:'Recording in the browser needs Chrome or Edge (or another Chromium browser) on a computer.'};
   const type = window.MediaRecorder ? recordingType(t=>MediaRecorder.isTypeSupported(t)) : '';
   if (!type || !navigator.storage || !navigator.storage.getDirectory) return {why:'This browser can’t record video here. Use a recent Chrome or Edge.'};
-  // in fullscreen the frame is the largest 16:9 area of the screen (9:16 for a portrait deck)
-  const {quality, device} = bestQuality(screen.width, screen.height, devicePixelRatio || 1, isPortrait());
+  // in fullscreen the frame is the largest 16:9 area of the screen (9:16 for a portrait deck), less the bar Chrome
+  // shows while a tab is shared (about 90 points on a Mac)
+  const {quality, device} = bestQuality(screen.width, screen.height - SHARE_BAR, devicePixelRatio || 1, isPortrait());
   if (!quality) return {why:'This screen gives a ' + device[0] + '×' + device[1] + ' frame, less than 720p. Use pro mode (OBS), or a larger screen.'};
   return {ok:true, type, quality};
 }
@@ -2206,35 +2208,25 @@ async function attachCapture(track){
   if (window.RestrictionTarget && track.restrictTo) await track.restrictTo(await RestrictionTarget.fromElement(stageWrap));
   else await track.cropTo(await CropTarget.fromElement(stageWrap));
 }
-// The captured frame drawn onto a canvas of exactly w×h, filling it (any sliver of difference is cropped), each time
-// a new frame arrives; the canvas's own stream is what's recorded.
-function exactSize(track, {w, h}){
-  const video = document.createElement('video');
-  video.muted = true; video.playsInline = true; video.srcObject = new MediaStream([track]);
-  const canvas = document.createElement('canvas');
-  canvas.width = w; canvas.height = h;
-  const ctx = /** @type {CanvasRenderingContext2D} */ (canvas.getContext('2d', {alpha:false}));
-  let live = true;
-  const draw = ()=>{
-    if (!live) return;
-    const vw = video.videoWidth, vh = video.videoHeight;
-    if (vw && vh){
-      const s = Math.max(w / vw, h / vh), dw = vw * s, dh = vh * s;
-      ctx.drawImage(video, (w - dw) / 2, (h - dh) / 2, dw, dh);
-    }
-    video.requestVideoFrameCallback(draw);
-  };
-  video.requestVideoFrameCallback(draw);
-  video.play().catch(()=>{});
-  const out = canvas.captureStream(FPS).getVideoTracks()[0];
-  return {track:out, stop(){ live = false; out.stop(); video.srcObject = null; }};
+// The best quality the frame can record now, down from the one chosen: Chrome scales a capture down to the size
+// asked for, exactly, but never up, so a frame smaller than that size records at its own odd size. Measured once
+// the page has its final shape (fullscreen, with Chrome's sharing bar taking some of its height).
+function fittedQuality(q){
+  const dpr = devicePixelRatio || 1, w = stageWrap.clientWidth * dpr, h = stageWrap.clientHeight * dpr;
+  const down = QUALITIES.slice(QUALITIES.indexOf(q));
+  return down.find(x=>{ const t = turned(x, isPortrait()); return w >= t.w - 2 && h >= t.h - 2; }) || down[down.length - 1];
 }
 async function reattachCapture(b){
   try {
     if (window.RestrictionTarget && b.track.restrictTo) await b.track.restrictTo(null); else await b.track.cropTo(null);
     await attachCapture(b.track);
   } catch(e){}
-  if (!b.scaled) await b.track.applyConstraints(outputSize(b.quality)).catch(e=>console.warn('Slidetake: the recording size was refused', e));
+  const fit = fittedQuality(b.quality);
+  if (fit !== b.quality){
+    showToast('Recording at ' + fit.name + ': the frame on this screen is too small for ' + b.quality.name + '.', 5000);
+    b.quality = fit;
+  }
+  await b.track.applyConstraints(outputSize(b.quality)).catch(e=>console.warn('Slidetake: the recording size was refused', e));
   await nextFrame();
 }
 // called from the Start click, before anything else: sharing the tab needs that click
@@ -2250,17 +2242,14 @@ async function beginBrowserCapture(){
   if (!track.restrictTo && !track.cropTo){ stopAll(); throw new Error('Share “this tab” to record the slides.'); }
   try { await attachCapture(track); }
   catch(e){ stopAll(); throw new Error('Chrome could not record just the slides (' + (e.message || e.name) + ').'); }
-  // landscape: Chrome scales the frame to the size asked for, exactly. Portrait: it doesn't (a 9:16 element came
-  // back 720×1206 when asked for 720×1280), so the frame is drawn to a canvas of the exact size and that is recorded
-  const scaled = isPortrait() ? exactSize(track, turned(quality, true)) : null;
-  if (!scaled) await track.applyConstraints(outputSize(quality)).catch(e=>console.warn('Slidetake: the recording size was refused', e));
+  await track.applyConstraints(outputSize(quality)).catch(e=>console.warn('Slidetake: the recording size was refused', e));
   let mic;
   try {
     const id = load('slidetake:mic');
     mic = await navigator.mediaDevices.getUserMedia({audio:micConstraints(id)});
   } catch(e){ stopAll(); throw new Error('The microphone isn’t available (' + (e.message || e.name) + ').'); }
   const id = new Date().toISOString().replace(/[:.]/g, '-');
-  rec.browser = {id, display, mic, track, quality, type:b.type, scaled, stream:new MediaStream([scaled ? scaled.track : track, ...mic.getAudioTracks()]),
+  rec.browser = {id, display, mic, track, quality, type:b.type, stream:new MediaStream([track, ...mic.getAudioTracks()]),
     dir:await takesDir(id, true), clips:[], cur:null, chain:Promise.resolve(), error:null};
   // stopping the share from Chrome's bar ends the take like Esc
   track.addEventListener('ended', ()=>{ if (rec.active && !rec.finishing) finishTake('Sharing stopped'); });
@@ -2270,7 +2259,6 @@ function endBrowserCapture(){
   if (!b) return;
   b.display.getTracks().forEach(t=>t.stop());
   b.mic.getTracks().forEach(t=>t.stop());
-  if (b.scaled) b.scaled.stop();
   setRecFrame(false);
 }
 // a new take: its own recorder and file. The new one starts first and the one before stops once it is
