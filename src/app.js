@@ -388,7 +388,7 @@ function renderCamOverlay(place){
   // (a re-read deck has its cards before they're built: the overlay comes back once they are)
   if (!n || !n.el) return;
   const body = n.el.querySelector('.body');
-  // the copy shows the slide as it ends up: an entrance still playing on the card (a fade, a scrambling title)
+  // the copy shows the slide as it ends up: an entrance still playing on the card (a fade, a deck's scrambling title)
   // would otherwise be copied half-done, or invisible
   const all = [...body.children].map(c=>{
     const k = /** @type {HTMLElement} */ (c.cloneNode(true));
@@ -1399,7 +1399,8 @@ function applyStepState(snap){
 }
 // data-gsap='{"from":{…},"duration":1,"delay":2,"ease":"…"}' and .title-scramble, as on the site
 const TRANSFORM_PROPS = ['x','y','xPercent','yPercent','scale','scaleX','scaleY','rotation','rotate','skewX','skewY'];
-// The first and last cards animate in by themselves: the title scrambles, then each line fades up in turn.
+// The first and last cards animate in by themselves: each line, the title first, fades up in turn. (The title no
+// longer scrambles: changing its letters every frame made a recording drop frames.)
 // A deck that writes its own data-gsap entrances keeps them instead.
 function autoEntrance(n){
   if (!order.length || (n.id !== order[0] && n.id !== order[order.length - 1])) return null;
@@ -1412,11 +1413,7 @@ function playEntrances(n){
   const auto = autoEntrance(n);
   if (auto && auto.length){
     n._auto = auto;
-    const [head, ...rest] = auto;
-    // a plain-text title scrambles; one with an icon or link in it just fades up with the rest
-    if (/^H[1-3]$/.test(head.tagName) && !head.children.length){ head.classList.add('auto-scramble'); scramble(head); }
-    else rest.unshift(head);
-    gsap.from(rest, {opacity:0, y:24, duration:0.7, ease:'power2.out', delay:0.5, stagger:0.45});
+    gsap.from(auto, {opacity:0, y:24, duration:0.7, ease:'power2.out', delay:0.3, stagger:0.45});
   }
   n.el.querySelectorAll('[data-gsap]').forEach(el=>{
     let cfg;
@@ -1443,7 +1440,7 @@ function resetEntrances(n){
     // clear only what the animation touched, so the element keeps its own inline styles
     if (props.size) gsap.set(el, {clearProps:[...props].join(',')});
   });
-  n.el.querySelectorAll('.title-scramble, .auto-scramble').forEach(el=>{
+  n.el.querySelectorAll('.title-scramble').forEach(el=>{
     if (el._scramble) el._scramble.kill();
     if (el.dataset.text) el.textContent = el.dataset.text;
   });

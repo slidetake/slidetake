@@ -12,6 +12,13 @@ package can notice. Tests, CI and tooling do not belong here.
 
 ## [Unreleased]
 
+### Changed
+
+- A deck's first and last slides no longer scramble their title as they open:
+  every line, the title too, just fades up. The scramble redrew the title on
+  every frame and made a recording drop frames on the move to the last slide
+  (#35). A deck's own `title-scramble` still works.
+
 ### Fixed
 
 - A downloaded video no longer freezes for a moment where two takes join: a

@@ -4158,12 +4158,7 @@ camera: 24%, full, off ← what V cycles
     const auto = autoEntrance(n);
     if (auto && auto.length) {
       n._auto = auto;
-      const [head, ...rest] = auto;
-      if (/^H[1-3]$/.test(head.tagName) && !head.children.length) {
-        head.classList.add("auto-scramble");
-        scramble(head);
-      } else rest.unshift(head);
-      gsap.from(rest, { opacity: 0, y: 24, duration: 0.7, ease: "power2.out", delay: 0.5, stagger: 0.45 });
+      gsap.from(auto, { opacity: 0, y: 24, duration: 0.7, ease: "power2.out", delay: 0.3, stagger: 0.45 });
     }
     n.el.querySelectorAll("[data-gsap]").forEach((el) => {
       let cfg;
@@ -4199,7 +4194,7 @@ camera: 24%, full, off ← what V cycles
       const props = new Set(Object.keys(Object.assign({}, cfg.from, cfg.to)).map((k) => TRANSFORM_PROPS.includes(k) ? "transform" : k));
       if (props.size) gsap.set(el, { clearProps: [...props].join(",") });
     });
-    n.el.querySelectorAll(".title-scramble, .auto-scramble").forEach((el) => {
+    n.el.querySelectorAll(".title-scramble").forEach((el) => {
       if (el._scramble) el._scramble.kill();
       if (el.dataset.text) el.textContent = el.dataset.text;
     });
