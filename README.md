@@ -105,7 +105,7 @@ window.SLIDETAKE = {
 
 Load it from npm through a CDN (pin the version, as above), or copy `dist/slidetake.js` into your site, or `npm install slidetake` and serve `node_modules/slidetake/dist/slidetake.js`.
 
-The page then shows that deck as a viewer: read-only, with no editor, camera or Studio, and no bottom bar. The header carries Slidetake, the layouts, light/dark, Keys and Fullscreen. See [examples/embed.html](examples/embed.html); the [hugo-continuum](https://github.com/sakthipriyan/hugo-continuum) theme uses it for slide pages with `engine: slidetake`.
+The page then shows that deck as a viewer: read-only, with no editor, camera or Studio, and no bottom bar. The header carries Slidetake, the layouts, and icons for light/dark, Keys and Fullscreen. See [examples/embed.html](examples/embed.html); the [hugo-continuum](https://github.com/sakthipriyan/hugo-continuum) theme uses it for slide pages with `engine: slidetake`.
 
 To record a video of an embedded deck, open its markdown on slidetake.com or with `npx slidetake`, or set `recording: true` on a page only you see, such as your site's local preview: the page gets ● Studio, Camera and the bottom bar, as on slidetake.com. hugo-continuum does this under `hugo server`, so the live site stays a viewer. `accent:`, `brand:` and `logo:` in a deck's top block give the video your site's look.
 

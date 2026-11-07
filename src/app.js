@@ -3690,9 +3690,13 @@ if (EMBED){
   const actions = document.querySelector('header .hdr-actions');
   actions.insertBefore(credit, actions.firstChild);
   if (!RECORDING_UI){
+    // icons only, beside light/dark: a site's header has little room
+    const svg = d=>'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">' + d + '</svg>';
     actions.insertAdjacentHTML('beforeend',
-      '<button class="btn" id="hdr-keys" title="Keyboard shortcuts (K)">⌨ Keys</button>' +
-      '<button class="btn" id="hdr-full" title="Fullscreen (F)">⛶ Fullscreen</button>');
+      '<button class="btn icon" id="hdr-keys" title="Keyboard shortcuts (K)" aria-label="Keyboard shortcuts">' +
+        svg('<rect x="2" y="5" width="20" height="14" rx="2"/><path d="M6 9h.01M10 9h.01M14 9h.01M18 9h.01M6 13h.01M18 13h.01M8 16h8M10 13h4"/>') + '</button>' +
+      '<button class="btn icon" id="hdr-full" title="Fullscreen (F)" aria-label="Fullscreen">' +
+        svg('<path d="M8 3H5a2 2 0 0 0-2 2v3M21 8V5a2 2 0 0 0-2-2h-3M3 16v3a2 2 0 0 0 2 2h3M16 21h3a2 2 0 0 0 2-2v-3"/>') + '</button>');
     document.getElementById('hdr-keys').onclick = ()=>document.getElementById('help').classList.add('open');
     document.getElementById('hdr-full').onclick = ()=>setPresent(!presenting);
   }
