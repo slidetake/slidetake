@@ -5743,7 +5743,7 @@ write -&gt; present -&gt; record
         if (!vt) throw new Error(part.title + " has no video");
         if (!vSrc) {
           vSrc = new MB.EncodedVideoPacketSource(await vt.getCodec());
-          out.addVideoTrack(vSrc, { frameRate: FPS });
+          out.addVideoTrack(vSrc);
           if (at) {
             aSrc = reencode ? new MB.AudioSampleSource({ codec: mp4 ? "aac" : "opus", bitrate: AUDIO_BITRATE }) : new MB.EncodedAudioPacketSource(await at.getCodec());
             out.addAudioTrack(aSrc);

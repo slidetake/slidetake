@@ -12,6 +12,14 @@ package can notice. Tests, CI and tooling do not belong here.
 
 ## [Unreleased]
 
+### Fixed
+
+- A downloaded video no longer stutters where the recording was smooth: the
+  join kept each frame on a 1/30-second grid, so two frames that came a few
+  milliseconds apart landed on one slot, one of them hidden and the next slot
+  left empty. Each frame now keeps its own time. Download again to get it; the
+  takes don't change (#35).
+
 ## [0.5.5] - 2026-11-07
 
 ### Changed

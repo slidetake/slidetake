@@ -3016,7 +3016,9 @@ async function downloadVideo(force){
       if (!vt) throw new Error(part.title + ' has no video');
       if (!vSrc){
         vSrc = new MB.EncodedVideoPacketSource(await vt.getCodec());
-        out.addVideoTrack(vSrc, {frameRate:FPS});
+        // no frame rate: a track given one snaps every frame to its 1/30 s slots, and the capture's frames come a few
+        // ms early or late, so two would share a slot (one hidden, the next slot empty): a stutter in a smooth take
+        out.addVideoTrack(vSrc);
         if (at){
           aSrc = reencode ? new MB.AudioSampleSource({codec:mp4 ? 'aac' : 'opus', bitrate:AUDIO_BITRATE}) : new MB.EncodedAudioPacketSource(await at.getCodec());
           out.addAudioTrack(aSrc);
