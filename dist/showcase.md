@@ -101,7 +101,7 @@ digraph { rankdir=LR; node [shape=box style=rounded]; Takes -> Studio -> Video -
 
 ## 📊 Charts {#charts}
 
-ECharts, as a fenced `echarts` block of JSON options.
+ECharts, as a fenced `echarts` block of JSON options. They grow in as you arrive; go back and they're already drawn.
 
 ### A bar chart
 
@@ -142,7 +142,7 @@ An image beside text makes a split card. Write the text first and the image move
 
 ### A gallery
 
-A list of images is a gallery. With `<!-- steps -->` it becomes a carousel: one image at a time, the next on each press. Diagrams and charts work the same, and after `<!-- steps -->` two or more of them in a row are a carousel without the list.
+A list of images is a gallery. With `<!-- steps -->` it becomes a carousel: one image at a time, the next on each press.
 
 <!-- steps -->
 - ![The logo](https://slidetake.com/favicon.svg)
@@ -159,7 +159,7 @@ Several images in one paragraph sit side by side, up to four a row:
 
 <!-- view: full -->
 
-![A card tagged view: full is a 16:9 frame for a big image](https://slidetake.com/og.jpg)
+![A card tagged view: full is a frame for a big image or a chart: 16:9, or 9:16 in a Short](https://slidetake.com/og.jpg)
 
 ## ▶️ YouTube
 

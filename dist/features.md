@@ -17,7 +17,7 @@ The complete list, one line each. Press → to walk it, **O** for the map.
 | **One file** | any editor, versioned in git, reviewed like code |
 | **Steps, diagrams, charts** | Graphviz, D2, SVG and ECharts as text |
 | **Image cards** | laid out by shape: beside text, across the card, galleries, carousels, grids |
-| **Full-screen cards** (`view: full`) | a 16:9 frame for a big image |
+| **Full-screen cards** (`view: full`) | a frame for a big image or a chart: 16:9, or 9:16 in a Short |
 | **YouTube** | plays on the next press, pauses when you leave |
 | **reveal.js and `+++` decks** | open as they are |
 
@@ -30,6 +30,7 @@ The complete list, one line each. Press → to walk it, **O** for the map.
 | **Map moments** (`view: overview`) | open a chapter on the big picture |
 | **Steady text** | one size per section, so slides don't jump |
 | **Short flights** | camera moves made to read well on video |
+| **Charts that grow in** | drawn as you arrive going forward; going back they're already there, so a retake stays clean |
 | **Progress and timer** | a bar that fills, and a clock that tells you if you're behind |
 
 ### The camera is part of the deck
@@ -39,7 +40,7 @@ The complete list, one line each. Press → to walk it, **O** for the map.
 | **Webcam in its box** | you and the slides in one recording, no compositing |
 | **Camera per slide** | corner, size, side, circle, full screen, behind the slide or off |
 | **Words around you** (`behind left`…) | the slide's content beside, above or below you, on a see-through card, a solid one (split screen) or none |
-| **Smooth moves** | the camera glides between corner, full frame and split screen, and swaps sides with the words |
+| **Smooth moves** | the camera glides between corner, full frame and split screen, swaps sides with the words, and cross-fades between a split screen and a card |
 | **Steps on one slide** | open on you, then reveal the slide |
 | **Camera layouts** (V) | try them live, without editing the deck |
 | **Off until you turn it on** | the slides get the whole screen; a slide built around you shows an empty frame; a reload remembers it |
@@ -63,6 +64,7 @@ Two modes, the same takes: **easy** in the browser, **pro** with OBS.
 | **Takes per slide** (←) | every attempt kept; recording never stops |
 | **Pause and resume** (B) | step away without a gap to cut |
 | **Clicker support** | any Bluetooth presenter remote moves the deck |
+| **Shorts and Reels** (`format: portrait`) | a 9:16 deck and video, the words above or below you; New → Short starts one |
 
 ### Easy mode: in the browser
 
@@ -70,7 +72,7 @@ For Chrome, Edge or another Chromium browser, on a screen with enough pixels: 19
 
 | Feature | Advantage |
 |---|---|
-| **Nothing to install** | the deck records itself in a 16:9 frame, on a screen of any shape |
+| **Nothing to install** | the deck records itself in a 16:9 frame (9:16 for a Short), on a screen of any shape |
 | **Retake any slide later** | tick slides and record just those; an edited slide's takes are marked outdated |
 | **Takes kept in the browser** | every take, from every recording, until you purge them |
 
@@ -82,7 +84,6 @@ For Safari, Firefox or any browser, a screen too small for easy mode, or whateve
 |---|---|
 | **[OBS](https://obsproject.com), driven by the deck** | it starts and stops for you; you only talk |
 | **16:9 check** | Setup warns before a video with bars; use a 16:9 screen, physical or virtual |
-| **Shorts and Reels** (`format: portrait`) | a 9:16 deck and video, the words above or below you; New → Short starts one |
 
 ## ✂️ Edit by picking the best take
 
