@@ -117,9 +117,9 @@ Plain markdown, and the layout follows from what's on the card. [See every one i
 | ` ```echarts ` with JSON options | a chart, in the deck's colours |
 | ` ```svg ` | an SVG drawing: `currentColor` and `var(--text)`, `var(--accent)` follow dark and light |
 | a YouTube link alone on a line | the video: the next press plays it |
-| `<!-- view: full -->` | a 16:9 card for a big image |
+| `<!-- view: full -->` | a frame for a big image or a chart: 16:9, or 9:16 in a portrait deck |
 
-The first and last cards animate in on their own.
+The first and last cards animate in on their own. Charts grow in when you arrive going forward; going back, they're already drawn, so a take that steps back stays clean.
 
 ### Images
 
@@ -227,7 +227,7 @@ Two modes, both slide by slide, so there's no timeline to edit afterwards. **●
     <rect x="180" y="50" width="150" height="80" rx="14" style="fill:var(--accent);fill-opacity:.06;stroke:var(--accent);stroke-opacity:.45" stroke-width="1.5"/>
     <text x="255" y="84">Chrome or Edge</text>
     <rect x="374" y="50" width="150" height="80" rx="14" style="fill:var(--accent);fill-opacity:.06;stroke:var(--accent);stroke-opacity:.45" stroke-width="1.5"/>
-    <text x="449" y="84">records the</text><text x="449" y="104">16:9 frame</text>
+    <text x="449" y="84">records the</text><text x="449" y="104">deck's frame</text>
     <rect x="568" y="50" width="150" height="80" rx="14" style="fill:var(--accent);fill-opacity:.06;stroke:var(--accent);stroke-opacity:.45" stroke-width="1.5"/>
     <text x="643" y="84">takes kept</text><text x="643" y="104">in the browser</text>
     <rect x="762" y="50" width="150" height="80" rx="14" style="fill:var(--node-bg)"/>
@@ -257,14 +257,14 @@ Two modes, both slide by slide, so there's no timeline to edit afterwards. **●
 |---|---|---|
 | Install | nothing | [OBS Studio](https://obsproject.com) and [ffmpeg](https://ffmpeg.org), both free; a virtual display if your screen isn't 16:9 |
 | Browser | Chrome, Edge or another Chromium browser | any: Safari and Firefox too |
-| Screen | any shape: the deck is recorded in a 16:9 frame | a 16:9 screen, physical or virtual |
+| Screen | any shape: the deck is recorded in a 16:9 frame (9:16 for a [Short](#shorts-and-reels)) | a 16:9 screen, physical or virtual |
 | Quality | 1080p, or 720p on a smaller screen | whatever OBS records |
 | Final video | **Download** joins the picked takes, in the browser | an ffmpeg command |
 
 ### Easy mode: record in the browser
 
 1. **● Record** (R) the first time opens **⚙ Setup**: pick your camera (or **No camera**, and **Mirror** if you want it flipped; off, it shows you as others see you) and microphone. Recording turns the camera on and off by itself.
-2. **● Record** again, and share **this tab** when the browser asks. Only the 16:9 frame is recorded: slides and camera.
+2. **● Record** again, and share **this tab** when the browser asks. Only the frame is recorded (16:9, or 9:16 for a Short): slides and camera.
 3. Next time, **● Record** carries on with the slides that have no take yet. When every slide has one, it records from the slide on screen to the end.
 
 For 1080p the frame needs 1920×1080 real pixels (a Retina laptop has them); 1280×720 makes 720p. Smaller: use pro mode.
@@ -354,7 +354,7 @@ Words you can combine: `on`, `off`, `full`, `behind` (next), a size like `30%`, 
 <!-- camera: behind bottom clear -->  ← no card, for a plain wall
 ```
 
-It stays on its slide; `pip: behind` makes it the whole deck's. With the camera off, the slide still shows this way, over an empty frame.
+It stays on its slide; `pip: behind` makes it the whole deck's. Between a split slide and a plain card the move is a cross-fade where the cards stand, not a flight across the map. With the camera off, the slide still shows this way, over an empty frame.
 
 ### Shorts and Reels
 

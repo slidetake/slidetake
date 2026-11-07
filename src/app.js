@@ -323,6 +323,7 @@ function computePipState(){
   return st;
 }
 function applyPipState(){
+  if (layoutHold) return;
   const first = (!pipEl.hidden && pipEl.offsetWidth) ? pipEl.getBoundingClientRect() : null;
   const st = pipState = computePipState();
   // the overview and a map moment show the map, not the words around you: the camera waits in its corner
@@ -378,7 +379,15 @@ function applyPipState(){
 // shrinks rather than spilling onto the person. Redrawn at every step, so reveals show as they happen.
 const camOverlay = document.getElementById('cam-overlay');
 let camPlace = '';
+// the overlay's charts are drawn afresh, not copied, so they grow in there too (going forward, as on the card);
+// a redraw on the same slide (each step, a resize) moves the same charts across, so one still growing carries on
+/** @type {HTMLElement[]} */
+let camCharts = [];
+let camChartsFor = null;
 function renderCamOverlay(place){
+  const keep = camChartsFor === currentId ? camCharts : [];
+  if (!keep.length && window.echarts) camCharts.forEach(d=>{ const c = echarts.getInstanceByDom(d); if (c) c.dispose(); });
+  camCharts = [];
   // where the words were, so a move to the other side (left ↔ right, top ↔ bottom) slides them across
   const was = camPlace, wasBox = camOverlay.querySelector('.cam-box'), from = wasBox && wasBox.getBoundingClientRect();
   camPlace = place;
@@ -386,7 +395,7 @@ function renderCamOverlay(place){
   camOverlay.innerHTML = '';
   const n = place && nodes.get(currentId);
   // (a re-read deck has its cards before they're built: the overlay comes back once they are)
-  if (!n || !n.el) return;
+  if (!n || !n.el){ camChartsFor = null; return; }
   const body = n.el.querySelector('.body');
   // the copy shows the slide as it ends up: an entrance still playing on the card (a fade, a deck's scrambling title)
   // would otherwise be copied half-done, or invisible
@@ -427,6 +436,21 @@ function renderCamOverlay(place){
   });
   camOverlay.querySelectorAll('img').forEach(img=>{ if (!img.complete) img.addEventListener('load', fitCamOverlay, {once:true}); });
   fitCamOverlay();
+  if (window.echarts){
+    const originals = [...body.querySelectorAll('.echarts-container')];
+    camOverlay.querySelectorAll('.echarts-container').forEach((div, i)=>{
+      const opt = originals[i] && /** @type {any} */ (originals[i])._opt;
+      if (!opt) return;
+      const live = keep[i];
+      if (live){ div.replaceWith(live); camCharts.push(live); return; }
+      const box = /** @type {HTMLElement} */ (div);
+      box.removeAttribute('_echarts_instance_');
+      box.innerHTML = '';
+      echarts.init(box, chartTheme(), {renderer:'svg'}).setOption(chartOption(opt, forwardArrival()));
+      camCharts.push(box);
+    });
+  }
+  camChartsFor = currentId;
   // swapping sides: the words slide over as the camera slides the other way, passing each other
   const nowBox = /** @type {HTMLElement|null} */ (camOverlay.querySelector('.cam-box'));
   if (from && was && was !== place && nowBox && !reduceMotion && nowBox.animate){
@@ -960,13 +984,12 @@ function registerChartTheme(name, t, accent){
     legend: {textStyle: {color: t.text}},
     tooltip: {backgroundColor: t.tip, borderColor: t.line, textStyle: {color: t.text}},
     categoryAxis: axis, valueAxis: axis, logAxis: axis, timeAxis: axis,
-    line: {symbolSize: 6, lineStyle: {width: 2.5}},
     // ECharts' own pie labels are #333 with a white outline: a dark smudge in a white halo on a dark card
     pie: {label: {color: t.text, textBorderWidth: 0}, labelLine: {lineStyle: {color: t.muted}}},
     funnel: {label: {color: t.text, textBorderWidth: 0}},
     // and a bar's or line's value label the same, in the text colour with no outline
     bar: {label: {color: t.text, textBorderWidth: 0}},
-    line: {label: {color: t.text, textBorderWidth: 0}},
+    line: {symbolSize: 6, lineStyle: {width: 2.5}, label: {color: t.text, textBorderWidth: 0}},
   });
 }
 // D2 (https://d2lang.com) ships as an ES module; it loads only when a deck has a ```d2 block
@@ -1010,6 +1033,27 @@ function loadScript(url){
   }));
 }
 let buildGen = 0, viz = null;
+// a chart's option as drawn: grown in (a slide being reached) or already finished
+function chartOption(opt, grow){
+  return Object.assign({backgroundColor:'transparent', animationDelay:300}, opt, {animation:grow && !reduceMotion});
+}
+// a slide reached going forward (a recording's start and a retake included) grows its charts in; going back to
+// one shows them as they were, so a take that steps back has no chart redrawing itself
+let entryReplay = false;
+function forwardArrival(){
+  if (entryReplay) return true;
+  const from = order.indexOf(arrivedFrom), to = order.indexOf(currentId);
+  return from < 0 || to > from;
+}
+function playCharts(n){
+  if (reduceMotion || !window.echarts || !forwardArrival()) return;
+  n.el.querySelectorAll('.echarts-container').forEach(div=>{
+    const c = echarts.getInstanceByDom(div);
+    if (!c || !div._opt) return;
+    c.clear();
+    c.setOption(chartOption(div._opt, true));
+  });
+}
 async function renderRich(){
   const gen = buildGen;
   const dots = [...world.querySelectorAll('.node pre > code.language-dot')];
@@ -1065,16 +1109,20 @@ async function renderRich(){
         let opt;
         try { opt = JSON.parse(div.dataset.chart); }
         catch(e){ div.textContent = 'Chart data is not valid JSON.'; return; }
+        div._opt = opt;
         // SVG stays sharp however far the camera zooms in
         const chart = echarts.init(div, theme, {renderer:'svg'});
-        // the camera's placement copies the chart: copy it again once its bars have grown
-        chart.on('finished', ()=>{ if (camPlace && div.closest('.node') === (nodes.get(currentId) || {}).el) renderCamOverlay(camPlace); });
-        chart.setOption(Object.assign({backgroundColor:'transparent', animation:!reduceMotion}, opt));
+        // drawn finished: a chart grows in when its slide is reached (playCharts), not here, off screen;
+        // only the slide already showing grows now
+        const here = div.closest('.node') === (nodes.get(currentId) || {}).el;
+        chart.setOption(chartOption(opt, here));
       });
     } catch(e){ problems.push('charts'); }
   }
   if (gen !== buildGen) return;
-  // the camera's placement copies the card, so it takes the diagrams and charts now drawn
+  // the camera's placement copies the card, so it takes the diagrams and charts now drawn (charts afresh:
+  // a rebuild may have changed the theme)
+  camChartsFor = null;
   if (camPlace) renderCamOverlay(camPlace);
   if (problems.length) statusErr.textContent = 'Could not load the ' + problems.join(' and ') + ' renderer (offline?)';
   // diagrams and charts change card sizes
@@ -1413,8 +1461,10 @@ function autoEntrance(n){
   return [...n.el.querySelector('.body').children].filter(el=>!el.classList.contains('fragment'));
 }
 function playEntrances(n){
-  if (n._played || !window.gsap || reduceMotion) return;
+  if (n._played) return;
   n._played = true;
+  playCharts(n);
+  if (!window.gsap || reduceMotion) return;
   const auto = autoEntrance(n);
   if (auto && auto.length){
     n._auto = auto;
@@ -1480,6 +1530,8 @@ function setHash(id){
 }
 function navigate(id, instant, atLastStep){
   if (!nodes.has(id)) return;
+  endLayoutFade();
+  const fromSplit = !!camPlace;
   if (id !== currentId){
     camManual = null; camCycle = -1;
     stepPos = atLastStep ? slideSteps(nodes.get(id)).length - 1 : 0;
@@ -1500,10 +1552,14 @@ function navigate(id, instant, atLastStep){
     const el = nodes.get(id).el;
     el.classList.add('entering'); void el.offsetWidth; el.classList.remove('entering');
   }
+  const n = nodes.get(id);
+  const fade = arriving && !instant && !reduceMotion && !!stage.animate && !n.mapFirst && fromSplit !== splitIn(computePipState());
+  // leaving a split, the camera and the words stay as they are while the card fades in over them
+  if (fade && fromSplit) layoutHold = true;
   applyStepState(arriving);
   if (arriving && !quietArrival) logTake('slide', id);
-  const n = nodes.get(id);
-  if (arriving && n.mapFirst && !atLastStep && !instant && layoutMode !== 'focus'){
+  if (fade) fadeLayout(id, fromSplit);
+  else if (arriving && n.mapFirst && !atLastStep && !instant && layoutMode !== 'focus'){
     // a map moment: show the whole deck for a beat, then fly in
     fitAll();
     mapTimer = setTimeout(()=>{ mapTimer = null; if (currentId === id){ applyPipState(); focusOn(id); } }, 1900);
@@ -1514,6 +1570,35 @@ function navigate(id, instant, atLastStep){
   setHash(id);
 }
 let mapTimer = null;
+// Between a split (the words beside you) and a card the canvas is out of sight on one side, so a flight across it
+// would come into view halfway. Instead the card fades where it stands: in over the split, or out off the split
+// that comes up from under it
+let layoutHold = false, layoutFade = null;
+/** @param {any} st */
+function splitIn(st){ return !!(st.behind && st.place && !st.off); }
+function fadeLayout(id, fromSplit){
+  if (fromSplit){
+    focusOn(id, true);
+    // the canvas kept out of sight can come back painted as it was, at another scale (text the wrong size): repaint it
+    world.style.display = 'none'; void world.offsetWidth; world.style.display = '';
+  }
+  stage.classList.add('layout-fade');
+  const a = stage.animate([{opacity:fromSplit ? 0 : 1}, {opacity:fromSplit ? 1 : 0}], {duration:450, easing:'ease-in-out'});
+  layoutFade = ()=>{
+    layoutFade = null;
+    a.cancel();
+    stage.classList.remove('layout-fade');
+    if (layoutHold){
+      layoutHold = false;
+      // a camera going to a corner fades in there, rather than shrinking out of the frame over the card
+      if (!computePipState().behind) pipEl.hidden = true;
+      applyPipState();
+    }
+    if (!fromSplit && currentId) focusOn(currentId, true);
+  };
+  a.onfinish = ()=>{ if (layoutFade) layoutFade(); };
+}
+function endLayoutFade(){ if (layoutFade) layoutFade(); }
 // the slide the current one was reached from, and a move that is not a new take (a retake replaying its entry)
 let arrivedFrom = null, quietArrival = false;
 // the slide being left goes back to its finished state
@@ -2368,8 +2453,7 @@ async function startTake(kind, only){
     return;
   }
   // the first slide starts now: replay its entrances on camera and log chapter 0:00
-  resetEntrances(first);
-  applyStepState(true);
+  replayEntry(first);
   logTake('slide', currentId);
 }
 function abortTake(message){
@@ -2482,11 +2566,17 @@ async function obsHold(){
   if (ev) ev.skip = OBS_HOLD / 2;
   await wait(OBS_HOLD);
 }
+// the current slide's entry plays again in place (a restart, a recording's first slide): its charts grow again too
+function replayEntry(n){
+  resetEntrances(n);
+  entryReplay = true; camChartsFor = null;
+  applyStepState(true);
+  entryReplay = false;
+}
 async function restartSlide(n){
   retaking = true;
   stepPos = 0; camManual = null; camCycle = -1;
-  resetEntrances(n);
-  applyStepState(true);
+  replayEntry(n);
   if (!cameraStream && !pipEl.hidden && pipState.used) startWebcam(); else refocus();
   updateActivePath();
   logTake('retake', currentId);

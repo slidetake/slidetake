@@ -226,7 +226,7 @@ One line, `accent: "#3b82f6"`, gives a deck its own colour, shaded for dark and 
   <text x="156" y="58" font-size="21" font-weight="700" style="fill:var(--accent)">Easy mode</text>
   <text x="156" y="88" font-size="15" fill="currentColor">Chrome or Edge, nothing to install</text>
   <text x="156" y="114" font-size="15" fill="currentColor">The deck records itself: slides and</text>
-  <text x="156" y="136" font-size="15" fill="currentColor">camera in one 16:9 frame, at 1080p</text>
+  <text x="156" y="136" font-size="15" fill="currentColor">camera in one frame: 16:9, or 9:16</text>
 
   <!-- pro mode -->
   <rect x="494" y="10" width="452" height="170" rx="18" style="fill:var(--accent);fill-opacity:.06;stroke:var(--accent);stroke-opacity:.5" stroke-width="1.5"/>
@@ -240,6 +240,10 @@ One line, `accent: "#3b82f6"`, gives a deck its own colour, shaded for dark and 
 ```
 
 Press **<span class="st-rec">● Record</span>** (R). **Every slide is a take:** stumbled? Press ← and say it again. Every attempt is kept, and recording carries on.
+
+### Shorts and Reels too
+
+`format: portrait` makes the deck a 9:16 column and its video 1080×1920, recorded the same way, slide by slide, with the words above or below you. **New → Short** starts one.
 
 ## ✂️ Edit by picking the best take
 

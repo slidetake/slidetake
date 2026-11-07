@@ -68,7 +68,7 @@ For OBS, Studio's ⚙ Setup asks where OBS is, or fill it in from the address (t
 ?obs=192.168.1.10:4455:password
 ```
 
-In Chrome, Edge and other Chromium browsers the deck records itself, nothing to install: slides and camera in a 16:9 frame, one file per take, and ↓ Download joins the picked takes into an MP4. In any browser, [OBS Studio](https://obsproject.com) (free, with its WebSocket server on) can record while Slidetake drives it; Setup checks the screen is 16:9, so the video fits YouTube without bars.
+In Chrome, Edge and other Chromium browsers the deck records itself, nothing to install: slides and camera in a 16:9 frame (9:16 for a Short), one file per take, and ↓ Download joins the picked takes into an MP4. In any browser, [OBS Studio](https://obsproject.com) (free, with its WebSocket server on) can record while Slidetake drives it; Setup checks the screen is 16:9, so the video fits YouTube without bars.
 
 Recording is on slidetake.com and `npx slidetake`; decks embedded with `slidetake.js` are view-only.
 
@@ -98,7 +98,7 @@ window.SLIDETAKE = {
   recording: false                                    // optional: true brings back ● Studio, for your own preview
 };
 </script>
-<script src="https://cdn.jsdelivr.net/npm/slidetake@0.5.4/dist/slidetake.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/slidetake@0.5.5/dist/slidetake.js"></script>
 ```
 
 `colors` takes any CSS colour per token, for both modes or under `light` / `dark`: `accent` (text and the current slide), `accentSoft` (smaller headings), `line` (borders and the active path), `ring` (the current slide's outline), `header` and `headerText` (a band of colour behind the header). A deck can also set its own with `accent:` in its top block.

@@ -12,6 +12,25 @@ package can notice. Tests, CI and tooling do not belong here.
 
 ## [Unreleased]
 
+## [0.5.5] - 2026-11-07
+
+### Changed
+
+- A chart grows in when you reach its slide going forward, the camera's
+  copy beside you too; going back to it shows it already drawn, so a take that
+  steps back has no chart redrawing itself. A retake, a restarted slide and a
+  recording's first slide grow it again.
+- Moving between a split slide (the words beside you) and a plain card is a
+  cross-fade where the cards stand, instead of a flight across the map that
+  came into view halfway.
+- The Home page, Features, Showcase and Docs cover Shorts in easy mode, full
+  cards that are 9:16 in a portrait deck and hold a chart, and when charts
+  animate.
+
+### Fixed
+
+- A line chart's lines and points are their intended width and size again.
+
 ## [0.5.4] - 2026-11-07
 
 ### Changed
