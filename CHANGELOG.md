@@ -12,6 +12,13 @@ package can notice. Tests, CI and tooling do not belong here.
 
 ## [Unreleased]
 
+### Fixed
+
+- A downloaded video no longer freezes for a moment where two takes join: a
+  take whose first frame came a little after its recorder started now starts at
+  that frame, its sound too. Download again to get it; the takes don't change
+  (#35).
+
 ## [0.5.1] - 2026-11-06
 
 ### Added

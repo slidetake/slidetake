@@ -14,7 +14,7 @@ import {normalizeSource, shortLink} from './core/source.js';
 import {encodeDeck, decodeDeck, parseHash, deckHash} from './core/share.js';
 import {routeOf, originLabel, makeCopy, isEdited, matchesOrigin, parseCopy} from './core/doc.js';
 import {youtubeVideo, embedUrl} from './core/media.js';
-import {QUALITIES, AUDIO_BITRATE, FPS, bestQuality, turned, recordingType, clipExt, bytesPerMinute, clipPlan, afterPrevious, deviceName, sizeName} from './core/record.js';
+import {QUALITIES, AUDIO_BITRATE, FPS, bestQuality, turned, leadIn, recordingType, clipExt, bytesPerMinute, clipPlan, afterPrevious, deviceName, sizeName} from './core/record.js';
 import {YOUTUBE_LUFS, MAX_BOOST_DB, loudnessMeter, gainToTarget, dbToGain, peakLimiter} from './core/loudness.js';
 import {fingerprint, deckSlides, takesFromRun, boardRows, boardSession, selectedInOrder, rangeOf} from './core/board.js';
 import {takesOf, pickedRanges, mergedRanges, sessionFps, baseName, sectionChapters as sectionChaptersCore,
@@ -2944,20 +2944,25 @@ async function downloadVideo(force){
         await out.start();
       }
       const vMeta = {decoderConfig:await vt.getDecoderConfig()};
+      // a take's picture can start a moment after its recorder did (the capture sends a frame only when something
+      // on screen changes): the take starts at its first frame, and its sound from there too, so the joined video
+      // doesn't freeze on the take before while the sound runs on
+      const firstPk = await new MB.EncodedPacketSink(vt).getFirstPacket();
+      const t0 = leadIn(firstPk ? firstPk.timestamp : 0);
       // the take ends where the next one began; frames after that belong to the next take
       let end = 0, first = true;
       for await (const pk of new MB.EncodedPacketSink(vt).packets()){
         if (pk.timestamp >= part.keep) continue;
-        lastV = afterPrevious(lastV, offset + pk.timestamp);
+        lastV = afterPrevious(lastV, offset + pk.timestamp - t0);
         await vSrc.add(pk.clone({timestamp:lastV}), first && i === 0 ? vMeta : undefined);
         first = false;
-        end = Math.max(end, pk.timestamp + pk.duration);
+        end = Math.max(end, pk.timestamp - t0 + pk.duration);
       }
       // the sound stops with the picture, so the next take's sound starts where its picture does
       if (at && aSrc && reencode){
-        for await (const smp of new MB.AudioSampleSink(at).samples(0, end)){
-          if (smp.timestamp + smp.duration > end + 1e-4){ smp.close(); continue; }
-          lastA = afterPrevious(lastA, offset + smp.timestamp);
+        for await (const smp of new MB.AudioSampleSink(at).samples(t0, t0 + end)){
+          if (smp.timestamp < t0 - 1e-4 || smp.timestamp - t0 + smp.duration > end + 1e-4){ smp.close(); continue; }
+          lastA = afterPrevious(lastA, offset + smp.timestamp - t0);
           const planes = planesOf(smp);
           planes.forEach(p=>{ for (let k = 0; k < p.length; k++) p[k] *= gain; });
           if (useLimiter){
@@ -2979,8 +2984,8 @@ async function downloadVideo(force){
         const aMeta = {decoderConfig:await at.getDecoderConfig()};
         let aFirst = true;
         for await (const pk of new MB.EncodedPacketSink(at).packets()){
-          if (pk.timestamp + pk.duration > end + 1e-4) continue;
-          lastA = afterPrevious(lastA, offset + pk.timestamp);
+          if (pk.timestamp < t0 - 1e-4 || pk.timestamp - t0 + pk.duration > end + 1e-4) continue;
+          lastA = afterPrevious(lastA, offset + pk.timestamp - t0);
           await aSrc.add(pk.clone({timestamp:lastA}), aFirst && i === 0 ? aMeta : undefined);
           aFirst = false;
         }

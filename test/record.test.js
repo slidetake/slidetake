@@ -1,6 +1,6 @@
 import {test} from 'node:test';
 import assert from 'node:assert/strict';
-import {frame16x9, bestQuality, turned, recordingType, clipExt, bytesPerMinute, QUALITIES, clipPlan, afterPrevious, deviceName, sizeName} from '../src/core/record.js';
+import {frame16x9, bestQuality, turned, leadIn, recordingType, clipExt, bytesPerMinute, QUALITIES, clipPlan, afterPrevious, deviceName, sizeName} from '../src/core/record.js';
 
 test('the 16:9 frame fits the area and is centred', ()=>{
   assert.deepEqual(frame16x9(1440, 900), {w: 1440, h: 810, x: 0, y: 45});      // 16:10: bars top and bottom
@@ -88,4 +88,10 @@ test('video sizes read as 1080p, or 1080p portrait when taller than wide', ()=>{
   assert.equal(sizeName(1920, 1080), '1080p');
   assert.equal(sizeName(1280, 720), '720p');
   assert.equal(sizeName(1080, 1920), '1080p portrait');
+});
+
+test('a take starts at its first frame when that came late', ()=>{
+  assert.equal(leadIn(0), 0);
+  assert.equal(leadIn(0.02), 0);           // within a frame: as recorded
+  assert.equal(leadIn(0.2), 0.2);          // a late first frame: start there, so the join doesn't freeze
 });

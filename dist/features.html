@@ -2252,6 +2252,7 @@
     return out;
   }
   var afterPrevious = (prev, t) => t > prev ? t : prev + 1e-3;
+  var leadIn = (first) => first > 1 / FPS ? first : 0;
   var deviceName = (label) => label.replace(/\s*\([0-9a-f]{4}:[0-9a-f]{4}\)\s*$/i, "");
   var sizeName = (w, h) => Math.min(w, h) + "p" + (h > w ? " portrait" : "");
 
@@ -5761,21 +5762,23 @@
           await out.start();
         }
         const vMeta = { decoderConfig: await vt.getDecoderConfig() };
+        const firstPk = await new MB.EncodedPacketSink(vt).getFirstPacket();
+        const t0 = leadIn(firstPk ? firstPk.timestamp : 0);
         let end = 0, first = true;
         for await (const pk of new MB.EncodedPacketSink(vt).packets()) {
           if (pk.timestamp >= part.keep) continue;
-          lastV = afterPrevious(lastV, offset + pk.timestamp);
+          lastV = afterPrevious(lastV, offset + pk.timestamp - t0);
           await vSrc.add(pk.clone({ timestamp: lastV }), first && i === 0 ? vMeta : void 0);
           first = false;
-          end = Math.max(end, pk.timestamp + pk.duration);
+          end = Math.max(end, pk.timestamp - t0 + pk.duration);
         }
         if (at && aSrc && reencode) {
-          for await (const smp of new MB.AudioSampleSink(at).samples(0, end)) {
-            if (smp.timestamp + smp.duration > end + 1e-4) {
+          for await (const smp of new MB.AudioSampleSink(at).samples(t0, t0 + end)) {
+            if (smp.timestamp < t0 - 1e-4 || smp.timestamp - t0 + smp.duration > end + 1e-4) {
               smp.close();
               continue;
             }
-            lastA = afterPrevious(lastA, offset + smp.timestamp);
+            lastA = afterPrevious(lastA, offset + smp.timestamp - t0);
             const planes = planesOf(smp);
             planes.forEach((p) => {
               for (let k = 0; k < p.length; k++) p[k] *= gain;
@@ -5797,8 +5800,8 @@
           const aMeta = { decoderConfig: await at.getDecoderConfig() };
           let aFirst = true;
           for await (const pk of new MB.EncodedPacketSink(at).packets()) {
-            if (pk.timestamp + pk.duration > end + 1e-4) continue;
-            lastA = afterPrevious(lastA, offset + pk.timestamp);
+            if (pk.timestamp < t0 - 1e-4 || pk.timestamp - t0 + pk.duration > end + 1e-4) continue;
+            lastA = afterPrevious(lastA, offset + pk.timestamp - t0);
             await aSrc.add(pk.clone({ timestamp: lastA }), aFirst && i === 0 ? aMeta : void 0);
             aFirst = false;
           }
