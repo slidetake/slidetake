@@ -14,6 +14,10 @@ package can notice. Tests, CI and tooling do not belong here.
 
 ### Fixed
 
+- Retaking a deck's first slide (← during its take) starts on that slide. It
+  started on whichever slide was on screen before you went back to the first
+  one, and flew or faded in from there. A retake's entry is now always from the
+  slide before it in the deck, as every take's is.
 - A take no longer loses about a quarter of a second as the camera's box starts
   to move (the words swapping sides, a split screen opening, the camera
   shrinking to its corner). Chrome's capture settles on the area that is moving,

@@ -2525,8 +2525,10 @@ let retaking = false;
 async function retake(){
   const n = nodes.get(currentId);
   if (!n || retaking) return;
-  const target = currentId, from = arrivedFrom;
-  if (!from || from === target || !nodes.has(from)){ restartSlide(n); return; }   // the first slide has no entry
+  // the entry is from the slide before in the deck, as every take's is: not the slide last on screen, which for
+  // the first slide could be any slide visited before recording
+  const target = currentId, from = order[order.indexOf(target) - 1];
+  if (!from){ restartSlide(n); return; }   // the first slide has no entry
   enterFresh(from, target, 'retake');
 }
 // The deck goes to `from` exactly as it ended, outside any take; then a new take of `target` starts and its

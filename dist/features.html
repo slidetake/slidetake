@@ -5280,8 +5280,8 @@
   async function retake() {
     const n = nodes.get(currentId);
     if (!n || retaking) return;
-    const target = currentId, from = arrivedFrom;
-    if (!from || from === target || !nodes.has(from)) {
+    const target = currentId, from = order[order.indexOf(target) - 1];
+    if (!from) {
       restartSlide(n);
       return;
     }
