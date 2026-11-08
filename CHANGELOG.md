@@ -14,6 +14,12 @@ package can notice. Tests, CI and tooling do not belong here.
 
 ### Fixed
 
+- A take no longer loses about a quarter of a second as the camera's box starts
+  to move (the words swapping sides, a split screen opening, the camera
+  shrinking to its corner). Chrome's capture settles on the area that is moving,
+  the live camera, and dropped frames while it found a new one; while a take
+  records, two out-of-sight specks in the frame's corners now change every
+  frame, so there is no new area to find (#35).
 - A downloaded video no longer stutters where the recording was smooth: the
   join kept each frame on a 1/30-second grid, so two frames that came a few
   milliseconds apart landed on one slot, one of them hidden and the next slot
