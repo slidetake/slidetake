@@ -474,7 +474,8 @@ function fitCamOverlay(){
     const media = /** @type {HTMLElement|null} */ (box.nextElementSibling);
     box.style.flex = ''; if (media) media.style.flex = '';
     const bw = box.clientWidth, bh = box.clientHeight;
-    let lo = 0.3, hi = most;
+    // above a picture the words are its title, kept smaller so the picture gets the height
+    let lo = 0.3, hi = media && media.classList.contains('fill') ? most * 0.65 : most;
     for (let i = 0; i < 12; i++){
       const s = (lo + hi) / 2;
       card.style.width = (bw / s) + 'px';
