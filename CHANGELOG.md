@@ -12,6 +12,15 @@ package can notice. Tests, CI and tooling do not belong here.
 
 ## [Unreleased]
 
+### Changed
+
+- A picture beside you (`behind left` or `right`, or a portrait deck's half)
+  fills its part of the half at its own shape, its caption under it, instead of
+  shrinking with the card's width: a phone screenshot runs most of the frame's
+  height. The words above it keep only the height they need, which gives a
+  diagram or chart beside you more room too. Pictures in a band along the top
+  or bottom are sized as before.
+
 ## [0.5.6] - 2026-11-08
 
 ### Fixed
