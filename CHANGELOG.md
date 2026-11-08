@@ -19,7 +19,8 @@ package can notice. Tests, CI and tooling do not belong here.
   shrinking with the card's width: a phone screenshot runs most of the frame's
   height. The words above it keep only the height they need, which gives a
   diagram or chart beside you more room too. Pictures in a band along the top
-  or bottom are sized as before.
+  or bottom are sized as before. A long caption there stays on one line, its
+  text a little smaller, so every picture in a carousel keeps one size.
 
 ## [0.5.6] - 2026-11-08
 

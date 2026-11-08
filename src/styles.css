@@ -814,7 +814,7 @@
   #cam-overlay .cam-media.fill .gallery.carousel{display:grid;grid-template-rows:minmax(0,1fr);}
   #cam-overlay .cam-media.fill :is(.gallery > li, figure.media){height:100%;min-height:0;display:flex;flex-direction:column;}
   #cam-overlay .cam-media.fill figure.media img{flex:1 1 0;min-height:0;width:100%;height:auto;max-height:none;object-fit:contain;}
-  #cam-overlay .cam-media.fill figure.media figcaption{flex:none;font-size:var(--cap, 13px);text-align:center;}
+  #cam-overlay .cam-media.fill figure.media figcaption{flex:none;font-size:var(--cap, 13px);line-height:calc(var(--cap, 13px) * 1.45);text-align:center;white-space:nowrap;}
   /* while presenting the box is empty so the camera overlay sits on plain background */
   /* while presenting, the empty box stays as a faint guide for lining up a camera overlay */
   body.presenting #pip{border-color:color-mix(in srgb, var(--accent-teal) 30%, transparent);background:none;}

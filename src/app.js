@@ -488,6 +488,16 @@ function fitCamOverlay(){
     }
     if (media) media.style.setProperty('--cap', Math.max(13, 13 * lo * 0.75) + 'px');
   });
+  // a caption under a picture stays on one line, its text a little smaller where it is long, so every picture in a
+  // carousel keeps one size; only one too long for that wraps
+  camOverlay.querySelectorAll('.cam-media.fill figcaption').forEach(c=>{
+    const cap = /** @type {HTMLElement} */ (c);
+    cap.style.fontSize = ''; cap.style.whiteSpace = '';
+    if (cap.scrollWidth <= cap.clientWidth) return;
+    const size = parseFloat(getComputedStyle(cap).fontSize), fit = size * cap.clientWidth / cap.scrollWidth * 0.98;
+    if (fit >= size * 0.6) cap.style.fontSize = fit + 'px';
+    else cap.style.whiteSpace = 'normal';
+  });
   camOverlay.querySelectorAll('.cam-media').forEach(box=>{
     if (box.classList.contains('fill')) return;
     const card = /** @type {HTMLElement} */ (box.firstElementChild);
