@@ -12,6 +12,8 @@ package can notice. Tests, CI and tooling do not belong here.
 
 ## [Unreleased]
 
+## [0.5.9] - 2026-11-08
+
 ### Changed
 
 - A chart that a step reveals (a chart after `<!-- steps -->`) grows in when it
