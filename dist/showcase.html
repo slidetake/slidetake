@@ -848,6 +848,14 @@
   #cam-overlay .cam-box.left .cam-text > .node, #cam-overlay .cam-box.right .cam-text > .node{transform-origin:0 50%;}
   #cam-overlay .cam-media > .node{position:absolute;left:50%;top:50%;transform-origin:50% 50%;}
   #cam-overlay .cam-media > .node > .body > *{margin:0;}
+  /* pictures beside you (an image, a carousel) fill their part of the region, as large as their shape allows */
+  #cam-overlay .cam-media.fill > .node{inset:0;width:auto;display:flex;}
+  #cam-overlay .cam-media.fill > .node > .body{flex:1;min-width:0;min-height:0;display:flex;flex-direction:column;}
+  #cam-overlay .cam-media.fill > .node > .body > *{flex:1 1 0;min-height:0;}
+  #cam-overlay .cam-media.fill .gallery.carousel{display:grid;grid-template-rows:minmax(0,1fr);}
+  #cam-overlay .cam-media.fill :is(.gallery > li, figure.media){height:100%;min-height:0;display:flex;flex-direction:column;}
+  #cam-overlay .cam-media.fill figure.media img{flex:1 1 0;min-height:0;width:100%;height:auto;max-height:none;object-fit:contain;}
+  #cam-overlay .cam-media.fill figure.media figcaption{flex:none;font-size:var(--cap, 13px);line-height:calc(var(--cap, 13px) * 1.45);text-align:center;white-space:nowrap;}
   /* while presenting the box is empty so the camera overlay sits on plain background */
   /* while presenting, the empty box stays as a faint guide for lining up a camera overlay */
   body.presenting #pip{border-color:color-mix(in srgb, var(--accent-teal) 30%, transparent);background:none;}
@@ -2794,7 +2802,9 @@ write -&gt; present -&gt; record
         inner.className = "body";
         kids.forEach((e) => inner.appendChild(e));
         card.appendChild(inner);
-        if (cls === "cam-media") card.style.width = cardWidth + "px";
+        const half = /^(left|right)$/.test(where) || isPortrait();
+        if (cls === "cam-media" && half && kids.every((e) => e.matches("figure.media:not(.yt), .gallery.carousel"))) wrap.classList.add("fill");
+        else if (cls === "cam-media") card.style.width = cardWidth + "px";
         wrap.appendChild(card);
         box.appendChild(wrap);
       };
@@ -2844,21 +2854,19 @@ write -&gt; present -&gt; record
   }
   function fitCamOverlay() {
     const most = stage.clientHeight / 240;
-    camOverlay.querySelectorAll(".cam-media").forEach((box) => {
-      const card = (
-        /** @type {HTMLElement} */
-        box.firstElementChild
-      );
-      const s = Math.min(box.clientWidth / card.offsetWidth, box.clientHeight / card.offsetHeight, most * 1.5);
-      card.style.transform = "translate(-50%, -50%) scale(" + s + ")";
-    });
     camOverlay.querySelectorAll(".cam-text").forEach((box) => {
       const card = (
         /** @type {HTMLElement} */
         box.firstElementChild
       );
+      const media = (
+        /** @type {HTMLElement|null} */
+        box.nextElementSibling
+      );
+      box.style.flex = "";
+      if (media) media.style.flex = "";
       const bw = box.clientWidth, bh = box.clientHeight;
-      let lo = 0.3, hi = most;
+      let lo = 0.3, hi = media && media.classList.contains("fill") ? most * 0.65 : most;
       for (let i = 0; i < 12; i++) {
         const s = (lo + hi) / 2;
         card.style.width = bw / s + "px";
@@ -2867,6 +2875,35 @@ write -&gt; present -&gt; record
       }
       card.style.width = bw / lo + "px";
       card.style.transform = "scale(" + lo + ")";
+      if (media && getComputedStyle(
+        /** @type {HTMLElement} */
+        box.parentElement
+      ).flexDirection === "column") {
+        box.style.flex = "0 0 " + Math.ceil(card.offsetHeight * lo) + "px";
+        media.style.flex = "1 1 0";
+      }
+      if (media) media.style.setProperty("--cap", Math.max(13, 13 * lo * 0.75) + "px");
+    });
+    camOverlay.querySelectorAll(".cam-media.fill figcaption").forEach((c) => {
+      const cap = (
+        /** @type {HTMLElement} */
+        c
+      );
+      cap.style.fontSize = "";
+      cap.style.whiteSpace = "";
+      if (cap.scrollWidth <= cap.clientWidth) return;
+      const size = parseFloat(getComputedStyle(cap).fontSize), fit = size * cap.clientWidth / cap.scrollWidth * 0.98;
+      if (fit >= size * 0.6) cap.style.fontSize = fit + "px";
+      else cap.style.whiteSpace = "normal";
+    });
+    camOverlay.querySelectorAll(".cam-media").forEach((box) => {
+      if (box.classList.contains("fill")) return;
+      const card = (
+        /** @type {HTMLElement} */
+        box.firstElementChild
+      );
+      const s = Math.min(box.clientWidth / card.offsetWidth, box.clientHeight / card.offsetHeight, most * 1.5);
+      card.style.transform = "translate(-50%, -50%) scale(" + s + ")";
     });
   }
   new ResizeObserver(() => {

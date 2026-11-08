@@ -426,7 +426,12 @@ function renderCamOverlay(place){
       inner.className = 'body';
       kids.forEach(e=>inner.appendChild(e));
       card.appendChild(inner);
-      if (cls === 'cam-media') card.style.width = cardWidth + 'px';
+      // pictures alone (an image, a carousel of them) fill their part of a half at their own shape; anything else,
+      // and anything in a band along the top or bottom, keeps the card's width and is scaled to fit, so a diagram
+      // or chart lays out as it does on the card
+      const half = /^(left|right)$/.test(where) || isPortrait();
+      if (cls === 'cam-media' && half && kids.every(e=>e.matches('figure.media:not(.yt), .gallery.carousel'))) wrap.classList.add('fill');
+      else if (cls === 'cam-media') card.style.width = cardWidth + 'px';
       wrap.appendChild(card);
       box.appendChild(wrap);
     };
@@ -463,15 +468,14 @@ function renderCamOverlay(place){
 // each region's content at the largest scale that fits it (and no larger than reads well on the frame)
 function fitCamOverlay(){
   const most = stage.clientHeight / 240;   // body text up to about 5% of the frame's height
-  camOverlay.querySelectorAll('.cam-media').forEach(box=>{
-    const card = /** @type {HTMLElement} */ (box.firstElementChild);
-    const s = Math.min(box.clientWidth / card.offsetWidth, box.clientHeight / card.offsetHeight, most * 1.5);
-    card.style.transform = 'translate(-50%, -50%) scale(' + s + ')';
-  });
+  // the words first: where a picture or diagram sits below them, they keep only the height they need and it gets the rest
   camOverlay.querySelectorAll('.cam-text').forEach(box=>{
     const card = /** @type {HTMLElement} */ (box.firstElementChild);
+    const media = /** @type {HTMLElement|null} */ (box.nextElementSibling);
+    box.style.flex = ''; if (media) media.style.flex = '';
     const bw = box.clientWidth, bh = box.clientHeight;
-    let lo = 0.3, hi = most;
+    // above a picture the words are its title, kept smaller so the picture gets the height
+    let lo = 0.3, hi = media && media.classList.contains('fill') ? most * 0.65 : most;
     for (let i = 0; i < 12; i++){
       const s = (lo + hi) / 2;
       card.style.width = (bw / s) + 'px';
@@ -479,6 +483,27 @@ function fitCamOverlay(){
     }
     card.style.width = (bw / lo) + 'px';
     card.style.transform = 'scale(' + lo + ')';
+    if (media && getComputedStyle(/** @type {HTMLElement} */ (box.parentElement)).flexDirection === 'column'){
+      box.style.flex = '0 0 ' + Math.ceil(card.offsetHeight * lo) + 'px';
+      media.style.flex = '1 1 0';
+    }
+    if (media) media.style.setProperty('--cap', Math.max(13, 13 * lo * 0.75) + 'px');
+  });
+  // a caption under a picture stays on one line, its text a little smaller where it is long, so every picture in a
+  // carousel keeps one size; only one too long for that wraps
+  camOverlay.querySelectorAll('.cam-media.fill figcaption').forEach(c=>{
+    const cap = /** @type {HTMLElement} */ (c);
+    cap.style.fontSize = ''; cap.style.whiteSpace = '';
+    if (cap.scrollWidth <= cap.clientWidth) return;
+    const size = parseFloat(getComputedStyle(cap).fontSize), fit = size * cap.clientWidth / cap.scrollWidth * 0.98;
+    if (fit >= size * 0.6) cap.style.fontSize = fit + 'px';
+    else cap.style.whiteSpace = 'normal';
+  });
+  camOverlay.querySelectorAll('.cam-media').forEach(box=>{
+    if (box.classList.contains('fill')) return;
+    const card = /** @type {HTMLElement} */ (box.firstElementChild);
+    const s = Math.min(box.clientWidth / card.offsetWidth, box.clientHeight / card.offsetHeight, most * 1.5);
+    card.style.transform = 'translate(-50%, -50%) scale(' + s + ')';
   });
 }
 new ResizeObserver(()=>{ if (camPlace) fitCamOverlay(); }).observe(stageWrap);
