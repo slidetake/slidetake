@@ -12,6 +12,12 @@ package can notice. Tests, CI and tooling do not belong here.
 
 ## [Unreleased]
 
+### Changed
+
+- A chart that a step reveals (a chart after `<!-- steps -->`) grows in when it
+  appears, as a chart does when its slide opens, its copy beside the camera too.
+  It had grown in unseen as the slide opened, and appeared already drawn.
+
 ## [0.5.8] - 2026-11-08
 
 ### Changed

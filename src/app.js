@@ -867,6 +867,12 @@ function applyFragments(n, count, snap){
     e.classList.toggle('visible', i < count);
     e.classList.toggle('current-fragment', i === count - 1);
     if (e.classList.contains('yt-play') && was !== (i < count) && !snap) youtubeCommand(e, i < count ? 'playVideo' : 'pauseVideo');
+    // a chart a step reveals grows in then, as one does when its slide opens (and its copy beside you with it)
+    if (!was && i < count && !snap){
+      const charts = [...(e.matches('.echarts-container') ? [e] : []), ...e.querySelectorAll('.echarts-container')];
+      const all = [...n.el.querySelectorAll('.echarts-container')];
+      growCharts([...charts, ...(camChartsFor === currentId && n === nodes.get(currentId) ? charts.map(c=>camCharts[all.indexOf(c)]).filter(Boolean) : [])]);
+    }
   }));
   if (snap){ void n.el.offsetWidth; n.el.classList.remove('snap'); }
 }
@@ -1072,12 +1078,17 @@ function forwardArrival(){
   return from < 0 || to > from;
 }
 function playCharts(n){
-  if (reduceMotion || !window.echarts || !forwardArrival()) return;
-  n.el.querySelectorAll('.echarts-container').forEach(div=>{
-    const c = echarts.getInstanceByDom(div);
-    if (!c || !div._opt) return;
+  if (forwardArrival()) growCharts([...n.el.querySelectorAll('.echarts-container')]);
+}
+// charts drawn again from empty, so they grow in
+/** @param {Element[]} divs */
+function growCharts(divs){
+  if (reduceMotion || !window.echarts) return;
+  divs.forEach(div=>{
+    const c = echarts.getInstanceByDom(/** @type {HTMLElement} */ (div));
+    if (!c || !(/** @type {any} */ (div))._opt) return;
     c.clear();
-    c.setOption(chartOption(div._opt, true));
+    c.setOption(chartOption(/** @type {any} */ (div)._opt, true));
   });
 }
 async function renderRich(){
