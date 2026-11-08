@@ -12,6 +12,8 @@ package can notice. Tests, CI and tooling do not belong here.
 
 ## [Unreleased]
 
+## [0.5.7] - 2026-11-08
+
 ### Changed
 
 - A picture beside you (`behind left` or `right`, or a portrait deck's half)
@@ -19,8 +21,9 @@ package can notice. Tests, CI and tooling do not belong here.
   shrinking with the card's width: a phone screenshot runs most of the frame's
   height. The words above it keep only the height they need, which gives a
   diagram or chart beside you more room too. Pictures in a band along the top
-  or bottom are sized as before. A long caption there stays on one line, its
-  text a little smaller, so every picture in a carousel keeps one size. The
+  or bottom are sized as before. A long caption under a picture beside you
+  stays on one line, its text a little smaller, so every picture in a carousel
+  keeps one size. The
   words above a picture are its title, at most two-thirds of their full size,
   so the picture gets the height.
 
