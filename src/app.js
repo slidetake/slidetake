@@ -331,7 +331,8 @@ function applyPipState(){
   const valid = CORNERS.includes(st.corner);
   // (a message showing in the box keeps its class through a re-layout: fullscreen, resizing, a new slide)
   // the camera behind the slide shows even while the camera is off: an empty frame, so the layout reads
-  const empty = cameraOff && !!st.behind && !st.off;
+  // (a reader's viewer, which can't record, has no camera to turn on: there the slide is just its card)
+  const empty = RECORDING_UI && cameraOff && !!st.behind && !st.off;
   pipEl.className = valid ? [st.corner, st.circle && 'circle', cameraStream && 'live', st.mirror && 'mirror', st.full && 'full', st.behind && 'behind', empty && 'empty', pipEl.classList.contains('msg') && 'msg'].filter(Boolean).join(' ') : '';
   // (full sets its own size: an important or inline width here would pin the box before it can glide)
   pipEl.style.width = st.full ? '' : st.size + '%';
@@ -1600,7 +1601,7 @@ let mapTimer = null;
 // that comes up from under it
 let layoutHold = false, layoutFade = null;
 /** @param {any} st */
-function splitIn(st){ return !!(st.behind && st.place && !st.off); }
+function splitIn(st){ return !!(st.behind && st.place && !st.off && (RECORDING_UI || !cameraOff)); }
 function fadeLayout(id, fromSplit){
   if (fromSplit){
     focusOn(id, true);
