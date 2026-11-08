@@ -12,6 +12,8 @@ package can notice. Tests, CI and tooling do not belong here.
 
 ## [Unreleased]
 
+## [0.5.8] - 2026-11-08
+
 ### Changed
 
 - In a reader's viewer (a deck on a site, without recording), a slide with the
