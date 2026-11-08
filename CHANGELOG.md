@@ -12,6 +12,8 @@ package can notice. Tests, CI and tooling do not belong here.
 
 ## [Unreleased]
 
+## [0.5.6] - 2026-11-08
+
 ### Fixed
 
 - Retaking a deck's first slide (← during its take) starts on that slide. It
