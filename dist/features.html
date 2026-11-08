@@ -421,6 +421,16 @@
   body.portrait main{background:color-mix(in srgb, var(--text) 5%, var(--bg));}
   body.portrait #stage-wrap, body.portrait.rec-frame #stage-wrap{flex:none;margin:0 auto;width:auto;height:100%;max-width:100%;aspect-ratio:9/16;isolation:isolate;}
   body.portrait.rec-frame main{background:#000;}
+  /* While a take records, two specks in opposite corners of the frame change a little every frame, out of sight.
+     Chrome's capture follows what moves: with a live camera it settles on the camera's box, and when that box
+     starts to move (a split screen, the words swapping sides) it dropped about a quarter of a second of frames
+     while it found the new area. With the whole frame always changing, there is no new area to find. */
+  .rec-tick{display:none;}
+  body.rec-frame .rec-tick{display:block;position:absolute;width:2px;height:2px;z-index:40;pointer-events:none;
+    background:#808080;opacity:.01;animation:rec-tick .1s linear infinite alternate;}
+  body.rec-frame .rec-tick:first-of-type{top:0;left:0;}
+  body.rec-frame .rec-tick:last-of-type{right:0;bottom:0;}
+  @keyframes rec-tick{to{opacity:.02;}}
   body.portrait .rv-video{aspect-ratio:9/16;max-height:62vh;margin:0 auto;}
   /* the bottom bar and the map go beside the column, where the window is empty (they're never recorded); a window
      too narrow for that keeps the bar in the column and drops the map */
@@ -1228,6 +1238,7 @@
     <div id="pip" hidden><span>PIP camera</span></div>
     <div id="cam-overlay" aria-hidden="true"></div>
     <div id="pip-msg" role="status"></div>
+    <i class="rec-tick" aria-hidden="true"></i><i class="rec-tick" aria-hidden="true"></i>
   </div>
   <div id="editor-resizer" role="separator" aria-orientation="vertical" aria-label="Resize the editor" title="Drag to resize"></div>
   <div id="editor-pane" class="collapsed">
@@ -5269,8 +5280,8 @@
   async function retake() {
     const n = nodes.get(currentId);
     if (!n || retaking) return;
-    const target = currentId, from = arrivedFrom;
-    if (!from || from === target || !nodes.has(from)) {
+    const target = currentId, from = order[order.indexOf(target) - 1];
+    if (!from) {
       restartSlide(n);
       return;
     }
@@ -5846,7 +5857,7 @@
         if (!vt) throw new Error(part.title + " has no video");
         if (!vSrc) {
           vSrc = new MB.EncodedVideoPacketSource(await vt.getCodec());
-          out.addVideoTrack(vSrc, { frameRate: FPS });
+          out.addVideoTrack(vSrc);
           if (at) {
             aSrc = reencode ? new MB.AudioSampleSource({ codec: mp4 ? "aac" : "opus", bitrate: AUDIO_BITRATE }) : new MB.EncodedAudioPacketSource(await at.getCodec());
             out.addAudioTrack(aSrc);

@@ -2525,8 +2525,10 @@ let retaking = false;
 async function retake(){
   const n = nodes.get(currentId);
   if (!n || retaking) return;
-  const target = currentId, from = arrivedFrom;
-  if (!from || from === target || !nodes.has(from)){ restartSlide(n); return; }   // the first slide has no entry
+  // the entry is from the slide before in the deck, as every take's is: not the slide last on screen, which for
+  // the first slide could be any slide visited before recording
+  const target = currentId, from = order[order.indexOf(target) - 1];
+  if (!from){ restartSlide(n); return; }   // the first slide has no entry
   enterFresh(from, target, 'retake');
 }
 // The deck goes to `from` exactly as it ended, outside any take; then a new take of `target` starts and its
@@ -3016,7 +3018,9 @@ async function downloadVideo(force){
       if (!vt) throw new Error(part.title + ' has no video');
       if (!vSrc){
         vSrc = new MB.EncodedVideoPacketSource(await vt.getCodec());
-        out.addVideoTrack(vSrc, {frameRate:FPS});
+        // no frame rate: a track given one snaps every frame to its 1/30 s slots, and the capture's frames come a few
+        // ms early or late, so two would share a slot (one hidden, the next slot empty): a stutter in a smooth take
+        out.addVideoTrack(vSrc);
         if (at){
           aSrc = reencode ? new MB.AudioSampleSource({codec:mp4 ? 'aac' : 'opus', bitrate:AUDIO_BITRATE}) : new MB.EncodedAudioPacketSource(await at.getCodec());
           out.addAudioTrack(aSrc);
