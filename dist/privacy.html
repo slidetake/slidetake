@@ -2629,7 +2629,7 @@
       st.behind = false;
     }
     const valid = CORNERS.includes(st.corner);
-    const empty = cameraOff && !!st.behind && !st.off;
+    const empty = RECORDING_UI && cameraOff && !!st.behind && !st.off;
     pipEl.className = valid ? [st.corner, st.circle && "circle", cameraStream && "live", st.mirror && "mirror", st.full && "full", st.behind && "behind", empty && "empty", pipEl.classList.contains("msg") && "msg"].filter(Boolean).join(" ") : "";
     pipEl.style.width = st.full ? "" : st.size + "%";
     pipEl.hidden = !valid || st.off || cameraOff && !empty;
@@ -3962,7 +3962,7 @@
   var layoutHold = false;
   var layoutFade = null;
   function splitIn(st) {
-    return !!(st.behind && st.place && !st.off);
+    return !!(st.behind && st.place && !st.off && (RECORDING_UI || !cameraOff));
   }
   function fadeLayout(id, fromSplit) {
     if (fromSplit) {

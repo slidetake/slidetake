@@ -12,6 +12,15 @@ package can notice. Tests, CI and tooling do not belong here.
 
 ## [Unreleased]
 
+### Changed
+
+- In a reader's viewer (a deck on a site, without recording), a slide with the
+  camera behind it shows as its card. There is no camera to turn on there, so
+  the empty camera frame with its outline of a person only took half the
+  screen. Where you can record (slidetake.com, `npx slidetake`, a site's
+  local preview) the empty frame stays, so the layout reads before the
+  camera is on.
+
 ## [0.5.7] - 2026-11-08
 
 ### Changed
